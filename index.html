@@ -239,6 +239,7 @@
             border: 2px solid #e0e0e0;
             border-radius: 10px;
             transition: border-color 0.3s;
+            box-sizing: border-box;
         }
 
         .search-box:focus {
@@ -254,6 +255,15 @@
             background: white;
             cursor: pointer;
             transition: border-color 0.3s;
+            width: 100%;
+            box-sizing: border-box;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23123E92' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            padding-right: 40px;
         }
 
         .filter-select:focus {
@@ -261,9 +271,26 @@
             border-color: #F7C31D;
         }
 
+        @media (max-width: 1024px) {
+            .filters-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
         @media (max-width: 768px) {
             .filters-container {
                 grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .search-box {
+                padding: 12px;
+                font-size: 16px; /* Evita zoom en iOS */
+            }
+
+            .filter-select {
+                padding: 12px 40px 12px 12px;
+                font-size: 16px; /* Evita zoom en iOS */
             }
         }
 
@@ -273,24 +300,31 @@
             border-radius: 10px;
             margin-top: 20px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .bar-chart {
             display: flex;
             flex-direction: column;
             gap: 10px;
+            min-width: 100%;
         }
 
         .bar-item {
             display: flex;
             align-items: center;
             gap: 15px;
+            min-width: 100%;
         }
 
         .bar-label {
-            min-width: 150px;
+            min-width: 120px;
+            max-width: 120px;
             font-weight: 500;
             color: #333;
+            font-size: 0.9em;
+            flex-shrink: 0;
         }
 
         .bar-wrapper {
@@ -419,6 +453,8 @@
             overflow-x: auto;
             overflow-y: visible;
             min-width: 600px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
         }
 
         .grouped-chart-item {
@@ -428,6 +464,7 @@
             flex-direction: column;
             align-items: center;
             position: relative;
+            flex-shrink: 0;
         }
 
         .grouped-chart-label {
@@ -546,25 +583,251 @@
             font-size: 0.9em;
         }
 
+        @media (max-width: 1024px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .section {
+                padding: 30px 20px;
+            }
+
+            .grouped-chart {
+                min-width: 500px;
+                gap: 12px;
+            }
+
+            .grouped-chart-item {
+                min-width: 70px;
+            }
+
+            .grouped-bars-container {
+                height: 300px;
+            }
+        }
+
         @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                margin: 0;
+                border-radius: 10px;
+            }
+
+            header {
+                padding: 25px 20px;
+            }
+
             header h1 {
-                font-size: 1.8em;
+                font-size: 1.5em;
+            }
+
+            header h1 img {
+                height: 40px;
+                margin-right: 10px;
+            }
+
+            header p {
+                font-size: 1em;
             }
 
             .stats-grid {
                 grid-template-columns: 1fr;
+                padding: 20px;
+                gap: 15px;
+            }
+
+            .stat-card {
+                padding: 20px;
+            }
+
+            .stat-card .number {
+                font-size: 2.5em;
+            }
+
+            .section {
+                padding: 25px 15px;
+            }
+
+            .section h2 {
+                font-size: 1.5em;
+                margin-bottom: 20px;
+                padding-bottom: 10px;
             }
 
             .data-grid {
                 grid-template-columns: 1fr;
+                gap: 12px;
             }
 
             .tabs {
                 flex-direction: column;
+                gap: 8px;
+            }
+
+            .tab-button {
+                padding: 12px 20px;
+                font-size: 0.95em;
             }
 
             .comparison-stats {
                 grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .comparison-stat-card {
+                padding: 20px;
+            }
+
+            .comparison-number {
+                font-size: 2em;
+            }
+
+            .comparison-chart {
+                padding: 15px;
+            }
+
+            .grouped-chart {
+                min-width: 100%;
+                min-height: 300px;
+                gap: 10px;
+                padding: 15px 0 50px 0;
+            }
+
+            .grouped-chart-item {
+                min-width: 60px;
+            }
+
+            .grouped-chart-label {
+                font-size: 0.65em;
+                max-width: 80px;
+            }
+
+            .grouped-bars-container {
+                height: 250px;
+            }
+
+            .grouped-bar {
+                min-width: 25px;
+                max-width: 40px;
+            }
+
+            .grouped-bar-fill {
+                font-size: 0.7em;
+                padding-top: 3px;
+            }
+
+            .grouped-bar-value {
+                font-size: 0.7em;
+                top: -20px;
+            }
+
+            .bar-label {
+                min-width: 100px;
+                max-width: 100px;
+                font-size: 0.85em;
+            }
+
+            .bar-wrapper {
+                height: 35px;
+            }
+
+            .bar-fill {
+                font-size: 0.85em;
+                padding-right: 8px;
+            }
+
+            .chart-container {
+                padding: 15px;
+            }
+
+            .modalidad-card {
+                padding: 20px;
+            }
+
+            .modalidad-header h3 {
+                font-size: 1.3em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+
+            header {
+                padding: 20px 15px;
+            }
+
+            header h1 {
+                font-size: 1.2em;
+            }
+
+            header h1 img {
+                height: 35px;
+                margin-right: 8px;
+            }
+
+            .section {
+                padding: 20px 10px;
+            }
+
+            .section h2 {
+                font-size: 1.3em;
+            }
+
+            .stats-grid {
+                padding: 15px;
+            }
+
+            .stat-card .number {
+                font-size: 2em;
+            }
+
+            .stat-card .label {
+                font-size: 0.95em;
+            }
+
+            .grouped-chart {
+                min-height: 250px;
+                gap: 8px;
+            }
+
+            .grouped-chart-item {
+                min-width: 50px;
+            }
+
+            .grouped-chart-label {
+                font-size: 0.6em;
+                max-width: 60px;
+            }
+
+            .grouped-bars-container {
+                height: 200px;
+            }
+
+            .grouped-bar {
+                min-width: 20px;
+                max-width: 35px;
+            }
+
+            .bar-label {
+                min-width: 80px;
+                max-width: 80px;
+                font-size: 0.8em;
+            }
+
+            .comparison-header h3 {
+                font-size: 1.4em;
+            }
+
+            .grouped-legend {
+                flex-direction: column;
+                gap: 15px;
+                align-items: center;
             }
         }
     </style>
