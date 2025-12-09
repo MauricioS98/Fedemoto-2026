@@ -8,7 +8,7 @@ Total: 711 pilotos únicos
 
 1.1. CANTIDAD TOTAL DE PARTICIPACIONES (INCLUYENDO REPETIDOS)
 --------------------------------------------------------------------------------
-Total: 2272 participaciones
+Total: 2250 participaciones
 
 2. CANTIDAD DE PILOTOS POR CADA CATEGORÍA
 --------------------------------------------------------------------------------
@@ -57,10 +57,10 @@ Minimotard: 27 pilotos únicos
 No racer: 14 pilotos únicos
 Pit bike: 27 pilotos únicos
 Pit bike infantil: 15 pilotos únicos
-Pit bike infantil.1: 15 pilotos únicos
 Street race 250: 58 pilotos únicos
 Super sport: 22 pilotos únicos
 Superbike: 24 pilotos únicos
+Supermoto: 15 pilotos únicos
 Supermoto expertos: 33 pilotos únicos
 Supermoto novatos: 48 pilotos únicos
 Yamaha R15: 26 pilotos únicos
@@ -71,7 +71,6 @@ infantil E2: 13 pilotos únicos
 infantil E3: 8 pilotos únicos
 infantil juvenil: 14 pilotos únicos
 infantil mini: 36 pilotos únicos
-infantil.1: 22 pilotos únicos
 juvenil: 32 pilotos únicos
 libre novatos: 47 pilotos únicos
 libre pro: 32 pilotos únicos
@@ -599,17 +598,6 @@ Pit bike infantil:
   TOLIMA: 3 deportistas únicos
   VALLE: 2 deportistas únicos
 
-Pit bike infantil.1:
-  ANTIOQUIA: 1 deportistas únicos
-  CALDAS: 2 deportistas únicos
-  CAUCA: 2 deportistas únicos
-  META: 1 deportistas únicos
-  NARINO: 2 deportistas únicos
-  PUTUMAYO: 1 deportistas únicos
-  RISARALDA: 1 deportistas únicos
-  TOLIMA: 1 deportistas únicos
-  VALLE: 4 deportistas únicos
-
 Street race 250:
   ANTIOQUIA: 4 deportistas únicos
   BOGOTA: 13 deportistas únicos
@@ -637,6 +625,17 @@ Superbike:
   SANTANDER: 5 deportistas únicos
   TOLIMA: 2 deportistas únicos
   VALLE: 1 deportistas únicos
+
+Supermoto:
+  ANTIOQUIA: 1 deportistas únicos
+  CALDAS: 2 deportistas únicos
+  CAUCA: 2 deportistas únicos
+  META: 1 deportistas únicos
+  NARINO: 2 deportistas únicos
+  PUTUMAYO: 1 deportistas únicos
+  RISARALDA: 1 deportistas únicos
+  TOLIMA: 1 deportistas únicos
+  VALLE: 4 deportistas únicos
 
 Supermoto expertos:
   ANTIOQUIA: 13 deportistas únicos
@@ -741,17 +740,6 @@ infantil mini:
   RISARALDA: 5 deportistas únicos
   TOLIMA: 3 deportistas únicos
   VALLE: 6 deportistas únicos
-
-infantil.1:
-  ANTIOQUIA: 1 deportistas únicos
-  BOGOTA: 3 deportistas únicos
-  CALDAS: 1 deportistas únicos
-  CAUCA: 4 deportistas únicos
-  CUNDINAMARCA: 2 deportistas únicos
-  NARINO: 2 deportistas únicos
-  RISARALDA: 3 deportistas únicos
-  TOLIMA: 4 deportistas únicos
-  VALLE: 2 deportistas únicos
 
 juvenil:
   ANTIOQUIA: 2 deportistas únicos
@@ -892,8 +880,8 @@ Deportistas por liga:
 
 MODALIDAD: Velocidad
 --------------------------------------------------------------------------------
-Pilotos únicos en esta modalidad: 192
-Total de participaciones en esta modalidad: 368
+Pilotos únicos en esta modalidad: 177
+Total de participaciones en esta modalidad: 346
 
 Pilotos por categoría:
   115 cc elite: 45
@@ -908,28 +896,27 @@ Pilotos por categoría:
   50cc: 11
   Pit bike: 13
   Pit bike infantil: 15
-  Pit bike infantil.1: 15
+  Supermoto: 15
   infantil: 18
-  infantil.1: 22
 
 Deportistas por liga:
-  ANTIOQUIA: 6
+  ANTIOQUIA: 5
   ARAUCA: 3
-  BOGOTA: 6
-  CALDAS: 16
+  BOGOTA: 3
+  CALDAS: 15
   CASANARE: 2
-  CAUCA: 28
+  CAUCA: 24
   CESAR: 5
-  CUNDINAMARCA: 6
+  CUNDINAMARCA: 4
   HUILA: 13
   META: 14
-  NARINO: 13
+  NARINO: 11
   PUTUMAYO: 5
   QUINDIO: 27
-  RISARALDA: 8
+  RISARALDA: 5
   SANTANDER: 5
-  TOLIMA: 19
-  VALLE: 27
+  TOLIMA: 16
+  VALLE: 25
 
 MODALIDAD: Enduro
 --------------------------------------------------------------------------------
