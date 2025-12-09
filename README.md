@@ -5,7 +5,7 @@ Sistema de análisis y visualización de datos de participantes y campeonatos de
 ## 📋 Descripción
 
 Este proyecto genera un informe web interactivo que presenta estadísticas completas sobre:
-- Total de pilotos únicos participantes
+- Total de licencias únicas participantes
 - Total de participaciones (incluyendo repetidos)
 - Distribución de pilotos por categoría
 - Distribución de deportistas por ligas
@@ -100,7 +100,7 @@ python analizar_colores_logo.py
 
 2. **🎯 Detalle por Campeonato**
    - Selector de campeonato
-   - Estadísticas de pilotos únicos y total de participaciones
+   - Estadísticas de licencias únicas y total de participaciones
    - Gráficos de columnas para categorías y ligas
 
 3. **📊 Comparación entre Semestres**
@@ -142,7 +142,7 @@ El script normaliza automáticamente:
 
 El script genera las siguientes métricas:
 
-- `total_pilotos_unicos`: Total de pilotos únicos en todos los campeonatos
+- `total_pilotos_unicos`: Total de licencias únicas en todos los campeonatos
 - `total_participaciones`: Total de participaciones (incluyendo repetidos)
 - `pilotos_por_categoria`: Conteo de pilotos por cada categoría
 - `deportistas_por_liga_total`: Conteo de deportistas únicos por liga (todas las modalidades)
@@ -182,7 +182,7 @@ Este proyecto es de uso interno de FEDEMOTO.
 
 ## 👥 Autor
 
-Desarrollado para FEDEMOTO - Mauricio Sánchez Aguilar
+Developed by Mauricio Sánchez Aguilar - Fedemoto
 
 ---
 
