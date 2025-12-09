@@ -3202,10 +3202,18 @@
         function renderizarEstadisticas() {
             const statsGrid = document.getElementById('statsGrid');
             // Contar categorías únicas considerando modalidad
+            // Velotierra y Motocross son especiales: las categorías se agrupan sin considerar el semestre
             const categoriasUnicas = new Set();
             Object.entries(datos.modalidades).forEach(([modalidad, data]) => {
                 Object.keys(data.pilotos_por_categoria).forEach(categoria => {
-                    categoriasUnicas.add(`${categoria} - ${modalidad}`);
+                    // Normalizar nombre de modalidad para Velotierra y Motocross
+                    let modalidadNormalizada = modalidad;
+                    if (modalidad.includes('Velotierra')) {
+                        modalidadNormalizada = 'Velotierra';
+                    } else if (modalidad.includes('Motocross')) {
+                        modalidadNormalizada = 'Motocross';
+                    }
+                    categoriasUnicas.add(`${categoria} - ${modalidadNormalizada}`);
                 });
             });
             const totalCategorias = categoriasUnicas.size;
