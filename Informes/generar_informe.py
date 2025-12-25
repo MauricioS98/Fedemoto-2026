@@ -7,6 +7,13 @@ Asegura el manejo correcto de caracteres UTF-8 (acentos, ñ, etc.)
 import json
 import os
 import sys
+import re
+import glob
+
+# Configurar encoding UTF-8 para stdout en Windows
+if sys.platform == 'win32':
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
 # Uso: python generar_informe.py <ruta_json> <ruta_output_html> <nombre_valida>
 # Ejemplo: python generar_informe.py "Valida de ejemplo/datos_valida_ejemplo.json" "Valida de ejemplo/informe_valida_ejemplo.html" "Valida de ejemplo"
@@ -18,25 +25,51 @@ if len(sys.argv) < 4:
 
 json_path = sys.argv[1]
 output_path = sys.argv[2]
+# Decodificar nombre_valida correctamente para UTF-8
 nombre_valida = sys.argv[3]
+try:
+    # Intentar decodificar desde la codificación del sistema
+    nombre_valida = nombre_valida.encode('latin-1').decode('utf-8')
+except:
+    try:
+        # Si falla, intentar directamente
+        nombre_valida = nombre_valida.encode('cp1252').decode('utf-8')
+    except:
+        # Si todo falla, usar tal cual
+        pass
 
 # Calcular la profundidad del archivo de salida para las rutas relativas
-# El archivo está en Informes/Modalidad/archivo.html
-# Desde Informes/Modalidad/ necesitamos subir 2 niveles para llegar a la raíz
-output_dir = os.path.dirname(output_path)
-# Contar cuántos niveles hay desde la raíz hasta el archivo
-# Si output_path es "Modalidad de ejemplo/informe.html", output_dir es "Modalidad de ejemplo"
-# Necesitamos subir depth niveles para llegar a la raíz donde está fedemoto-logo.png
+# output_path puede ser relativo a Informes/ o incluir "Informes/" en el path
+# Normalizar el path para trabajar con rutas relativas desde Informes/
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Si output_path incluye "Informes/", removerlo para trabajar relativo a Informes/
+output_path_norm = output_path.replace('\\', '/')
+if 'Informes/' in output_path_norm:
+    # Extraer la parte después de "Informes/"
+    parts = output_path_norm.split('Informes/')
+    if len(parts) > 1:
+        output_path_rel = parts[-1]
+    else:
+        output_path_rel = output_path_norm
+else:
+    output_path_rel = output_path_norm
+
+output_dir = os.path.dirname(output_path_rel)
+# Contar cuántos niveles hay desde Informes/ hasta el archivo
+# Si output_path_rel es "Modalidad de ejemplo/informe.html", output_dir es "Modalidad de ejemplo"
+# Necesitamos subir depth niveles desde el archivo hasta Informes/, y luego 1 más hasta la raíz
 if output_dir:
-    # Contar separadores de directorio
-    depth = output_dir.count(os.sep) + 1
+    # Contar partes del directorio (normalizar separadores)
+    output_dir_norm = output_dir.replace('\\', '/')
+    depth = len([p for p in output_dir_norm.split('/') if p]) if output_dir_norm else 0
 else:
     depth = 0
 
-# Si el archivo está directamente en Informes/, depth = 0, pero necesitamos subir 1 nivel
-# Si el archivo está en Informes/Modalidad/, depth = 1, necesitamos subir 2 niveles
-# Ajustar: desde Informes/ necesitamos subir 1 nivel, desde Informes/Modalidad/ necesitamos subir 2 niveles
-depth_to_root = depth + 1  # +1 porque Informes/ está un nivel abajo de la raíz
+# Calcular niveles hasta la raíz:
+# - Si depth = 0: archivo está en Informes/, necesitamos subir 1 nivel (../)
+# - Si depth = 1: archivo está en Informes/Modalidad/, necesitamos subir 2 niveles (../../)
+depth_to_root = depth + 1
 
 # Generar las rutas relativas
 ruta_inicio = '../' * depth_to_root + 'index.html'
@@ -70,7 +103,7 @@ html_content = f'''<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Informe - {nombre_valida}</title>
-    <link rel="icon" type="image/png" href="../../../fedemoto-logo.png">
+    <link rel="icon" type="image/png" href="{ruta_logo}">
     <!-- Librerías para generar PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -624,7 +657,7 @@ html_content = f'''<!DOCTYPE html>
     <header class="fixed-header">
         <div class="header-content">
             <div class="logo-container">
-                <img src="{ruta_logo}" alt="Logo FEDEMOTO">
+                <img src="{ruta_logo.replace(chr(92), '/')}" alt="Logo FEDEMOTO">
                 <h1>Fedemoto</h1>
             </div>
             <nav>
@@ -714,7 +747,7 @@ html_content = f'''<!DOCTYPE html>
     <div class="container">
         <header>
             <h1>
-                <img src="{ruta_logo}" alt="FEDEMOTO Logo" style="height: 60px; vertical-align: middle; margin-right: 15px;">
+                <img src="{ruta_logo.replace(chr(92), '/')}" alt="FEDEMOTO Logo" style="height: 60px; vertical-align: middle; margin-right: 15px;">
                 Informe - {nombre_valida}
             </h1>
             <p>Análisis completo de participantes y categorías</p>
@@ -1213,10 +1246,117 @@ except Exception as e:
 
 print(f"HTML generado en: {output_path}")
 
+# Función para agregar el enlace al nuevo informe en todos los menús HTML
+def agregar_enlace_a_menus(output_html_path, nombre_valida):
+    """
+    Busca todos los archivos HTML y agrega el enlace al nuevo informe en el menú correspondiente.
+    """
+    # Obtener el nombre del archivo HTML generado
+    nombre_archivo_html = os.path.basename(output_html_path)
+    
+    # Obtener la ruta relativa desde la raíz del proyecto
+    # output_html_path es relativo a Informes/, necesitamos la ruta completa
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(script_dir)
+    
+    # Buscar todos los archivos HTML en el proyecto
+    html_files = []
+    for root, dirs, files in os.walk(project_root):
+        # Excluir node_modules y otros directorios no relevantes
+        dirs[:] = [d for d in dirs if d not in ['.git', 'node_modules', '__pycache__']]
+        for file in files:
+            if file.endswith('.html'):
+                html_files.append(os.path.join(root, file))
+    
+    # Determinar la ruta relativa del nuevo informe desde cada HTML
+    # output_html_path es relativo a Informes/, construir la ruta completa
+    output_dir = os.path.dirname(output_html_path)
+    output_file_full = os.path.join(script_dir, output_html_path) if output_html_path else script_dir
+    
+    for html_file in html_files:
+        try:
+            # Leer el archivo HTML
+            with open(html_file, 'r', encoding='utf-8') as f:
+                contenido = f.read()
+            
+            # Calcular la ruta relativa desde este HTML al nuevo informe
+            html_dir = os.path.dirname(html_file)
+            try:
+                # Calcular ruta relativa desde el HTML hasta el archivo del informe
+                ruta_relativa = os.path.relpath(output_file_full, html_dir).replace('\\', '/')
+                
+                # Corregir si hay "Informes/Informes" duplicado
+                if 'Informes/Informes' in ruta_relativa:
+                    ruta_relativa = ruta_relativa.replace('Informes/Informes', 'Informes')
+                
+                # Si la ruta relativa es muy larga o incorrecta, construir desde output_html_path
+                # output_html_path es relativo a Informes/, así que desde la raíz sería "Informes/" + output_html_path
+                if html_file == os.path.join(project_root, 'index.html'):
+                    # Desde index.html (raíz), la ruta es "Informes/" + output_html_path
+                    ruta_relativa = f"Informes/{output_html_path}".replace('\\', '/')
+                elif 'Informes' in os.path.relpath(html_file, project_root):
+                    # Si el HTML está dentro de Informes/, calcular relativa normalmente
+                    pass  # Ya calculada arriba
+                else:
+                    # Si está en otro lugar, usar la ruta desde la raíz
+                    ruta_relativa = f"Informes/{output_html_path}".replace('\\', '/')
+            except Exception as e:
+                # Si no se puede calcular, construir desde output_html_path
+                if html_file == os.path.join(project_root, 'index.html'):
+                    ruta_relativa = f"Informes/{output_html_path}".replace('\\', '/')
+                else:
+                    ruta_relativa = output_html_path.replace('\\', '/')
+            
+            # Buscar el menú "Modalidad de ejemplo" dentro del dropdown "Informes"
+            # Patrón: buscar <li class="dropdown"><a href="#">Modalidad de ejemplo</a><ul class="dropdown-menu">
+            patron_modalidad = r'(<li class="dropdown">\s*<a href="#">Modalidad de ejemplo</a>\s*<ul class="dropdown-menu">)'
+            
+            # Verificar si el enlace ya existe
+            if nombre_archivo_html in contenido:
+                continue  # Ya existe, no agregar de nuevo
+            
+            # Buscar el patrón completo del dropdown "Modalidad de ejemplo" con su contenido
+            # Necesitamos encontrar desde <li class="dropdown"> hasta el </ul></li> de cierre
+            patron_completo = r'(<li class="dropdown">\s*<a href="#">Modalidad de ejemplo</a>\s*<ul class="dropdown-menu">)(.*?)(</ul>\s*</li>)'
+            
+            def agregar_enlace(match):
+                inicio = match.group(1)
+                contenido_menu = match.group(2)
+                cierre = match.group(3)
+                
+                # Verificar si el enlace ya existe en el contenido
+                if nombre_archivo_html in contenido_menu:
+                    return match.group(0)  # Ya existe, no modificar
+                
+                # Agregar el nuevo enlace al final del contenido del menú, antes del cierre
+                nuevo_item = f'                                    <li><a href="{ruta_relativa}">{nombre_valida}</a></li>'
+                return inicio + contenido_menu + '\n' + nuevo_item + '\n                                ' + cierre
+            
+            # Intentar agregar el enlace
+            nuevo_contenido = re.sub(
+                patron_completo,
+                agregar_enlace,
+                contenido,
+                flags=re.IGNORECASE | re.DOTALL
+            )
+            
+            # Si se hizo algún cambio, escribir el archivo
+            if nuevo_contenido != contenido:
+                with open(html_file, 'w', encoding='utf-8') as f:
+                    f.write(nuevo_contenido)
+                print(f"  [OK] Enlace agregado en: {os.path.relpath(html_file, project_root)}")
+        
+        except Exception as e:
+            print(f"  [ADVERTENCIA] No se pudo actualizar {os.path.relpath(html_file, project_root)}: {e}")
+
+# Agregar el enlace al nuevo informe en todos los menús HTML
+print("\nActualizando menús en todos los archivos HTML...")
+agregar_enlace_a_menus(output_path, nombre_valida)
+
 # Eliminar el archivo JSON después de generar el HTML
 try:
     os.remove(json_path)
-    print(f"Archivo JSON eliminado: {json_path}")
+    print(f"\nArchivo JSON eliminado: {json_path}")
 except Exception as e:
     print(f"Advertencia: No se pudo eliminar el archivo JSON {json_path}: {e}")
 

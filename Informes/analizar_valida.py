@@ -67,9 +67,9 @@ def extraer_datos_excel(excel_path):
         fecha_referencia = datetime.now()
         
         # Identificar columnas de información del piloto (excluir categorías)
-        columnas_info = ['Consecutivo', 'Licencia', 'TX', 'Nombre', 'Apellido', 'Liga', 
+        columnas_info = ['Consecutivo', 'Licencia', 'LICEN', 'TX', 'Nombre', 'Apellido', 'Liga', 
                         'Club', 'FN', 'RH', 'MOTO', 'Documento', 'EPS', 'Pago Licencia', 
-                        'Poliza', 'Celular', 'Mail', 'Formatos']
+                        'Poliza', 'Celular', 'Mail', 'Formatos', 'PRACT']
         
         # Identificar columnas de categorías (las que no están en columnas_info)
         columnas_categorias = []
@@ -91,7 +91,11 @@ def extraer_datos_excel(excel_path):
         
         # Procesar cada fila
         for idx, row in df.iterrows():
+            # Intentar obtener licencia de 'Licencia' o 'LICEN'
             licencia = row.get('Licencia', None)
+            if pd.isna(licencia):
+                licencia = row.get('LICEN', None)
+            
             liga = row.get('Liga', None)
             
             # Validar que tenemos licencia y liga
