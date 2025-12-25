@@ -29,6 +29,11 @@ html_content = f'''<!DOCTYPE html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Informe - {nombre_valida}</title>
     <link rel="icon" type="image/png" href="../../../fedemoto-logo.png">
+    <!-- Librerías para generar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- SweetAlert2 para modales -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         * {{
             margin: 0;
@@ -593,17 +598,13 @@ html_content = f'''<!DOCTYPE html>
             <!-- Sección 3: Deportistas por ligas por categoría -->
             <div class="section">
                 <h2>📈 Deportistas por ligas por categoría</h2>
-                <div class="filters-container" style="grid-template-columns: 1fr 1fr;">
-                    <select class="filter-select" id="selectCategoriaLiga">
-                        <option value="">Seleccione una categoría...</option>
+                <div class="filters-container" style="grid-template-columns: 1fr; max-width: 400px; margin-bottom: 30px;">
+                    <select class="filter-select" id="filtroCategoriaLiga">
+                        <option value="todas">Todas</option>
                     </select>
                 </div>
-                <div id="categoriaLigaChartContainer" style="display: none; margin-top: 30px;">
-                    <div class="chart-container">
-                        <div class="column-chart" id="categoriaLigaChart">
-                            <!-- Se llenará con JavaScript -->
-                        </div>
-                    </div>
+                <div id="todasCategoriasLigaCharts">
+                    <!-- Se llenará con todas las gráficas de categorías -->
                 </div>
             </div>
 
@@ -621,6 +622,12 @@ html_content = f'''<!DOCTYPE html>
         <footer>
             <p><span class="developer">Developed by Mauricio Sánchez Aguilar - Fedemoto</span></p>
             <p>Este proyecto es de uso interno de FEDEMOTO.</p>
+            <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #e0e0e0;">
+                <button id="descargarPDF" style="background: #123E92; color: white; border: none; padding: 15px 40px; font-size: 1.1em; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.2);" onmouseover="this.style.background='#0d2d6b'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 15px rgba(0,0,0,0.3)';" onmouseout="this.style.background='#123E92'; this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 10px rgba(0,0,0,0.2)';">
+                    📥 Descargar PDF
+                </button>
+                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">Descarga este informe completo con todas las gráficas en formato PDF</p>
+            </div>
         </footer>
     </div>
 
@@ -760,54 +767,67 @@ html_content = f'''<!DOCTYPE html>
         }}
 
         function renderizarCategoriaLiga() {{
-            const categoriaSelect = document.getElementById('selectCategoriaLiga');
-            const chartContainer = document.getElementById('categoriaLigaChartContainer');
-            const chart = document.getElementById('categoriaLigaChart');
-
+            const container = document.getElementById('todasCategoriasLigaCharts');
+            const filtroSelect = document.getElementById('filtroCategoriaLiga');
             const categorias = Object.keys(datos.deportistas_por_liga_categoria).sort();
-            categoriaSelect.innerHTML = '<option value="">Seleccione una categoría...</option>' +
+
+            // Llenar el selector con todas las categorías
+            filtroSelect.innerHTML = '<option value="todas">Todas</option>' +
                 categorias.map(cat => 
                     `<option value="${{cat}}">${{cat}}</option>`
                 ).join('');
 
-            function mostrarGrafico() {{
-                const categoria = categoriaSelect.value;
+            function mostrarGraficas(categoriaFiltro) {{
+                const categoriasAMostrar = categoriaFiltro === 'todas' 
+                    ? categorias 
+                    : [categoriaFiltro];
 
-                if (!categoria) {{
-                    chartContainer.style.display = 'none';
-                    return;
-                }}
+                container.innerHTML = categoriasAMostrar.map(categoria => {{
+                    const ligas = Object.entries(datos.deportistas_por_liga_categoria[categoria] || {{}})
+                        .sort((a, b) => b[1] - a[1]);
 
-                const ligas = Object.entries(datos.deportistas_por_liga_categoria[categoria] || {{}})
-                    .sort((a, b) => b[1] - a[1]);
+                    if (ligas.length === 0) {{
+                        return '';
+                    }}
 
-                if (ligas.length === 0) {{
-                    chartContainer.style.display = 'none';
-                    return;
-                }}
+                    const maxValue = Math.max(...ligas.map(([, v]) => v), 1);
+                    const maxHeight = 200; // Altura máxima de las columnas
 
-                const maxValue = Math.max(...ligas.map(([, v]) => v), 1);
-                const maxHeight = 250; // Altura máxima de las columnas
+                    const chartHTML = ligas.map(([liga, cantidad]) => {{
+                        const altura = (cantidad / maxValue) * maxHeight;
+                        const ligaCorregida = corregirOrtografiaDepartamento(liga);
+                        return `
+                            <div class="column-item">
+                                <div class="column-wrapper">
+                                    <div class="column-fill" style="height: ${{altura}}px">
+                                        ${{cantidad}}
+                                    </div>
+                                </div>
+                                <div class="column-label">${{ligaCorregida}}</div>
+                            </div>
+                        `;
+                    }}).join('');
 
-                chart.innerHTML = ligas.map(([liga, cantidad]) => {{
-                    const altura = (cantidad / maxValue) * maxHeight;
-                    const ligaCorregida = corregirOrtografiaDepartamento(liga);
                     return `
-                        <div class="column-item">
-                            <div class="column-wrapper">
-                                <div class="column-fill" style="height: ${{altura}}px">
-                                    ${{cantidad}}
+                        <div style="margin-bottom: 40px;">
+                            <h3 style="color: #123E92; margin-bottom: 20px; font-size: 1.3em; padding-bottom: 10px; border-bottom: 2px solid #F7C31D;">${{categoria}}</h3>
+                            <div class="chart-container">
+                                <div class="column-chart">
+                                    ${{chartHTML}}
                                 </div>
                             </div>
-                            <div class="column-label">${{ligaCorregida}}</div>
                         </div>
                     `;
                 }}).join('');
-
-                chartContainer.style.display = 'block';
             }}
 
-            categoriaSelect.addEventListener('change', mostrarGrafico);
+            // Mostrar todas por defecto
+            mostrarGraficas('todas');
+
+            // Event listener para el filtro
+            filtroSelect.addEventListener('change', function() {{
+                mostrarGraficas(this.value);
+            }});
         }}
 
         function renderizarEdad() {{
@@ -878,6 +898,103 @@ html_content = f'''<!DOCTYPE html>
                         }}
                     }}
                 }});
+            }});
+        }});
+
+        // Función para descargar el informe como PDF
+        document.getElementById('descargarPDF').addEventListener('click', function() {{
+            const button = this;
+            const buttonContainer = button.parentElement;
+            const originalText = button.innerHTML;
+            
+            // Mostrar modal de carga con SweetAlert
+            Swal.fire({{
+                title: 'Generando PDF',
+                html: 'Por favor espere mientras se genera el documento...',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                didOpen: () => {{
+                    Swal.showLoading();
+                }}
+            }});
+
+            // Deshabilitar el botón pero mantenerlo visible
+            button.disabled = true;
+            button.style.opacity = '0.7';
+            button.style.cursor = 'not-allowed';
+            button.innerHTML = '⏳ Generando PDF...';
+
+            // Ocultar el contenedor del botón temporalmente para que no aparezca en el PDF
+            const originalDisplay = buttonContainer.style.display;
+            buttonContainer.style.display = 'none';
+
+            // Capturar el contenido del contenedor principal
+            const element = document.querySelector('.container');
+            
+            html2canvas(element, {{
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff',
+                windowWidth: element.scrollWidth,
+                windowHeight: element.scrollHeight
+            }}).then(canvas => {{
+                const imgData = canvas.toDataURL('image/png');
+                const {{ jsPDF }} = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                
+                const imgWidth = 210; // Ancho A4 en mm
+                const pageHeight = 297; // Alto A4 en mm
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 0;
+
+                // Agregar primera página
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                // Agregar páginas adicionales si el contenido es más largo que una página
+                while (heightLeft >= 0) {{
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }}
+
+                // Descargar el PDF
+                const nombreArchivo = '{nombre_valida.replace("/", "_").replace(" ", "_")}_informe.pdf';
+                pdf.save(nombreArchivo);
+
+                // Cerrar el modal y mostrar éxito
+                Swal.fire({{
+                    icon: 'success',
+                    title: 'PDF generado',
+                    text: 'El informe se ha descargado correctamente',
+                    confirmButtonColor: '#123E92',
+                    timer: 2000,
+                    timerProgressBar: true
+                }});
+
+                // Restaurar el contenedor del botón (siempre centrado)
+                buttonContainer.style.display = originalDisplay || 'block';
+                button.innerHTML = originalText;
+                button.disabled = false;
+                button.style.opacity = '1';
+                button.style.cursor = 'pointer';
+            }}).catch(error => {{
+                console.error('Error al generar PDF:', error);
+                Swal.fire({{
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo generar el PDF. Por favor, intente nuevamente.',
+                    confirmButtonColor: '#123E92'
+                }});
+                buttonContainer.style.display = originalDisplay || 'block';
+                button.innerHTML = originalText;
+                button.disabled = false;
+                button.style.opacity = '1';
+                button.style.cursor = 'pointer';
             }});
         }});
     </script>
