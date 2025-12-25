@@ -679,16 +679,32 @@ html_content = f'''<!DOCTYPE html>
                             <li class="dropdown">
                                 <a href="#">Motocross</a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="#">Primer semestre</a></li>
-                                    <li><a href="#">Segundo semestre</a></li>
+                                    <li class="dropdown">
+                                        <a href="#">Primer semestre</a>
+                                        <ul class="dropdown-menu">
+                                        </ul>
+                                    </li>
+                                    <li class="dropdown">
+                                        <a href="#">Segundo semestre</a>
+                                        <ul class="dropdown-menu">
+                                        </ul>
+                                    </li>
                                 </ul>
                             </li>
                             <li><a href="#">Velocidad</a></li>
                             <li class="dropdown">
                                 <a href="#">Velotierra</a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="#">Primer semestre</a></li>
-                                    <li><a href="#">Segundo semestre</a></li>
+                                    <li class="dropdown">
+                                        <a href="#">Primer semestre</a>
+                                        <ul class="dropdown-menu">
+                                        </ul>
+                                    </li>
+                                    <li class="dropdown">
+                                        <a href="#">Segundo semestre</a>
+                                        <ul class="dropdown-menu">
+                                        </ul>
+                                    </li>
                                 </ul>
                             </li>
                         </ul>
@@ -702,16 +718,32 @@ html_content = f'''<!DOCTYPE html>
                             <li class="dropdown">
                                 <a href="#">Motocross</a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="#">Primer semestre</a></li>
-                                    <li><a href="#">Segundo semestre</a></li>
+                                    <li class="dropdown">
+                                        <a href="#">Primer semestre</a>
+                                        <ul class="dropdown-menu">
+                                        </ul>
+                                    </li>
+                                    <li class="dropdown">
+                                        <a href="#">Segundo semestre</a>
+                                        <ul class="dropdown-menu">
+                                        </ul>
+                                    </li>
                                 </ul>
                             </li>
                             <li><a href="#">Velocidad</a></li>
                             <li class="dropdown">
                                 <a href="#">Velotierra</a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="#">Primer semestre</a></li>
-                                    <li><a href="#">Segundo semestre</a></li>
+                                    <li class="dropdown">
+                                        <a href="#">Primer semestre</a>
+                                        <ul class="dropdown-menu">
+                                        </ul>
+                                    </li>
+                                    <li class="dropdown">
+                                        <a href="#">Segundo semestre</a>
+                                        <ul class="dropdown-menu">
+                                        </ul>
+                                    </li>
                                 </ul>
                             </li>
                         </ul>
@@ -725,16 +757,32 @@ html_content = f'''<!DOCTYPE html>
                             <li class="dropdown">
                                 <a href="#">Motocross</a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="#">Primer semestre</a></li>
-                                    <li><a href="#">Segundo semestre</a></li>
+                                    <li class="dropdown">
+                                        <a href="#">Primer semestre</a>
+                                        <ul class="dropdown-menu">
+                                        </ul>
+                                    </li>
+                                    <li class="dropdown">
+                                        <a href="#">Segundo semestre</a>
+                                        <ul class="dropdown-menu">
+                                        </ul>
+                                    </li>
                                 </ul>
                             </li>
                             <li><a href="#">Velocidad</a></li>
                             <li class="dropdown">
                                 <a href="#">Velotierra</a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="#">Primer semestre</a></li>
-                                    <li><a href="#">Segundo semestre</a></li>
+                                    <li class="dropdown">
+                                        <a href="#">Primer semestre</a>
+                                        <ul class="dropdown-menu">
+                                        </ul>
+                                    </li>
+                                    <li class="dropdown">
+                                        <a href="#">Segundo semestre</a>
+                                        <ul class="dropdown-menu">
+                                        </ul>
+                                    </li>
                                 </ul>
                             </li>
                         </ul>
@@ -1269,9 +1317,39 @@ def agregar_enlace_a_menus(output_html_path, nombre_valida):
                 html_files.append(os.path.join(root, file))
     
     # Determinar la ruta relativa del nuevo informe desde cada HTML
-    # output_html_path es relativo a Informes/, construir la ruta completa
+    # output_html_path puede ser relativo a Informes/, Resultados_validas/, o Resultados_generales/
+    # Necesitamos determinar en qué carpeta base está el informe
     output_dir = os.path.dirname(output_html_path)
-    output_file_full = os.path.join(script_dir, output_html_path) if output_html_path else script_dir
+    
+    # Determinar la carpeta base (Informes, Resultados_validas, o Resultados_generales)
+    # output_html_path puede ser "Motocross/Primer semestre/informe.html" (relativo a Informes/)
+    # o puede incluir la carpeta base: "Resultados_validas/Motocross/Primer semestre/informe.html"
+    output_path_norm = output_html_path.replace('\\', '/')
+    partes_output = [p for p in output_path_norm.split('/') if p]
+    
+    # Determinar carpeta base y ruta relativa dentro de esa carpeta
+    if partes_output[0].lower() in ['resultados_validas', 'resultados de válidas']:
+        carpeta_base = 'Resultados_validas'
+        ruta_dentro_base = '/'.join(partes_output[1:]) if len(partes_output) > 1 else ''
+        output_file_full = os.path.join(project_root, 'Resultados_validas', ruta_dentro_base) if ruta_dentro_base else os.path.join(project_root, 'Resultados_validas')
+        menu_objetivo = 'Resultados de válidas'
+    elif partes_output[0].lower() in ['resultados_generales', 'resultados generales']:
+        carpeta_base = 'Resultados_generales'
+        ruta_dentro_base = '/'.join(partes_output[1:]) if len(partes_output) > 1 else ''
+        output_file_full = os.path.join(project_root, 'Resultados_generales', ruta_dentro_base) if ruta_dentro_base else os.path.join(project_root, 'Resultados_generales')
+        menu_objetivo = 'Resultados generales'
+    else:
+        # Por defecto, asumir que está en Informes/
+        carpeta_base = 'Informes'
+        ruta_dentro_base = output_html_path
+        output_file_full = os.path.join(script_dir, output_html_path) if output_html_path else script_dir
+        menu_objetivo = 'Informes'
+    
+    # La ruta dentro de la carpeta base (sin la carpeta base misma)
+    # Ejemplo: si output_html_path es "Motocross/Primer semestre/informe.html", 
+    # entonces ruta_dentro_base es "Motocross/Primer semestre/informe.html"
+    if not ruta_dentro_base:
+        ruta_dentro_base = output_html_path
     
     for html_file in html_files:
         try:
@@ -1289,56 +1367,117 @@ def agregar_enlace_a_menus(output_html_path, nombre_valida):
                 if 'Informes/Informes' in ruta_relativa:
                     ruta_relativa = ruta_relativa.replace('Informes/Informes', 'Informes')
                 
-                # Si la ruta relativa es muy larga o incorrecta, construir desde output_html_path
-                # output_html_path es relativo a Informes/, así que desde la raíz sería "Informes/" + output_html_path
+                # Corregir si hay duplicaciones de carpetas
+                if f'{carpeta_base}/{carpeta_base}' in ruta_relativa:
+                    ruta_relativa = ruta_relativa.replace(f'{carpeta_base}/{carpeta_base}', carpeta_base)
+                
+                # Si estamos en index.html o fuera de las carpetas base
                 if html_file == os.path.join(project_root, 'index.html'):
-                    # Desde index.html (raíz), la ruta es "Informes/" + output_html_path
-                    ruta_relativa = f"Informes/{output_html_path}".replace('\\', '/')
-                elif 'Informes' in os.path.relpath(html_file, project_root):
-                    # Si el HTML está dentro de Informes/, calcular relativa normalmente
+                    ruta_relativa = f"{carpeta_base}/{ruta_dentro_base}".replace('\\', '/')
+                elif carpeta_base in os.path.relpath(html_file, project_root):
+                    # Si el HTML está dentro de la misma carpeta base, calcular relativa normalmente
                     pass  # Ya calculada arriba
                 else:
-                    # Si está en otro lugar, usar la ruta desde la raíz
-                    ruta_relativa = f"Informes/{output_html_path}".replace('\\', '/')
+                    # Si está en otra carpeta, construir desde la raíz
+                    ruta_relativa = f"{carpeta_base}/{ruta_dentro_base}".replace('\\', '/')
             except Exception as e:
-                # Si no se puede calcular, construir desde output_html_path
+                # Si falla, construir desde la carpeta base
                 if html_file == os.path.join(project_root, 'index.html'):
-                    ruta_relativa = f"Informes/{output_html_path}".replace('\\', '/')
+                    ruta_relativa = f"{carpeta_base}/{ruta_dentro_base}".replace('\\', '/')
                 else:
-                    ruta_relativa = output_html_path.replace('\\', '/')
+                    ruta_relativa = f"{carpeta_base}/{ruta_dentro_base}".replace('\\', '/')
             
-            # Buscar el menú "Modalidad de ejemplo" dentro del dropdown "Informes"
-            # Patrón: buscar <li class="dropdown"><a href="#">Modalidad de ejemplo</a><ul class="dropdown-menu">
-            patron_modalidad = r'(<li class="dropdown">\s*<a href="#">Modalidad de ejemplo</a>\s*<ul class="dropdown-menu">)'
+            # Detectar la estructura de carpetas para determinar dónde agregar el enlace
+            # ruta_dentro_base es relativa a la carpeta base, ejemplo: "Motocross/Primer semestre/informe.html"
+            ruta_dentro_base_norm = ruta_dentro_base.replace('\\', '/')
+            partes_ruta = [p for p in ruta_dentro_base_norm.split('/') if p]
+            # Si hay nombre de archivo, removerlo para quedarse solo con directorios
+            if partes_ruta and '.' in partes_ruta[-1]:
+                partes_ruta = partes_ruta[:-1]
             
             # Verificar si el enlace ya existe
             if nombre_archivo_html in contenido:
                 continue  # Ya existe, no agregar de nuevo
             
-            # Buscar el patrón completo del dropdown "Modalidad de ejemplo" con su contenido
-            # Necesitamos encontrar desde <li class="dropdown"> hasta el </ul></li> de cierre
-            patron_completo = r'(<li class="dropdown">\s*<a href="#">Modalidad de ejemplo</a>\s*<ul class="dropdown-menu">)(.*?)(</ul>\s*</li>)'
+            nuevo_contenido = contenido
             
-            def agregar_enlace(match):
-                inicio = match.group(1)
-                contenido_menu = match.group(2)
-                cierre = match.group(3)
+            # Si el informe está en "Motocross/Primer semestre" o "Motocross/Segundo semestre"
+            if len(partes_ruta) >= 2 and partes_ruta[0].lower() == 'motocross':
+                semestre = partes_ruta[1]
+                # Buscar el patrón en el menú objetivo (Informes, Resultados de válidas, o Resultados generales)
+                # Primero encontrar el menú objetivo, luego dentro de él buscar Motocross > semestre
+                patron_menu_objetivo = rf'(<li class="dropdown">\s*<a href="#">{re.escape(menu_objetivo)}</a>\s*<ul class="dropdown-menu">.*?<li class="dropdown">\s*<a href="#">Motocross</a>\s*<ul class="dropdown-menu">.*?<li class="dropdown">\s*<a href="#">{re.escape(semestre)}</a>\s*<ul class="dropdown-menu">)(.*?)(</ul>\s*</li>\s*</li>\s*</li>)'
                 
-                # Verificar si el enlace ya existe en el contenido
-                if nombre_archivo_html in contenido_menu:
-                    return match.group(0)  # Ya existe, no modificar
+                def agregar_enlace_motocross(match):
+                    inicio = match.group(1)
+                    contenido_semestre = match.group(2)
+                    cierre = match.group(3)
+                    
+                    # Verificar si el enlace ya existe
+                    if nombre_archivo_html in contenido_semestre:
+                        return match.group(0)
+                    
+                    # Agregar el nuevo enlace
+                    nuevo_item = f'                                            <li><a href="{ruta_relativa}">{nombre_valida}</a></li>'
+                    return inicio + contenido_semestre + '\n' + nuevo_item + '\n                                        ' + cierre
                 
-                # Agregar el nuevo enlace al final del contenido del menú, antes del cierre
-                nuevo_item = f'                                    <li><a href="{ruta_relativa}">{nombre_valida}</a></li>'
-                return inicio + contenido_menu + '\n' + nuevo_item + '\n                                ' + cierre
+                nuevo_contenido = re.sub(
+                    patron_menu_objetivo,
+                    agregar_enlace_motocross,
+                    nuevo_contenido,
+                    flags=re.IGNORECASE | re.DOTALL
+                )
             
-            # Intentar agregar el enlace
-            nuevo_contenido = re.sub(
-                patron_completo,
-                agregar_enlace,
-                contenido,
-                flags=re.IGNORECASE | re.DOTALL
-            )
+            # Si el informe está en "Velotierra/Primer semestre" o "Velotierra/Segundo semestre"
+            elif len(partes_ruta) >= 2 and partes_ruta[0].lower() == 'velotierra':
+                semestre = partes_ruta[1]
+                # Buscar el patrón en el menú objetivo
+                patron_menu_objetivo = rf'(<li class="dropdown">\s*<a href="#">{re.escape(menu_objetivo)}</a>\s*<ul class="dropdown-menu">.*?<li class="dropdown">\s*<a href="#">Velotierra</a>\s*<ul class="dropdown-menu">.*?<li class="dropdown">\s*<a href="#">{re.escape(semestre)}</a>\s*<ul class="dropdown-menu">)(.*?)(</ul>\s*</li>\s*</li>\s*</li>)'
+                
+                def agregar_enlace_velotierra(match):
+                    inicio = match.group(1)
+                    contenido_semestre = match.group(2)
+                    cierre = match.group(3)
+                    
+                    # Verificar si el enlace ya existe
+                    if nombre_archivo_html in contenido_semestre:
+                        return match.group(0)
+                    
+                    # Agregar el nuevo enlace
+                    nuevo_item = f'                                            <li><a href="{ruta_relativa}">{nombre_valida}</a></li>'
+                    return inicio + contenido_semestre + '\n' + nuevo_item + '\n                                        ' + cierre
+                
+                nuevo_contenido = re.sub(
+                    patron_menu_objetivo,
+                    agregar_enlace_velotierra,
+                    nuevo_contenido,
+                    flags=re.IGNORECASE | re.DOTALL
+                )
+            
+            # Si el informe está en "Modalidad de ejemplo" (caso especial)
+            elif len(partes_ruta) >= 1 and partes_ruta[0].lower() == 'modalidad de ejemplo':
+                # Buscar el patrón completo del dropdown "Modalidad de ejemplo"
+                patron_completo = r'(<li class="dropdown">\s*<a href="#">Modalidad de ejemplo</a>\s*<ul class="dropdown-menu">)(.*?)(</ul>\s*</li>)'
+                
+                def agregar_enlace_modalidad(match):
+                    inicio = match.group(1)
+                    contenido_menu = match.group(2)
+                    cierre = match.group(3)
+                    
+                    # Verificar si el enlace ya existe
+                    if nombre_archivo_html in contenido_menu:
+                        return match.group(0)
+                    
+                    # Agregar el nuevo enlace
+                    nuevo_item = f'                                    <li><a href="{ruta_relativa}">{nombre_valida}</a></li>'
+                    return inicio + contenido_menu + '\n' + nuevo_item + '\n                                ' + cierre
+                
+                nuevo_contenido = re.sub(
+                    patron_completo,
+                    agregar_enlace_modalidad,
+                    nuevo_contenido,
+                    flags=re.IGNORECASE | re.DOTALL
+                )
             
             # Si se hizo algún cambio, escribir el archivo
             if nuevo_contenido != contenido:
