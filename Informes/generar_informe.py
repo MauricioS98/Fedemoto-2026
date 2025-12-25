@@ -1,9 +1,15 @@
+# -*- coding: utf-8 -*-
+"""
+Script para generar informes HTML a partir de datos JSON
+Asegura el manejo correcto de caracteres UTF-8 (acentos, ñ, etc.)
+"""
+
 import json
 import os
+import sys
 
 # Uso: python generar_informe.py <ruta_json> <ruta_output_html> <nombre_valida>
 # Ejemplo: python generar_informe.py "Valida de ejemplo/datos_valida_ejemplo.json" "Valida de ejemplo/informe_valida_ejemplo.html" "Valida de ejemplo"
-import sys
 
 if len(sys.argv) < 4:
     print("Uso: python generar_informe.py <ruta_json> <ruta_output_html> <nombre_valida>")
@@ -14,9 +20,45 @@ json_path = sys.argv[1]
 output_path = sys.argv[2]
 nombre_valida = sys.argv[3]
 
-# Leer los datos del JSON
-with open(json_path, 'r', encoding='utf-8') as f:
-    datos = json.load(f)
+# Calcular la profundidad del archivo de salida para las rutas relativas
+# El archivo está en Informes/Modalidad/archivo.html
+# Desde Informes/Modalidad/ necesitamos subir 2 niveles para llegar a la raíz
+output_dir = os.path.dirname(output_path)
+# Contar cuántos niveles hay desde la raíz hasta el archivo
+# Si output_path es "Modalidad de ejemplo/informe.html", output_dir es "Modalidad de ejemplo"
+# Necesitamos subir depth niveles para llegar a la raíz donde está fedemoto-logo.png
+if output_dir:
+    # Contar separadores de directorio
+    depth = output_dir.count(os.sep) + 1
+else:
+    depth = 0
+
+# Si el archivo está directamente en Informes/, depth = 0, pero necesitamos subir 1 nivel
+# Si el archivo está en Informes/Modalidad/, depth = 1, necesitamos subir 2 niveles
+# Ajustar: desde Informes/ necesitamos subir 1 nivel, desde Informes/Modalidad/ necesitamos subir 2 niveles
+depth_to_root = depth + 1  # +1 porque Informes/ está un nivel abajo de la raíz
+
+# Generar las rutas relativas
+ruta_inicio = '../' * depth_to_root + 'index.html'
+ruta_logo = '../' * depth_to_root + 'fedemoto-logo.png'
+# Para informe_2025_fedemoto.html, está en Informes/, así que desde Informes/Modalidad/ es ../informe_2025_fedemoto.html
+# Desde Informes/ es informe_2025_fedemoto.html (mismo nivel)
+if depth == 0:
+    ruta_informe_2025 = 'informe_2025_fedemoto.html'
+else:
+    ruta_informe_2025 = '../' * (depth_to_root - 1) + 'informe_2025_fedemoto.html'
+
+# Leer los datos del JSON con encoding UTF-8
+try:
+    with open(json_path, 'r', encoding='utf-8') as f:
+        datos = json.load(f)
+except UnicodeDecodeError:
+    # Si falla, intentar con diferentes encodings
+    with open(json_path, 'r', encoding='latin-1') as f:
+        datos = json.load(f)
+except Exception as e:
+    print(f"Error al leer el archivo JSON: {e}")
+    sys.exit(1)
 
 # Convertir datos a formato JavaScript
 datos_js = json.dumps(datos, ensure_ascii=False, indent=2)
@@ -140,6 +182,7 @@ html_content = f'''<!DOCTYPE html>
             margin-left: 5px;
         }}
 
+        /* Puente invisible para mantener el hover activo */
         .dropdown::before {{
             content: '';
             position: absolute;
@@ -158,14 +201,78 @@ html_content = f'''<!DOCTYPE html>
             left: 0;
             background: white;
             min-width: 200px;
+            width: 220px;
             box-shadow: 0 8px 16px rgba(0,0,0,0.2);
             border-radius: 8px;
             z-index: 10001;
-            overflow: hidden;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            overflow: visible;
+        }}
+        
+        /* Submenús dentro de dropdowns (para Motocross, Velotierra, etc.) */
+        .dropdown-menu .dropdown {{
+            position: relative;
+        }}
+        
+        /* Puente invisible para submenús anidados */
+        .dropdown-menu .dropdown::before {{
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 100%;
+            width: 10px;
+            height: 100%;
+            background: transparent;
+            z-index: 10004;
+        }}
+        
+        .dropdown-menu .dropdown > a {{
+            position: relative;
+            padding-right: 35px;
+        }}
+        
+        .dropdown-menu .dropdown > a::after {{
+            content: ' ▶';
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8em;
+            margin: 0;
+            float: none;
+        }}
+        
+        .dropdown-menu .dropdown .dropdown-menu {{
+            display: none !important;
+            position: absolute;
+            left: 100%;
+            top: 0;
+            margin-left: 5px;
+            z-index: 10003;
+            min-width: 180px;
+            background: white;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            overflow: visible;
+        }}
+        
+        /* En "Resultados generales", mostrar submenús a la izquierda */
+        .nav-menu > .dropdown:nth-child(4) .dropdown-menu > .dropdown > .dropdown-menu {{
+            left: auto;
+            right: 100%;
+            margin-left: 0;
+            margin-right: 5px;
+        }}
+        
+        .dropdown-menu .dropdown:hover > .dropdown-menu {{
+            display: block !important;
         }}
 
-        .dropdown:hover .dropdown-menu,
-        .dropdown.active .dropdown-menu {{
+        /* Solo aplicar hover al primer nivel de dropdown (no a submenús anidados) */
+        .nav-menu > .dropdown:hover > .dropdown-menu,
+        .nav-menu > .dropdown.active > .dropdown-menu {{
             display: block;
             animation: fadeInDown 0.3s ease;
         }}
@@ -183,6 +290,7 @@ html_content = f'''<!DOCTYPE html>
 
         .dropdown-menu li {{
             margin: 0;
+            position: relative;
         }}
 
         .dropdown-menu a {{
@@ -202,13 +310,21 @@ html_content = f'''<!DOCTYPE html>
         .dropdown-menu a:hover {{
             background: #f8f9fa;
             color: #123E92;
-            padding-left: 25px;
+        }}
+        
+        /* Los elementos con submenú mantienen el padding al hacer hover */
+        .dropdown-menu .dropdown > a:hover {{
+            padding-left: 20px;
         }}
 
         .dropdown-menu a.active {{
             background: #F7C31D;
             color: #123E92;
             font-weight: 600;
+        }}
+
+        .dropdown.active > a {{
+            background: rgba(255,255,255,0.15);
         }}
 
         .container {{
@@ -483,8 +599,8 @@ html_content = f'''<!DOCTYPE html>
                 background: rgba(255,255,255,0.1);
             }}
 
-            .dropdown:hover .dropdown-menu,
-            .dropdown.active .dropdown-menu {{
+            .nav-menu > .dropdown:hover > .dropdown-menu,
+            .nav-menu > .dropdown.active > .dropdown-menu {{
                 display: block;
             }}
 
@@ -508,42 +624,86 @@ html_content = f'''<!DOCTYPE html>
     <header class="fixed-header">
         <div class="header-content">
             <div class="logo-container">
-                <img src="../../../fedemoto-logo.png" alt="Logo FEDEMOTO">
+                <img src="{ruta_logo}" alt="Logo FEDEMOTO">
                 <h1>Fedemoto</h1>
             </div>
             <nav>
                 <ul class="nav-menu">
-                    <li><a href="../../../index.html">Inicio</a></li>
+                    <li><a href="{ruta_inicio}">Inicio</a></li>
                     <li class="dropdown">
                         <a href="#">Informes</a>
                         <ul class="dropdown-menu">
-                            <li><a href="../../informe_2025_fedemoto.html">Informe Anual 2025</a></li>
-                            <li><a href="#">Motocross</a></li>
-                            <li><a href="#">Velocidad</a></li>
-                            <li><a href="#">GP Colombia</a></li>
-                            <li><a href="#">Velotierra</a></li>
+                            <li><a href="{ruta_informe_2025}">Informe Anual 2025</a></li>
                             <li><a href="#">Enduro</a></li>
+                            <li><a href="#">GP Colombia</a></li>
+                            <li class="dropdown">
+                                <a href="#">Modalidad de ejemplo</a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="Modalidad de ejemplo/informe_valida_ejemplo.html">Válida de ejemplo</a></li>
+                                    <li><a href="Modalidad de ejemplo/informe_valida_ejemplo2.html">Válida de ejemplo 2</a></li>
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#">Motocross</a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#">Primer semestre</a></li>
+                                    <li><a href="#">Segundo semestre</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="#">Velocidad</a></li>
+                            <li class="dropdown">
+                                <a href="#">Velotierra</a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#">Primer semestre</a></li>
+                                    <li><a href="#">Segundo semestre</a></li>
+                                </ul>
+                            </li>
                         </ul>
                     </li>
                     <li class="dropdown">
                         <a href="#">Resultados de válidas</a>
                         <ul class="dropdown-menu">
-                            <li><a href="informe_valida_ejemplo.html" class="active">Valida de ejemplo</a></li>
-                            <li><a href="#">Motocross</a></li>
-                            <li><a href="#">Velocidad</a></li>
-                            <li><a href="#">GP Colombia</a></li>
-                            <li><a href="#">Velotierra</a></li>
                             <li><a href="#">Enduro</a></li>
+                            <li><a href="#">GP Colombia</a></li>
+                            <li><a href="#">Valida de ejemplo</a></li>
+                            <li class="dropdown">
+                                <a href="#">Motocross</a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#">Primer semestre</a></li>
+                                    <li><a href="#">Segundo semestre</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="#">Velocidad</a></li>
+                            <li class="dropdown">
+                                <a href="#">Velotierra</a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#">Primer semestre</a></li>
+                                    <li><a href="#">Segundo semestre</a></li>
+                                </ul>
+                            </li>
                         </ul>
                     </li>
                     <li class="dropdown">
                         <a href="#">Resultados generales</a>
                         <ul class="dropdown-menu">
-                            <li><a href="#">Motocross</a></li>
-                            <li><a href="#">Velocidad</a></li>
-                            <li><a href="#">GP Colombia</a></li>
-                            <li><a href="#">Velotierra</a></li>
                             <li><a href="#">Enduro</a></li>
+                            <li><a href="#">GP Colombia</a></li>
+                            <li><a href="#">Valida de ejemplo</a></li>
+                            <li class="dropdown">
+                                <a href="#">Motocross</a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#">Primer semestre</a></li>
+                                    <li><a href="#">Segundo semestre</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="#">Velocidad</a></li>
+                            <li class="dropdown">
+                                <a href="#">Velotierra</a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#">Primer semestre</a></li>
+                                    <li><a href="#">Segundo semestre</a></li>
+                                </ul>
+                            </li>
                         </ul>
                     </li>
                 </ul>
@@ -554,7 +714,7 @@ html_content = f'''<!DOCTYPE html>
     <div class="container">
         <header>
             <h1>
-                <img src="../../../fedemoto-logo.png" alt="FEDEMOTO Logo" style="height: 60px; vertical-align: middle; margin-right: 15px;">
+                <img src="{ruta_logo}" alt="FEDEMOTO Logo" style="height: 60px; vertical-align: middle; margin-right: 15px;">
                 Informe - {nombre_valida}
             </h1>
             <p>Análisis completo de participantes y categorías</p>
@@ -874,6 +1034,37 @@ html_content = f'''<!DOCTYPE html>
             }}).join('');
         }}
 
+        // Marcar el enlace activo basándose en la URL actual
+        document.addEventListener('DOMContentLoaded', function() {{
+            const currentPath = window.location.pathname;
+            const currentHref = window.location.href;
+            const menuLinks = document.querySelectorAll('.nav-menu a, .dropdown-menu a');
+            
+            menuLinks.forEach(link => {{
+                const linkHref = link.getAttribute('href');
+                if (linkHref && linkHref !== '#') {{
+                    // Obtener el nombre del archivo actual
+                    const currentFileName = currentHref.split('/').pop() || currentHref.split('\\\\').pop();
+                    const linkFileName = linkHref.split('/').pop() || linkHref.split('\\\\').pop();
+                    
+                    // Comparar nombres de archivo
+                    if (linkFileName && currentFileName && linkFileName === currentFileName) {{
+                        link.classList.add('active');
+                        const dropdown = link.closest('.dropdown');
+                        if (dropdown) {{
+                            dropdown.classList.add('active');
+                        }}
+                    }} else if (linkHref.includes(currentFileName) || currentHref.includes(linkFileName)) {{
+                        link.classList.add('active');
+                        const dropdown = link.closest('.dropdown');
+                        if (dropdown) {{
+                            dropdown.classList.add('active');
+                        }}
+                    }}
+                }}
+            }});
+        }});
+
         // Manejar clics en menús desplegables para móviles
         document.addEventListener('DOMContentLoaded', function() {{
             const dropdowns = document.querySelectorAll('.dropdown > a');
@@ -898,6 +1089,15 @@ html_content = f'''<!DOCTYPE html>
                         }}
                     }}
                 }});
+            }});
+
+            // Cerrar dropdowns al hacer clic fuera
+            document.addEventListener('click', function(e) {{
+                if (!e.target.closest('.dropdown')) {{
+                    document.querySelectorAll('.dropdown').forEach(d => {{
+                        d.classList.remove('active');
+                    }});
+                }}
             }});
         }});
 
@@ -1003,8 +1203,13 @@ html_content = f'''<!DOCTYPE html>
 '''
 
 # Guardar el HTML
-with open(output_path, 'w', encoding='utf-8') as f:
-    f.write(html_content)
+# Escribir el HTML con encoding UTF-8
+try:
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(html_content)
+except Exception as e:
+    print(f"Error al escribir el archivo HTML: {e}")
+    sys.exit(1)
 
 print(f"HTML generado en: {output_path}")
 

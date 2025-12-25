@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Informe - Valida de ejemplo</title>
-    <link rel="icon" type="image/png" href="../../../fedemoto-logo.png">
+    <link rel="icon" type="image/png" href="../../fedemoto-logo.png">
     <!-- Librerías para generar PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -562,7 +562,7 @@
     <header class="fixed-header">
         <div class="header-content">
             <div class="logo-container">
-                <img src="../../../fedemoto-logo.png" alt="Logo FEDEMOTO">
+                <img src="../../fedemoto-logo.png" alt="Logo FEDEMOTO">
                 <h1>Fedemoto</h1>
             </div>
             <nav>
@@ -652,7 +652,7 @@
     <div class="container">
         <header>
             <h1>
-                <img src="../../../fedemoto-logo.png" alt="FEDEMOTO Logo" style="height: 60px; vertical-align: middle; margin-right: 15px;">
+                <img src="../../fedemoto-logo.png" alt="FEDEMOTO Logo" style="height: 60px; vertical-align: middle; margin-right: 15px;">
                 Informe - Valida de ejemplo
             </h1>
             <p>Análisis completo de participantes y categorías</p>
@@ -1225,6 +1225,35 @@
             }).join('');
         }
 
+        // Marcar el enlace activo basándose en la URL actual
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const currentHref = window.location.href;
+            const menuLinks = document.querySelectorAll('.nav-menu a, .dropdown-menu a');
+            
+            menuLinks.forEach(link => {
+                const linkHref = link.getAttribute('href');
+                if (linkHref && linkHref !== '#') {
+                    // Comparar rutas relativas o absolutas
+                    if (linkHref.includes('informe_valida_ejemplo.html') && currentHref.includes('informe_valida_ejemplo.html')) {
+                        link.classList.add('active');
+                        const dropdown = link.closest('.dropdown');
+                        if (dropdown) {
+                            dropdown.classList.add('active');
+                        }
+                    } else if (linkHref.includes('index.html') && currentHref.includes('index.html')) {
+                        link.classList.add('active');
+                    } else if (linkHref.includes('informe_2025_fedemoto.html') && currentHref.includes('informe_2025_fedemoto.html')) {
+                        link.classList.add('active');
+                        const dropdown = link.closest('.dropdown');
+                        if (dropdown) {
+                            dropdown.classList.add('active');
+                        }
+                    }
+                }
+            });
+        });
+
         // Manejar clics en menús desplegables para móviles
         document.addEventListener('DOMContentLoaded', function() {
             const dropdowns = document.querySelectorAll('.dropdown > a');
@@ -1249,6 +1278,15 @@
                         }
                     }
                 });
+            });
+
+            // Cerrar dropdowns al hacer clic fuera
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.dropdown')) {
+                    document.querySelectorAll('.dropdown').forEach(d => {
+                        d.classList.remove('active');
+                    });
+                }
             });
         });
 

@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+"""
+Script para analizar archivos Excel de válidas y generar datos JSON
+Asegura el manejo correcto de caracteres UTF-8 (acentos, ñ, etc.)
+"""
+
 import pandas as pd
 import unicodedata
 import json
@@ -228,8 +234,13 @@ def generar_json(resultados, output_file):
         }
     }
     
-    with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(datos_json, f, ensure_ascii=False, indent=2)
+    # Escribir JSON con encoding UTF-8 y ensure_ascii=False para preservar caracteres especiales
+    try:
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(datos_json, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"Error al escribir el archivo JSON: {e}")
+        raise
     
     print(f"JSON generado en: {output_file}")
     return datos_json

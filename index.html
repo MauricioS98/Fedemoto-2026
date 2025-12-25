@@ -560,6 +560,48 @@
     </div>
 
     <script>
+        // Marcar el enlace activo basándose en la URL actual
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentHref = window.location.href.toLowerCase();
+            const currentPath = window.location.pathname.toLowerCase();
+            const currentFileName = currentHref.split('/').pop() || currentHref.split('\\').pop();
+            
+            // Limpiar todas las clases active primero
+            document.querySelectorAll('.nav-menu a, .dropdown-menu a').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelectorAll('.dropdown').forEach(dropdown => {
+                dropdown.classList.remove('active');
+            });
+            
+            // Solo marcar el enlace que realmente corresponde a la página actual
+            const menuLinks = document.querySelectorAll('.nav-menu a, .dropdown-menu a');
+            
+            menuLinks.forEach(link => {
+                const linkHref = link.getAttribute('href');
+                if (linkHref && linkHref !== '#') {
+                    const linkHrefLower = linkHref.toLowerCase();
+                    
+                    // Si es un enlace a index.html y estamos en index.html
+                    if (linkHrefLower.includes('index.html') && 
+                        (currentFileName === 'index.html' || currentPath.endsWith('/') || currentPath.endsWith('index.html'))) {
+                        link.classList.add('active');
+                        return;
+                    }
+                    
+                    // Para otros enlaces, comparar nombres de archivo exactos
+                    const linkFileName = linkHrefLower.split('/').pop() || linkHrefLower.split('\\').pop();
+                    if (linkFileName && currentFileName && linkFileName === currentFileName) {
+                        link.classList.add('active');
+                        const dropdown = link.closest('.dropdown');
+                        if (dropdown) {
+                            dropdown.classList.add('active');
+                        }
+                    }
+                }
+            });
+        });
+
         // Manejar clics en menús desplegables para móviles
         document.addEventListener('DOMContentLoaded', function() {
             const dropdowns = document.querySelectorAll('.dropdown > a');
