@@ -136,16 +136,22 @@
         const dropdowns = document.querySelectorAll('.dropdown > a');
         
         dropdowns.forEach(dropdown => {
-            dropdown.addEventListener('click', function(e) {
+            // Remover listeners anteriores si existen
+            const newDropdown = dropdown.cloneNode(true);
+            dropdown.parentNode.replaceChild(newDropdown, dropdown);
+            
+            newDropdown.addEventListener('click', function(e) {
                 if (window.innerWidth <= 768) {
                     e.preventDefault();
+                    e.stopPropagation();
                     const parent = this.parentElement;
                     const isActive = parent.classList.contains('active');
                     
-                    // Cerrar todos los demás dropdowns
-                    document.querySelectorAll('.dropdown').forEach(d => {
-                        if (d !== parent) {
-                            d.classList.remove('active');
+                    // Cerrar todos los demás dropdowns del mismo nivel
+                    const siblings = Array.from(parent.parentElement.children);
+                    siblings.forEach(sibling => {
+                        if (sibling !== parent && sibling.classList.contains('dropdown')) {
+                            sibling.classList.remove('active');
                         }
                     });
                     
@@ -205,8 +211,145 @@
         console.log('URL actual del documento:', window.location.href);
         console.log('Pathname actual:', window.location.pathname);
 
+        // Función para cargar los estilos CSS del menú
+        function loadMenuStyles() {
+            // Verificar si los estilos ya están cargados
+            if (document.getElementById('menu-styles')) {
+                return;
+            }
+
+            // Cargar estilos desde menu-styles.css
+            const link = document.createElement('link');
+            link.id = 'menu-styles';
+            link.rel = 'stylesheet';
+            link.href = normalizedBasePath + 'menu-styles.css';
+            link.onerror = function() {
+                console.warn('No se pudo cargar menu-styles.css, usando estilos inline');
+                // Inyectar estilos inline como fallback
+                injectInlineStyles();
+            };
+            document.head.appendChild(link);
+        }
+
+        // Función para inyectar estilos inline como fallback
+        function injectInlineStyles() {
+            if (document.getElementById('menu-styles-inline')) {
+                return;
+            }
+            
+            const style = document.createElement('style');
+            style.id = 'menu-styles-inline';
+            style.textContent = `
+                @media (max-width: 768px) {
+                    .menu-toggle { display: block !important; }
+                    .fixed-header .header-content { padding: 15px 20px; }
+                    .fixed-header nav {
+                        position: fixed;
+                        top: 70px;
+                        left: 0;
+                        right: 0;
+                        background: #123E92;
+                        max-height: 0;
+                        overflow: hidden;
+                        transition: max-height 0.3s ease-out;
+                        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+                        z-index: 10000;
+                    }
+                    .fixed-header nav.menu-open {
+                        max-height: calc(100vh - 70px);
+                        overflow-y: auto;
+                    }
+                    .nav-menu {
+                        flex-direction: column;
+                        width: 100%;
+                        padding: 10px 0;
+                    }
+                    .nav-menu > li {
+                        width: 100%;
+                        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                    }
+                    .nav-menu > li > a {
+                        padding: 15px 20px;
+                        text-align: left;
+                        font-size: 1em;
+                        width: 100%;
+                    }
+                    .dropdown-menu {
+                        position: static;
+                        display: none;
+                        background: rgba(0, 0, 0, 0.2);
+                        width: 100%;
+                        box-shadow: none;
+                    }
+                    .dropdown.active > .dropdown-menu {
+                        display: block;
+                    }
+                    .dropdown-menu a {
+                        padding: 12px 30px;
+                        color: white;
+                        text-align: left;
+                    }
+                    body { padding-top: 70px; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Función para agregar el botón hamburguesa
+        function addHamburgerButton(headerContent) {
+            // Verificar si el botón ya existe
+            if (headerContent.querySelector('.menu-toggle')) {
+                return;
+            }
+
+            const menuToggle = document.createElement('button');
+            menuToggle.className = 'menu-toggle';
+            menuToggle.setAttribute('aria-label', 'Toggle menu');
+            menuToggle.innerHTML = '☰';
+            
+            // Insertar antes del nav
+            const nav = headerContent.querySelector('nav');
+            if (nav) {
+                headerContent.insertBefore(menuToggle, nav);
+                
+                // Agregar evento click al botón hamburguesa
+                menuToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    nav.classList.toggle('menu-open');
+                    if (nav.classList.contains('menu-open')) {
+                        menuToggle.innerHTML = '✕';
+                    } else {
+                        menuToggle.innerHTML = '☰';
+                    }
+                });
+                
+                // Cerrar menú al hacer clic fuera
+                document.addEventListener('click', function(e) {
+                    if (window.innerWidth <= 768) {
+                        if (!headerContent.contains(e.target) && nav.classList.contains('menu-open')) {
+                            nav.classList.remove('menu-open');
+                            menuToggle.innerHTML = '☰';
+                        }
+                    }
+                });
+                
+                // Cerrar menú al hacer clic en un enlace
+                nav.addEventListener('click', function(e) {
+                    if (window.innerWidth <= 768 && e.target.tagName === 'A' && e.target.getAttribute('href') !== '#') {
+                        setTimeout(() => {
+                            nav.classList.remove('menu-open');
+                            menuToggle.innerHTML = '☰';
+                        }, 300);
+                    }
+                });
+            }
+        }
+
         // Función para procesar el HTML del menú
         function processMenuHTML(html) {
+            // Cargar estilos primero
+            loadMenuStyles();
+            
             // Crear un contenedor temporal para parsear el HTML
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = html;
@@ -220,6 +363,12 @@
                 
                 // Insertar el menú en el contenedor
                 menuContainer.innerHTML = menuHeader.outerHTML;
+                
+                // Agregar botón hamburguesa después de insertar
+                const headerContent = menuContainer.querySelector('.header-content');
+                if (headerContent) {
+                    addHamburgerButton(headerContent);
+                }
                 
                 // Inicializar los dropdowns después de insertar el menú
                 setTimeout(initMenuDropdowns, 100);

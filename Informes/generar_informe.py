@@ -1083,6 +1083,9 @@ html_content = f'''<!DOCTYPE html>
     
     <!-- Script para cargar el menú dinámicamente -->
     <script src="{ruta_load_menu.replace(chr(92), '/')}"></script>
+    
+    <!-- Script para manejar el botón PDF de forma responsive -->
+    <script src="{ruta_load_menu.replace('load-menu.js', 'pdf-button-responsive.js')}"></script>
 </body>
 </html>
 '''

@@ -1,0 +1,192 @@
+/* Estilos responsive para el menú de navegación */
+
+/* Botón hamburguesa - oculto por defecto */
+.menu-toggle {
+    display: none;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.8em;
+    cursor: pointer;
+    padding: 10px;
+    z-index: 10001;
+    transition: transform 0.3s;
+}
+
+.menu-toggle:hover {
+    transform: scale(1.1);
+}
+
+.menu-toggle:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+    outline-offset: 2px;
+}
+
+/* Estilos responsive para móviles y tablets */
+@media (max-width: 768px) {
+    /* Mostrar botón hamburguesa */
+    .menu-toggle {
+        display: block;
+        order: -1; /* Colocar antes del logo */
+        margin-right: 15px;
+    }
+
+    /* Ajustar header para incluir botón hamburguesa */
+    .fixed-header .header-content {
+        padding: 15px 20px;
+        flex-wrap: nowrap; /* Mantener en una sola fila */
+    }
+
+    .logo-container {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .logo-container h1 {
+        font-size: 1.4em;
+        margin: 0; /* Asegurar que no tenga margen */
+    }
+
+    .logo-container img {
+        height: 40px;
+    }
+
+    /* Ocultar menú por defecto en móvil */
+    .fixed-header nav {
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background: #123E92;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        z-index: 10000;
+    }
+
+    /* Mostrar menú cuando está activo */
+    .fixed-header nav.menu-open {
+        max-height: calc(100vh - 70px);
+        overflow-y: auto;
+    }
+
+    /* Estilos del menú en móvil */
+    .nav-menu {
+        flex-direction: column;
+        width: 100%;
+        padding: 10px 0;
+    }
+
+    .nav-menu > li {
+        width: 100%;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-menu > li > a {
+        padding: 15px 20px;
+        text-align: left;
+        font-size: 1em;
+        width: 100%;
+        border-radius: 0;
+    }
+
+    .nav-menu > li > a:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: none;
+    }
+
+    /* Dropdowns en móvil */
+    .dropdown-menu {
+        position: static;
+        display: none;
+        box-shadow: none;
+        border-radius: 0;
+        background: rgba(0, 0, 0, 0.2);
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        min-width: auto;
+    }
+
+    .nav-menu > .dropdown.active > .dropdown-menu,
+    .dropdown-menu .dropdown.active > .dropdown-menu {
+        display: block;
+        animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            max-height: 0;
+        }
+        to {
+            opacity: 1;
+            max-height: 500px;
+        }
+    }
+
+    .dropdown-menu a {
+        padding: 12px 30px;
+        color: white;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        text-align: left;
+    }
+
+    .dropdown-menu a:hover {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        padding-left: 40px;
+    }
+
+    /* Submenús anidados en móvil */
+    .dropdown-menu .dropdown .dropdown-menu {
+        position: static;
+        left: auto;
+        right: auto;
+        margin: 0;
+        background: rgba(0, 0, 0, 0.3);
+        box-shadow: none;
+    }
+
+    .dropdown-menu .dropdown > a::after {
+        content: ' ▼';
+        float: right;
+        position: static;
+        transform: none;
+    }
+
+    /* Remover flecha de submenús anidados en móvil */
+    .dropdown-menu .dropdown > a {
+        padding-right: 20px;
+    }
+
+    /* Ajustar padding para submenús */
+    .dropdown-menu .dropdown .dropdown-menu a {
+        padding-left: 50px;
+    }
+
+    .dropdown-menu .dropdown .dropdown-menu a:hover {
+        padding-left: 60px;
+    }
+
+    /* Ajustar padding del body para el menú fijo */
+    body {
+        padding-top: 70px;
+    }
+}
+
+/* Estilos para tablets */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .nav-menu > li > a {
+        padding: 12px 15px;
+        font-size: 1em;
+    }
+
+    .logo-container h1 {
+        font-size: 1.5em;
+    }
+}
+
