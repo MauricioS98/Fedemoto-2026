@@ -9,7 +9,8 @@
     font-size: 1.8em;
     cursor: pointer;
     padding: 10px;
-    z-index: 10001;
+    z-index: 10002 !important; /* Más alto que el overlay para que siempre sea clickeable */
+    position: relative;
     transition: transform 0.3s;
 }
 
@@ -32,6 +33,8 @@
         margin-left: 15px !important;
         flex-shrink: 0; /* No reducir tamaño */
         align-self: flex-start; /* Alinear a la izquierda */
+        z-index: 10002 !important; /* Siempre por encima del overlay */
+        position: relative !important;
     }
 
     /* Ajustar header para incluir botón hamburguesa */
@@ -78,14 +81,16 @@
         right: 0;
         bottom: 0;
         background: rgba(0, 0, 0, 0.5);
-        z-index: 9999;
+        z-index: 10000; /* Debajo del botón hamburguesa pero encima del contenido */
         opacity: 0;
         transition: opacity 0.3s ease;
+        pointer-events: none; /* No bloquear clics cuando está inactivo */
     }
 
     .menu-overlay.active {
         display: block;
         opacity: 1;
+        pointer-events: auto; /* Permitir clics solo cuando está activo */
     }
 
     /* Ocultar menú por defecto en móvil - sidebar lateral */

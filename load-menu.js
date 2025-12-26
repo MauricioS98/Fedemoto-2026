@@ -248,6 +248,14 @@
                         margin-left: 15px !important;
                         flex-shrink: 0;
                         align-self: flex-start;
+                        z-index: 10002 !important;
+                        position: relative !important;
+                    }
+                    .menu-overlay {
+                        pointer-events: none;
+                    }
+                    .menu-overlay.active {
+                        pointer-events: auto;
                     }
                     .fixed-header {
                         display: flex !important;
@@ -296,13 +304,15 @@
                         right: 0;
                         bottom: 0;
                         background: rgba(0, 0, 0, 0.5);
-                        z-index: 9999;
+                        z-index: 10000;
                         opacity: 0;
                         transition: opacity 0.3s ease;
+                        pointer-events: none;
                     }
                     .menu-overlay.active {
                         display: block;
                         opacity: 1;
+                        pointer-events: auto;
                     }
                     .fixed-header nav {
                         position: fixed !important;
@@ -429,16 +439,23 @@
                 // Agregar evento click al botón hamburguesa
                 menuToggle.addEventListener('click', function(e) {
                     e.stopPropagation();
-                    if (nav.classList.contains('menu-open')) {
-                        closeMenu();
-                    } else {
-                        openMenu();
-                    }
+                    e.preventDefault();
+                    // Usar setTimeout para asegurar que el evento se procese antes de cambiar el estado
+                    setTimeout(function() {
+                        if (nav.classList.contains('menu-open')) {
+                            closeMenu();
+                        } else {
+                            openMenu();
+                        }
+                    }, 0);
                 });
                 
-                // Cerrar menú al hacer clic en el overlay
-                overlay.addEventListener('click', function() {
-                    closeMenu();
+                // Cerrar menú al hacer clic en el overlay (pero no en el botón)
+                overlay.addEventListener('click', function(e) {
+                    // No cerrar si el clic fue en el botón hamburguesa
+                    if (!menuToggle.contains(e.target) && e.target !== menuToggle) {
+                        closeMenu();
+                    }
                 });
                 
                 // Cerrar menú al hacer clic en un enlace
