@@ -304,7 +304,7 @@
                         right: 0;
                         bottom: 0;
                         background: rgba(0, 0, 0, 0.5);
-                        z-index: 10000;
+                        z-index: 9999;
                         opacity: 0;
                         transition: opacity 0.3s ease;
                         pointer-events: none;
@@ -313,6 +313,12 @@
                         display: block;
                         opacity: 1;
                         pointer-events: auto;
+                    }
+                    .fixed-header nav,
+                    .fixed-header nav * {
+                        pointer-events: auto !important;
+                        position: relative;
+                        z-index: 10001 !important;
                     }
                     .fixed-header nav {
                         position: fixed !important;
@@ -324,7 +330,7 @@
                         overflow-y: auto !important;
                         transition: left 0.3s ease-out !important;
                         box-shadow: 2px 0 10px rgba(0,0,0,0.3) !important;
-                        z-index: 10000 !important;
+                        z-index: 10001 !important; /* Por encima del overlay */
                         padding-top: 70px !important;
                         display: block !important;
                         align-items: flex-start !important;
@@ -450,12 +456,21 @@
                     }, 0);
                 });
                 
-                // Cerrar menú al hacer clic en el overlay (pero no en el botón)
+                // Cerrar menú al hacer clic en el overlay (pero no en el botón ni en el menú)
                 overlay.addEventListener('click', function(e) {
-                    // No cerrar si el clic fue en el botón hamburguesa
-                    if (!menuToggle.contains(e.target) && e.target !== menuToggle) {
+                    // No cerrar si el clic fue en el botón hamburguesa o en el menú
+                    const clickedElement = e.target;
+                    const isClickOnMenu = nav.contains(clickedElement);
+                    const isClickOnButton = menuToggle.contains(clickedElement) || clickedElement === menuToggle;
+                    
+                    if (!isClickOnButton && !isClickOnMenu) {
                         closeMenu();
                     }
+                });
+                
+                // Prevenir que los clics en el menú se propaguen al overlay
+                nav.addEventListener('click', function(e) {
+                    e.stopPropagation();
                 });
                 
                 // Cerrar menú al hacer clic en un enlace

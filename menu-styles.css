@@ -81,7 +81,7 @@
         right: 0;
         bottom: 0;
         background: rgba(0, 0, 0, 0.5);
-        z-index: 10000; /* Debajo del botón hamburguesa pero encima del contenido */
+        z-index: 9999; /* Debajo del menú (10001) y del botón hamburguesa (10002) */
         opacity: 0;
         transition: opacity 0.3s ease;
         pointer-events: none; /* No bloquear clics cuando está inactivo */
@@ -90,7 +90,15 @@
     .menu-overlay.active {
         display: block;
         opacity: 1;
-        pointer-events: auto; /* Permitir clics solo cuando está activo */
+        pointer-events: auto; /* Permitir clics solo cuando está activo, pero el menú está por encima */
+    }
+    
+    /* Asegurar que el menú y sus elementos sean clickeables */
+    .fixed-header nav,
+    .fixed-header nav * {
+        pointer-events: auto !important;
+        position: relative;
+        z-index: 10001 !important;
     }
 
     /* Ocultar menú por defecto en móvil - sidebar lateral */
@@ -106,7 +114,7 @@
         overflow-y: auto !important;
         transition: left 0.3s ease-out !important;
         box-shadow: 2px 0 10px rgba(0,0,0,0.3) !important;
-        z-index: 10000 !important;
+        z-index: 10001 !important; /* Por encima del overlay */
         padding-top: 70px !important;
         display: block !important;
         align-items: flex-start !important;
