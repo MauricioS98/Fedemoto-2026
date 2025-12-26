@@ -273,6 +273,16 @@
                     body {
                         padding-top: 120px !important;
                     }
+                    .fixed-header {
+                        z-index: 10000 !important;
+                    }
+                    .header-content {
+                        flex-direction: row !important;
+                        padding: 15px 20px !important;
+                    }
+                    .logo-container {
+                        margin-bottom: 0 !important;
+                    }
                     body > *:not(.fixed-header):not(script):not(.menu-overlay) {
                         margin-top: 0 !important;
                     }

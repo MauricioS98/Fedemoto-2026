@@ -25,6 +25,11 @@
 
 /* Estilos responsive para móviles y tablets */
 @media (max-width: 768px) {
+    /* Asegurar que el fixed-header tenga el z-index correcto */
+    .fixed-header {
+        z-index: 10000 !important;
+    }
+    
     /* Mostrar botón hamburguesa */
     .menu-toggle {
         display: block !important;
@@ -232,6 +237,26 @@
     /* Ajustar padding del body para el menú fijo - similar a desktop */
     body {
         padding-top: 120px !important; /* Similar al desktop para que se vea natural */
+    }
+    
+    /* Sobrescribir estilos responsive del index.html */
+    @media (max-width: 768px) {
+        body {
+            padding-top: 120px !important; /* Sobrescribir el padding-top: 150px del index */
+        }
+        
+        .header-content {
+            flex-direction: row !important; /* Mantener en fila, no columna */
+            padding: 15px 20px !important;
+        }
+        
+        .logo-container {
+            margin-bottom: 0 !important; /* Eliminar margen inferior */
+        }
+        
+        .nav-menu {
+            flex-direction: column !important; /* Solo en el sidebar */
+        }
     }
     
     /* Eliminar márgenes adicionales que crean espacio no natural */
