@@ -1,0 +1,16 @@
+# Normalizar finales de línea para archivos HTML
+*.html text eol=lf
+
+# Normalizar finales de línea para otros archivos de texto
+*.py text eol=lf
+*.json text eol=lf
+*.txt text eol=lf
+*.md text eol=lf
+
+# Archivos binarios
+*.png binary
+*.xlsx binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+
