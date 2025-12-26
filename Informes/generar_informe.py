@@ -74,6 +74,8 @@ depth_to_root = depth + 1
 # Generar las rutas relativas
 ruta_inicio = '../' * depth_to_root + 'index.html'
 ruta_logo = '../' * depth_to_root + 'fedemoto-logo.png'
+# Ruta al script de carga del menú (desde el archivo generado hasta la raíz)
+ruta_load_menu = '../' * depth_to_root + 'load-menu.js'
 # Para informe_2025_fedemoto.html, está en Informes/, así que desde Informes/Modalidad/ es ../informe_2025_fedemoto.html
 # Desde Informes/ es informe_2025_fedemoto.html (mismo nivel)
 if depth == 0:
@@ -653,144 +655,8 @@ html_content = f'''<!DOCTYPE html>
     </style>
 </head>
 <body>
-    <!-- Header fijo con menú -->
-    <header class="fixed-header">
-        <div class="header-content">
-            <div class="logo-container">
-                <img src="{ruta_logo.replace(chr(92), '/')}" alt="Logo FEDEMOTO">
-                <h1>Fedemoto</h1>
-            </div>
-            <nav>
-                <ul class="nav-menu">
-                    <li><a href="{ruta_inicio}">Inicio</a></li>
-                    <li class="dropdown">
-                        <a href="#">Informes</a>
-                        <ul class="dropdown-menu">
-                            <li><a href="{ruta_informe_2025}">Informe Anual 2025</a></li>
-                            <li><a href="#">Enduro</a></li>
-                            <li><a href="#">GP Colombia</a></li>
-                            <li class="dropdown">
-                                <a href="#">Modalidad de ejemplo</a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="Modalidad de ejemplo/informe_valida_ejemplo.html">Válida de ejemplo</a></li>
-                                    <li><a href="Modalidad de ejemplo/informe_valida_ejemplo2.html">Válida de ejemplo 2</a></li>
-                                </ul>
-                            </li>
-                            <li class="dropdown">
-                                <a href="#">Motocross</a>
-                                <ul class="dropdown-menu">
-                                    <li class="dropdown">
-                                        <a href="#">Primer semestre</a>
-                                        <ul class="dropdown-menu">
-                                        </ul>
-                                    </li>
-                                    <li class="dropdown">
-                                        <a href="#">Segundo semestre</a>
-                                        <ul class="dropdown-menu">
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li><a href="#">Velocidad</a></li>
-                            <li class="dropdown">
-                                <a href="#">Velotierra</a>
-                                <ul class="dropdown-menu">
-                                    <li class="dropdown">
-                                        <a href="#">Primer semestre</a>
-                                        <ul class="dropdown-menu">
-                                        </ul>
-                                    </li>
-                                    <li class="dropdown">
-                                        <a href="#">Segundo semestre</a>
-                                        <ul class="dropdown-menu">
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="dropdown">
-                        <a href="#">Resultados de válidas</a>
-                        <ul class="dropdown-menu">
-                            <li><a href="#">Enduro</a></li>
-                            <li><a href="#">GP Colombia</a></li>
-                            <li><a href="#">Valida de ejemplo</a></li>
-                            <li class="dropdown">
-                                <a href="#">Motocross</a>
-                                <ul class="dropdown-menu">
-                                    <li class="dropdown">
-                                        <a href="#">Primer semestre</a>
-                                        <ul class="dropdown-menu">
-                                        </ul>
-                                    </li>
-                                    <li class="dropdown">
-                                        <a href="#">Segundo semestre</a>
-                                        <ul class="dropdown-menu">
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li><a href="#">Velocidad</a></li>
-                            <li class="dropdown">
-                                <a href="#">Velotierra</a>
-                                <ul class="dropdown-menu">
-                                    <li class="dropdown">
-                                        <a href="#">Primer semestre</a>
-                                        <ul class="dropdown-menu">
-                                        </ul>
-                                    </li>
-                                    <li class="dropdown">
-                                        <a href="#">Segundo semestre</a>
-                                        <ul class="dropdown-menu">
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="dropdown">
-                        <a href="#">Resultados generales</a>
-                        <ul class="dropdown-menu">
-                            <li><a href="#">Enduro</a></li>
-                            <li><a href="#">GP Colombia</a></li>
-                            <li><a href="#">Valida de ejemplo</a></li>
-                            <li class="dropdown">
-                                <a href="#">Motocross</a>
-                                <ul class="dropdown-menu">
-                                    <li class="dropdown">
-                                        <a href="#">Primer semestre</a>
-                                        <ul class="dropdown-menu">
-                                        </ul>
-                                    </li>
-                                    <li class="dropdown">
-                                        <a href="#">Segundo semestre</a>
-                                        <ul class="dropdown-menu">
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li><a href="#">Velocidad</a></li>
-                            <li class="dropdown">
-                                <a href="#">Velotierra</a>
-                                <ul class="dropdown-menu">
-                                    <li class="dropdown">
-                                        <a href="#">Primer semestre</a>
-                                        <ul class="dropdown-menu">
-                                        </ul>
-                                    </li>
-                                    <li class="dropdown">
-                                        <a href="#">Segundo semestre</a>
-                                        <ul class="dropdown-menu">
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            </nav>
-        </div>
-    </header>
+    <!-- Contenedor para el menú (se carga dinámicamente desde menu.html) -->
+    <div id="menu-container"></div>
 
     <div class="container">
         <header>
@@ -1115,72 +981,7 @@ html_content = f'''<!DOCTYPE html>
             }}).join('');
         }}
 
-        // Marcar el enlace activo basándose en la URL actual
-        document.addEventListener('DOMContentLoaded', function() {{
-            const currentPath = window.location.pathname;
-            const currentHref = window.location.href;
-            const menuLinks = document.querySelectorAll('.nav-menu a, .dropdown-menu a');
-            
-            menuLinks.forEach(link => {{
-                const linkHref = link.getAttribute('href');
-                if (linkHref && linkHref !== '#') {{
-                    // Obtener el nombre del archivo actual
-                    const currentFileName = currentHref.split('/').pop() || currentHref.split('\\\\').pop();
-                    const linkFileName = linkHref.split('/').pop() || linkHref.split('\\\\').pop();
-                    
-                    // Comparar nombres de archivo
-                    if (linkFileName && currentFileName && linkFileName === currentFileName) {{
-                        link.classList.add('active');
-                        const dropdown = link.closest('.dropdown');
-                        if (dropdown) {{
-                            dropdown.classList.add('active');
-                        }}
-                    }} else if (linkHref.includes(currentFileName) || currentHref.includes(linkFileName)) {{
-                        link.classList.add('active');
-                        const dropdown = link.closest('.dropdown');
-                        if (dropdown) {{
-                            dropdown.classList.add('active');
-                        }}
-                    }}
-                }}
-            }});
-        }});
-
-        // Manejar clics en menús desplegables para móviles
-        document.addEventListener('DOMContentLoaded', function() {{
-            const dropdowns = document.querySelectorAll('.dropdown > a');
-
-            dropdowns.forEach(dropdown => {{
-                dropdown.addEventListener('click', function(e) {{
-                    if (window.innerWidth <= 768) {{
-                        e.preventDefault();
-                        const parent = this.parentElement;
-                        const isActive = parent.classList.contains('active');
-
-                        document.querySelectorAll('.dropdown').forEach(d => {{
-                            if (d !== parent) {{
-                                d.classList.remove('active');
-                            }}
-                        }});
-
-                        if (isActive) {{
-                            parent.classList.remove('active');
-                        }} else {{
-                            parent.classList.add('active');
-                        }}
-                    }}
-                }});
-            }});
-
-            // Cerrar dropdowns al hacer clic fuera
-            document.addEventListener('click', function(e) {{
-                if (!e.target.closest('.dropdown')) {{
-                    document.querySelectorAll('.dropdown').forEach(d => {{
-                        d.classList.remove('active');
-                    }});
-                }}
-            }});
-        }});
+        // El menú se carga dinámicamente desde menu.html usando load-menu.js
 
         // Función para descargar el informe como PDF
         document.getElementById('descargarPDF').addEventListener('click', function() {{
@@ -1279,6 +1080,9 @@ html_content = f'''<!DOCTYPE html>
             }});
         }});
     </script>
+    
+    <!-- Script para cargar el menú dinámicamente -->
+    <script src="{ruta_load_menu.replace(chr(92), '/')}"></script>
 </body>
 </html>
 '''
