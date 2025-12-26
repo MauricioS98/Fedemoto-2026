@@ -241,23 +241,79 @@
             style.id = 'menu-styles-inline';
             style.textContent = `
                 @media (max-width: 768px) {
-                    .menu-toggle { display: block !important; }
-                    .fixed-header .header-content { padding: 15px 20px; }
-                    .fixed-header nav {
+                    .menu-toggle { 
+                        display: block !important; 
+                        order: -1;
+                        margin-right: 0 !important;
+                        margin-left: 15px !important;
+                        flex-shrink: 0;
+                        align-self: flex-start;
+                    }
+                    .fixed-header .header-content { 
+                        padding: 15px 20px;
+                        flex-wrap: nowrap;
+                        align-items: center;
+                        justify-content: flex-start !important;
+                        width: 100%;
+                    }
+                    body {
+                        padding-top: 70px;
+                    }
+                    body > *:not(.fixed-header):not(script) {
+                        margin-top: 20px;
+                    }
+                    main, .content, .container, [class*="content"], [class*="container"] {
+                        margin-top: 20px !important;
+                        padding-top: 20px !important;
+                    }
+                    .logo-container {
+                        display: none !important;
+                    }
+                    .logo-container h1 {
+                        display: none !important;
+                    }
+                    .logo-container img {
+                        display: none !important;
+                    }
+                    .menu-overlay {
+                        display: none;
                         position: fixed;
-                        top: 70px;
+                        top: 0;
                         left: 0;
                         right: 0;
-                        background: #123E92;
-                        max-height: 0;
-                        overflow: hidden;
-                        transition: max-height 0.3s ease-out;
-                        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-                        z-index: 10000;
+                        bottom: 0;
+                        background: rgba(0, 0, 0, 0.5);
+                        z-index: 9999;
+                        opacity: 0;
+                        transition: opacity 0.3s ease;
+                    }
+                    .menu-overlay.active {
+                        display: block;
+                        opacity: 1;
+                    }
+                    .fixed-header nav {
+                        position: fixed !important;
+                        top: 0 !important;
+                        left: -100% !important;
+                        width: 280px !important;
+                        height: 100vh !important;
+                        background: #123E92 !important;
+                        overflow-y: auto !important;
+                        transition: left 0.3s ease-out !important;
+                        box-shadow: 2px 0 10px rgba(0,0,0,0.3) !important;
+                        z-index: 10000 !important;
+                        padding-top: 70px !important;
+                        display: block !important;
+                        align-items: flex-start !important;
+                        justify-content: flex-start !important;
+                        max-width: none !important;
+                        margin: 0 !important;
                     }
                     .fixed-header nav.menu-open {
-                        max-height: calc(100vh - 70px);
-                        overflow-y: auto;
+                        left: 0 !important;
+                    }
+                    body.menu-open {
+                        overflow: hidden;
                     }
                     .nav-menu {
                         flex-direction: column;
@@ -295,6 +351,20 @@
             document.head.appendChild(style);
         }
 
+        // Función para crear el overlay oscuro
+        function createMenuOverlay() {
+            // Verificar si el overlay ya existe
+            if (document.getElementById('menu-overlay')) {
+                return document.getElementById('menu-overlay');
+            }
+
+            const overlay = document.createElement('div');
+            overlay.id = 'menu-overlay';
+            overlay.className = 'menu-overlay';
+            document.body.appendChild(overlay);
+            return overlay;
+        }
+
         // Función para agregar el botón hamburguesa
         function addHamburgerButton(headerContent) {
             // Verificar si el botón ya existe
@@ -307,39 +377,77 @@
             menuToggle.setAttribute('aria-label', 'Toggle menu');
             menuToggle.innerHTML = '☰';
             
-            // Insertar antes del nav
+            // Insertar al principio del header-content (antes del logo)
+            const logoContainer = headerContent.querySelector('.logo-container');
+            if (logoContainer) {
+                headerContent.insertBefore(menuToggle, logoContainer);
+            } else {
+                // Si no hay logo, insertar antes del nav
+                const nav = headerContent.querySelector('nav');
+                if (nav) {
+                    headerContent.insertBefore(menuToggle, nav);
+                } else {
+                    headerContent.insertBefore(menuToggle, headerContent.firstChild);
+                }
+            }
+            
+            // Crear overlay oscuro
+            const overlay = createMenuOverlay();
+            
+            // Obtener el nav para los eventos
             const nav = headerContent.querySelector('nav');
             if (nav) {
-                headerContent.insertBefore(menuToggle, nav);
+                // Función para abrir el menú
+                function openMenu() {
+                    nav.classList.add('menu-open');
+                    overlay.classList.add('active');
+                    document.body.classList.add('menu-open');
+                    menuToggle.innerHTML = '✕';
+                }
+                
+                // Función para cerrar el menú
+                function closeMenu() {
+                    nav.classList.remove('menu-open');
+                    overlay.classList.remove('active');
+                    document.body.classList.remove('menu-open');
+                    menuToggle.innerHTML = '☰';
+                }
                 
                 // Agregar evento click al botón hamburguesa
                 menuToggle.addEventListener('click', function(e) {
                     e.stopPropagation();
-                    nav.classList.toggle('menu-open');
                     if (nav.classList.contains('menu-open')) {
-                        menuToggle.innerHTML = '✕';
+                        closeMenu();
                     } else {
-                        menuToggle.innerHTML = '☰';
+                        openMenu();
                     }
                 });
                 
-                // Cerrar menú al hacer clic fuera
-                document.addEventListener('click', function(e) {
-                    if (window.innerWidth <= 768) {
-                        if (!headerContent.contains(e.target) && nav.classList.contains('menu-open')) {
-                            nav.classList.remove('menu-open');
-                            menuToggle.innerHTML = '☰';
-                        }
-                    }
+                // Cerrar menú al hacer clic en el overlay
+                overlay.addEventListener('click', function() {
+                    closeMenu();
                 });
                 
                 // Cerrar menú al hacer clic en un enlace
                 nav.addEventListener('click', function(e) {
                     if (window.innerWidth <= 768 && e.target.tagName === 'A' && e.target.getAttribute('href') !== '#') {
                         setTimeout(() => {
-                            nav.classList.remove('menu-open');
-                            menuToggle.innerHTML = '☰';
+                            closeMenu();
                         }, 300);
+                    }
+                });
+                
+                // Cerrar menú con la tecla Escape
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && nav.classList.contains('menu-open')) {
+                        closeMenu();
+                    }
+                });
+                
+                // Ajustar cuando se redimensiona la ventana
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth > 768 && nav.classList.contains('menu-open')) {
+                        closeMenu();
                     }
                 });
             }

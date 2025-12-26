@@ -26,51 +26,88 @@
 @media (max-width: 768px) {
     /* Mostrar botón hamburguesa */
     .menu-toggle {
-        display: block;
+        display: block !important;
         order: -1; /* Colocar antes del logo */
-        margin-right: 15px;
+        margin-right: 0 !important;
+        margin-left: 15px !important;
+        flex-shrink: 0; /* No reducir tamaño */
+        align-self: flex-start; /* Alinear a la izquierda */
     }
 
     /* Ajustar header para incluir botón hamburguesa */
     .fixed-header .header-content {
         padding: 15px 20px;
         flex-wrap: nowrap; /* Mantener en una sola fila */
+        align-items: center; /* Alinear verticalmente al centro */
+        position: relative; /* Para que el nav fixed se posicione relativo a la ventana */
+        justify-content: flex-start !important; /* Alinear contenido a la izquierda */
+        width: 100%;
+    }
+    
+    /* Asegurar que el nav no esté afectado por el flex del header-content en móvil */
+    .fixed-header .header-content nav {
+        position: fixed !important;
     }
 
+    /* Ocultar logo y texto en responsive */
     .logo-container {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        gap: 15px;
+        display: none !important;
     }
 
     .logo-container h1 {
-        font-size: 1.4em;
-        margin: 0; /* Asegurar que no tenga margen */
+        display: none !important;
     }
 
     .logo-container img {
-        height: 40px;
+        display: none !important;
     }
 
-    /* Ocultar menú por defecto en móvil */
-    .fixed-header nav {
+    /* Overlay oscuro cuando el menú está abierto */
+    .menu-overlay {
+        display: none;
         position: fixed;
-        top: 70px;
+        top: 0;
         left: 0;
         right: 0;
-        background: #123E92;
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.3s ease-out;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        z-index: 10000;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+        opacity: 0;
+        transition: opacity 0.3s ease;
     }
 
-    /* Mostrar menú cuando está activo */
+    .menu-overlay.active {
+        display: block;
+        opacity: 1;
+    }
+
+    /* Ocultar menú por defecto en móvil - sidebar lateral */
+    .fixed-header nav {
+        position: fixed !important;
+        top: 0 !important;
+        left: -100% !important;
+        right: auto !important;
+        bottom: auto !important;
+        width: 280px !important;
+        height: 100vh !important;
+        background: #123E92 !important;
+        overflow-y: auto !important;
+        transition: left 0.3s ease-out !important;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.3) !important;
+        z-index: 10000 !important;
+        padding-top: 70px !important;
+        display: block !important;
+        align-items: flex-start !important;
+        justify-content: flex-start !important;
+        max-width: none !important;
+        margin: 0 !important;
+        flex: none !important;
+        order: initial !important;
+    }
+
+    /* Mostrar menú cuando está activo - deslizar desde la izquierda */
     .fixed-header nav.menu-open {
-        max-height: calc(100vh - 70px);
-        overflow-y: auto;
+        left: 0 !important;
     }
 
     /* Estilos del menú en móvil */
@@ -175,6 +212,22 @@
     /* Ajustar padding del body para el menú fijo */
     body {
         padding-top: 70px;
+    }
+    
+    /* Agregar separación entre el header y el contenido */
+    body > *:not(.fixed-header):not(script) {
+        margin-top: 20px;
+    }
+    
+    /* Asegurar que el contenido principal tenga separación */
+    main, .content, .container, [class*="content"], [class*="container"] {
+        margin-top: 20px !important;
+        padding-top: 20px !important;
+    }
+
+    /* Prevenir scroll del body cuando el menú está abierto */
+    body.menu-open {
+        overflow: hidden;
     }
 }
 
