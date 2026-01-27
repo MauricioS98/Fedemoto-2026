@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FEDEMOTO - Federación de Motociclismo</title>
     <link rel="icon" type="image/png" href="fedemoto-logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto+Condensed:wght@300;400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -13,9 +16,9 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #ffffff;
-            color: #333;
+            font-family: 'Inter', sans-serif;
+            background: #f5f5f5;
+            color: #000000;
             line-height: 1.6;
             padding: 20px;
             padding-top: 100px;
@@ -63,9 +66,11 @@
         }
 
         .logo-container h1 {
+            font-family: 'Bebas Neue', sans-serif;
             font-size: 1.8em;
             margin: 0;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            letter-spacing: 1px;
         }
         
         .logo-container a:hover h1 {
@@ -90,10 +95,11 @@
             padding: 12px 25px;
             color: white;
             text-decoration: none;
-            font-weight: 500;
+            font-family: 'Roboto Condensed', sans-serif;
+            font-weight: 400;
             font-size: 1.1em;
-            transition: all 0.3s;
-            border-radius: 5px;
+            transition: all 0.2s ease;
+            border-radius: 8px;
             position: relative;
             cursor: pointer;
         }
@@ -106,6 +112,7 @@
         .nav-menu > li > a.active {
             background: #F7C31D;
             color: #123E92;
+            font-weight: 700;
         }
 
         /* Menú desplegable */
@@ -146,6 +153,7 @@
             padding: 0;
             margin: 0;
             overflow: visible;
+            border: 1px solid #d1d5db;
         }
         
         /* Submenús dentro de dropdowns (para Motocross, Velotierra, etc.) */
@@ -193,6 +201,7 @@
             box-shadow: 0 8px 16px rgba(0,0,0,0.2);
             border-radius: 8px;
             overflow: visible;
+            border: 1px solid #d1d5db;
         }
         
         /* En los últimos dropdowns del menú, mostrar submenús a la izquierda para evitar que se salgan de la pantalla */
@@ -226,6 +235,18 @@
                 transform: translateY(0);
             }
         }
+        
+        /* Estilos para enlaces en el contenido */
+        .content-section a {
+            color: #123E92;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        
+        .content-section a:hover {
+            color: #0f3377;
+            text-decoration: underline;
+        }
 
         .dropdown-menu li {
             margin: 0;
@@ -235,10 +256,12 @@
         .dropdown-menu a {
             display: block;
             padding: 12px 20px;
-            color: #333;
+            color: #000000;
             text-decoration: none;
+            font-family: 'Inter', sans-serif;
             font-size: 1em;
-            transition: all 0.2s;
+            font-weight: 400;
+            transition: all 0.2s ease;
             border-bottom: 1px solid #f0f0f0;
         }
 
@@ -271,7 +294,7 @@
             max-width: 1400px;
             margin: 0 auto;
             background: white;
-            border-radius: 20px;
+            border-radius: 12px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             overflow: hidden;
             margin-top: 20px;
@@ -279,20 +302,24 @@
         }
 
         .hero-section {
-            background: linear-gradient(135deg, #123E92 0%, #1a4fb3 100%);
+            background: linear-gradient(135deg, #123E92 0%, #0f3377 100%);
             color: white;
             padding: 60px 40px;
             text-align: center;
         }
 
         .hero-section h2 {
+            font-family: 'Bebas Neue', sans-serif;
             font-size: 2.5em;
             margin-bottom: 20px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            letter-spacing: 2px;
         }
 
         .hero-section p {
+            font-family: 'Roboto Condensed', sans-serif;
             font-size: 1.3em;
+            font-weight: 400;
             opacity: 0.95;
             max-width: 900px;
             margin: 0 auto;
@@ -304,18 +331,22 @@
         }
 
         .content-section h3 {
+            font-family: 'Bebas Neue', sans-serif;
             font-size: 2em;
             color: #123E92;
             margin-bottom: 25px;
             padding-bottom: 15px;
             border-bottom: 3px solid #F7C31D;
+            letter-spacing: 1px;
         }
 
         .content-section p {
+            font-family: 'Inter', sans-serif;
             font-size: 1.1em;
+            font-weight: 400;
             line-height: 1.8;
             margin-bottom: 20px;
-            color: #555;
+            color: #000000;
         }
 
         .info-cards {
@@ -328,9 +359,9 @@
         .info-card {
             background: #f8f9fa;
             padding: 30px;
-            border-radius: 15px;
+            border-radius: 8px;
             border-left: 5px solid #F7C31D;
-            transition: all 0.3s;
+            transition: all 0.2s ease;
         }
 
         .info-card:hover {
@@ -339,28 +370,35 @@
         }
 
         .info-card h4 {
+            font-family: 'Bebas Neue', sans-serif;
             font-size: 1.5em;
             color: #123E92;
             margin-bottom: 15px;
+            letter-spacing: 1px;
         }
 
         .info-card p {
-            color: #666;
+            font-family: 'Inter', sans-serif;
+            color: #000000;
             line-height: 1.7;
+            font-weight: 400;
         }
 
         footer {
             background: #f8f9fa;
             padding: 30px 40px;
             text-align: center;
-            border-top: 1px solid #e0e0e0;
-            color: #666;
+            border-top: 1px solid #C0C0C0;
+            color: #000000;
+            font-family: 'Inter', sans-serif;
             font-size: 0.9em;
+            font-weight: 400;
             line-height: 1.8;
         }
 
         footer .developer {
-            font-weight: 600;
+            font-family: 'Roboto Condensed', sans-serif;
+            font-weight: 700;
             color: #123E92;
         }
 
