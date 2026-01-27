@@ -205,13 +205,17 @@
         }
         
         /* En los últimos dropdowns del menú, mostrar submenús a la izquierda para evitar que se salgan de la pantalla */
-        .nav-menu > .dropdown:nth-child(3) .dropdown-menu > .dropdown > .dropdown-menu,
-        .nav-menu > .dropdown:nth-child(4) .dropdown-menu > .dropdown > .dropdown-menu,
-        .nav-menu > .dropdown:nth-child(5) .dropdown-menu > .dropdown > .dropdown-menu {
-            left: auto;
-            right: 100%;
-            margin-left: 0;
-            margin-right: 5px;
+        /* Aplica a todos los niveles de submenús anidados dentro de los últimos 3 dropdowns */
+        .nav-menu > .dropdown:nth-child(3) .dropdown-menu .dropdown .dropdown-menu,
+        .nav-menu > .dropdown:nth-child(4) .dropdown-menu .dropdown .dropdown-menu,
+        .nav-menu > .dropdown:nth-child(5) .dropdown-menu .dropdown .dropdown-menu,
+        .nav-menu > .dropdown:nth-child(4) .dropdown-menu .dropdown .dropdown-menu .dropdown .dropdown-menu,
+        .nav-menu > .dropdown:nth-child(5) .dropdown-menu .dropdown .dropdown-menu .dropdown .dropdown-menu,
+        .nav-menu > .dropdown:nth-child(5) .dropdown-menu .dropdown .dropdown-menu .dropdown .dropdown-menu .dropdown .dropdown-menu {
+            left: auto !important;
+            right: 100% !important;
+            margin-left: 0 !important;
+            margin-right: 5px !important;
         }
         
         .dropdown-menu .dropdown:hover > .dropdown-menu {
