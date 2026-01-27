@@ -127,6 +127,8 @@
         }
 
         /* Puente invisible para mantener el hover activo */
+        /* Aplica a TODOS los dropdowns del menú, incluyendo Reglamentos generales y Reglamentos particulares */
+        .nav-menu > .dropdown::before,
         .dropdown::before {
             content: '';
             position: absolute;
