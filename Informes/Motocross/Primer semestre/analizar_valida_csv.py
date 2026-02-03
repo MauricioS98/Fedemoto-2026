@@ -15,6 +15,26 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 FILES_DIR = os.path.join(SCRIPT_DIR, "FILES EXPORTED")
 OUTPUT_JSON = os.path.join(SCRIPT_DIR, "datos_informe_valida.json")
 
+# Variantes de nombre de club -> nombre canónico (mismo club, distinta escritura en CSV)
+CLUB_CANONICAL = {
+    "carasucias": "Carasucias",
+    "club motocross de yarumal": "Club Motocross Yarumal",
+    "club motocross yarumal": "Club Motocross Yarumal",
+    "club valle": "Club Valle",
+    "villavicencio racing club": "Villavicencio Racing Club",
+}
+
+
+def normalizar_club(raw):
+    """Unifica nombres de club: variantes conocidas a canónico, resto a formato título."""
+    if not raw:
+        return ""
+    s = " ".join(str(raw).strip().split())
+    key = s.lower()
+    if key in CLUB_CANONICAL:
+        return CLUB_CANONICAL[key]
+    return s.title()
+
 
 def parse_filename(filename):
     """Extrae categoría y tipo (Final, Clasificatoria, etc.) del nombre del archivo."""
@@ -104,7 +124,7 @@ def load_categoria_final_rows():
                     elif liga_n.upper() == "VALLE":
                         liga_n = "Valle del Cauca"
                     moto_n = (moto.strip() if moto else "").replace("YAMAHA", "Yamaha")
-                    club_n = (club.strip() if club else "").strip()
+                    club_n = normalizar_club(club)
                     by_categoria[categoria].append((num, nombre, liga_n, club_n, moto_n))
 
     return by_categoria

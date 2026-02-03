@@ -139,7 +139,7 @@ def main():
             var destacados = [
                 'Categoría más concurrida: ' + catMax + ' (' + cat[catMax] + ' participantes)',
                 'Liga con más pilotos: ' + ligaMax + ' (' + liga[ligaMax] + ' pilotos únicos)',
-                'Marca líder: ' + marcaMax + ' (' + marca[marcaMax] + ' pilotos)',
+                'Marca líder: ' + marcaMax + ' (' + marca[marcaMax] + ' inscripciones)',
                 'Club con más pilotos: ' + clubMax + ' (' + club[clubMax] + ' pilotos)',
                 'Promedio participantes por categoría: ' + (datos.participaciones_totales / Object.keys(cat).length).toFixed(1)
             ];
