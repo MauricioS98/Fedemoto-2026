@@ -570,7 +570,9 @@
         });
         document.getElementById('modalExportarBtn').addEventListener('click', function() {
             var selected = [];
-            document.querySelectorAll('#modalCategorias input:checked').forEach(function(cb){ selected.push(cb.value); });
+            document.querySelectorAll('#modalCategorias input[type="checkbox"]').forEach(function(cb) {
+                if (cb.checked) selected.push(cb.value);
+            });
             if (selected.length === 0) {
                 alert('Selecciona al menos una categoria.');
                 return;
@@ -580,7 +582,8 @@
                 section.classList.toggle('pdf-exclude', selected.indexOf(id) === -1);
             });
             document.getElementById('modalExportar').classList.remove('open');
-            window.print();
+            void document.body.offsetHeight;
+            setTimeout(function() { window.print(); }, 150);
         });
         window.addEventListener('afterprint', function() {
             document.querySelectorAll('.categoria-section').forEach(function(section) {
