@@ -129,18 +129,24 @@ def main():
                 });
             }
             var cat = datos.participaciones_por_categoria;
-            var catMax = Object.keys(cat).reduce(function(a, b) { return cat[a] >= cat[b] ? a : b; });
+            function keysWithMax(obj) {
+                var keys = Object.keys(obj);
+                if (!keys.length) return [];
+                var maxVal = Math.max.apply(null, keys.map(function(k) { return obj[k]; }));
+                return keys.filter(function(k) { return obj[k] === maxVal; });
+            }
+            var catMaxList = keysWithMax(cat);
             var liga = datos.pilotos_por_liga;
-            var ligaMax = Object.keys(liga).reduce(function(a, b) { return liga[a] >= liga[b] ? a : b; });
+            var ligaMaxList = keysWithMax(liga);
             var marca = datos.inscripciones_por_marca;
-            var marcaMax = Object.keys(marca).reduce(function(a, b) { return marca[a] >= marca[b] ? a : b; });
+            var marcaMaxList = keysWithMax(marca);
             var club = datos.pilotos_por_club;
-            var clubMax = Object.keys(club).reduce(function(a, b) { return club[a] >= club[b] ? a : b; });
+            var clubMaxList = keysWithMax(club);
             var destacados = [
-                'Categoría más concurrida: ' + catMax + ' (' + cat[catMax] + ' participantes)',
-                'Liga con más pilotos: ' + ligaMax + ' (' + liga[ligaMax] + ' pilotos únicos)',
-                'Marca líder: ' + marcaMax + ' (' + marca[marcaMax] + ' inscripciones)',
-                'Club con más pilotos: ' + clubMax + ' (' + club[clubMax] + ' pilotos)',
+                'Categoría más concurrida: ' + catMaxList.join(', ') + ' (' + (cat[catMaxList[0]] || 0) + ' participantes)',
+                'Liga con más pilotos: ' + ligaMaxList.join(', ') + ' (' + (liga[ligaMaxList[0]] || 0) + ' pilotos únicos)',
+                'Marca líder: ' + marcaMaxList.join(', ') + ' (' + (marca[marcaMaxList[0]] || 0) + ' inscripciones)',
+                'Club con más pilotos: ' + clubMaxList.join(', ') + ' (' + (club[clubMaxList[0]] || 0) + ' pilotos)',
                 'Promedio participantes por categoría: ' + (datos.participaciones_totales / Object.keys(cat).length).toFixed(1)
             ];
             var destEl = document.getElementById('destacados');
