@@ -84,7 +84,7 @@
             if (href && !href.startsWith('#') && !href.startsWith('http') && !href.startsWith('//')) {
                 // Las rutas en menu.html están definidas desde la raíz del proyecto
                 // Necesitamos ajustarlas según basePath
-                if (href.startsWith('Informes/') || href === 'index.html') {
+                if (href.startsWith('Informes/') || href.startsWith('Resultados_validas/') || href === 'index.html') {
                     // Rutas desde la raíz: simplemente agregar basePath
                     link.setAttribute('href', basePath + href);
                 } else if (href.startsWith('../')) {
