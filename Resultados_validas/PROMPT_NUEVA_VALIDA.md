@@ -25,7 +25,8 @@ Tareas:
 1. Crear un script Python (o adaptar el existente) que:
    - Lea todos los CSV de FILES EXPORTED
    - Genere un HTML con la misma estructura y funcionalidades que valida_i_mx_girardota.html
-   - Use las rutas relativas correctas para load-menu.js, fedemoto-logo.png, etc.
+   - Use las rutas relativas correctas: desde Resultados_validas/[DISCIPLINA]/[PERIODO]/ son 3 niveles hacia la raíz, es decir ../../../ (load-menu.js, fedemoto-logo.png, etc.). No usar ../../../../.
+   - Incluya en el HTML generado el CSS base del menú (estilos de .fixed-header, .nav-menu, .dropdown, etc., como en index.html), porque menu-styles.css solo tiene estilos responsive; sin ese CSS el menú inyectado por load-menu.js se ve como lista sin estilo.
    - Siga el Manual de Marca (MANUAL_MARCA.md)
 
 2. La página debe incluir:
@@ -48,6 +49,7 @@ Tareas:
    Ruta: Resultados_validas/[DISCIPLINA]/[PERIODO]/[archivo].html
 
 4. Ejecutar el script y verificar que la página se genera correctamente.
+   Para probar el menú y evitar bloqueos por CORS, abrir la página mediante un servidor web local (Live Server, python -m http.server 8000, etc.), no con file://.
 ```
 
 ---
@@ -86,3 +88,9 @@ Ajusta get_category_sort_key() en el script para ordenarlas correctamente.
 - **Manual de marca:** `MANUAL_MARCA.md` (raíz del proyecto)
 - **Ejemplo de menú:** `menu.html` líneas 67-70
 - **load-menu.js:** Ajusta rutas que empiezan con `Resultados_validas/` automáticamente
+
+## Detalles técnicos del menú
+
+- **Rutas relativas:** Desde `Resultados_validas/Motocross/Primer semestre/` (o cualquier válida al mismo nivel) se usan **3 niveles** hacia la raíz: `../../../load-menu.js`, `../../../fedemoto-logo.png`. Usar 4 niveles (`../../../../`) hace que el menú y el logo no carguen.
+- **CSS del menú:** El HTML generado debe incluir en un `<style>` el CSS base del menú (fixed-header, nav-menu, dropdown, etc.). El archivo `menu-styles.css` solo contiene media queries; sin el CSS base, el menú inyectado por load-menu.js se muestra como lista sin formato.
+- **Pruebas:** Siempre probar la página con un servidor web local (Live Server, `python -m http.server 8000`) para que load-menu.js pueda cargar menu.html sin errores de CORS.

@@ -17,7 +17,10 @@ Todas las páginas generadas **deben incluir**:
    - *Developed by Mauricio Sánchez Aguilar - Fedemoto*
    - *Este proyecto es de uso interno de FEDEMOTO.*
 
-**Nota sobre el menú:** Si el menú no carga, asegúrate de abrir la página **a través de un servidor web local** (Live Server en VS Code, `python -m http.server 8000`, etc.). Abrir el archivo HTML directamente con `file://` puede bloquear la carga del menú por restricciones de CORS del navegador.
+**Nota sobre el menú:**  
+- Abre la página **siempre con un servidor web local** (Live Server en VS Code, `python -m http.server 8000`, etc.). Abrir con `file://` bloquea la carga del menú por CORS.  
+- Las rutas relativas desde la carpeta de la válida deben ser **3 niveles** hacia la raíz (`../../../`), no 4.  
+- El HTML generado debe incluir el **CSS base del menú** (fixed-header, nav-menu, dropdown, etc.) en un `<style>`, porque `menu-styles.css` solo tiene estilos responsive; sin ese CSS el menú inyectado se ve como lista sin estilo.
 
 ---
 
@@ -78,7 +81,8 @@ Copia `generar_valida_girardota.py` como plantilla y adapta:
 | `OUTPUT_FILE` | Nombre del HTML de salida (ej: `valida_ii_mx_bogota.html`) |
 | Título en HTML | Ej: "II Válida Nacional de Motocross - Bogotá" |
 | `get_category_sort_key()` | Añadir nuevas categorías si aplica |
-| Rutas relativas (`../../../../`) | Según profundidad de la carpeta respecto a la raíz |
+| Rutas relativas | Para válidas en `Resultados_validas/[DISCIPLINA]/[PERIODO]/` usar **3 niveles**: `../../../` (load-menu.js, fedemoto-logo.png). No usar `../../../../`. |
+| CSS del menú | Incluir en el HTML generado un bloque `<style>` con los estilos base del menú (fixed-header, nav-menu, dropdown, etc.). Ver `index.html` o `generar_valida_girardota.py`. |
 
 **Importante:** El script debe cargar `load-menu.js` con la ruta correcta. Desde `Resultados_validas/Motocross/Primer semestre/` se usan **3 niveles** hacia arriba hasta la raíz: `../../../load-menu.js`. El `load-menu.js` calcula automáticamente la ruta para cargar `menu.html` y `menu-styles.css` desde la raíz del proyecto.
 
