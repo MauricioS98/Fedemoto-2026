@@ -29,6 +29,8 @@ Tareas:
    - Siga el Manual de Marca (MANUAL_MARCA.md)
 
 2. La página debe incluir:
+   - Menú de navegación (load-menu.js + contenedor #menu-container)
+   - Footer: "Developed by Mauricio Sánchez Aguilar - Fedemoto" y "Este proyecto es de uso interno de FEDEMOTO."
    - Buscador por nombre o N° del piloto
    - Tarjetas índice por categoría
    - Secciones por categoría con Final y desglose (Clasificatoria, Carrera 1, Carrera 2)

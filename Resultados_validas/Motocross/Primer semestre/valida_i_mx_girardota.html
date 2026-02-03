@@ -73,10 +73,12 @@
         .modal-btn-link { background: transparent; color: #123E92; text-decoration: underline; }
         .modal-btn-link:hover { color: #0f3377; }
         .categoria-section.pdf-exclude { display: none !important; }
+        footer { background: #f8f9fa; padding: 30px 40px; text-align: center; border-top: 1px solid #C0C0C0; color: #000; font-family: 'Inter', sans-serif; font-size: 0.9em; font-weight: 400; line-height: 1.8; }
+        footer .developer { font-family: 'Roboto Condensed', sans-serif; font-weight: 700; color: #123E92; }
         @media print {
             @page { size: A4 landscape; margin: 15mm; }
             body { padding: 0 !important; padding-top: 0 !important; background: white !important; }
-            #menu-container, .fixed-header, .pdf-section, .toolbar, .index-cards, .btn-top { display: none !important; }
+            #menu-container, .fixed-header, .pdf-section, .toolbar, .index-cards, .btn-top, footer { display: none !important; }
             .container { box-shadow: none !important; max-width: 100% !important; }
             .categoria-section { break-before: page; page-break-before: always; }
             .categoria-section:first-child { break-before: auto; page-break-before: auto; }
@@ -482,6 +484,10 @@
             <button id="descargarPDF" class="btn-pdf">Exportar a PDF</button>
             <p class="pdf-hint">En el dialogo de impresion, elige "Guardar como PDF" o "Microsoft Print to PDF" como destino.</p>
         </div>
+        <footer>
+            <p><span class="developer">Developed by Mauricio Sánchez Aguilar - Fedemoto</span></p>
+            <p>Este proyecto es de uso interno de FEDEMOTO.</p>
+        </footer>
     </div>
     <div id="modalExportar" class="modal-overlay">
         <div class="modal-box">

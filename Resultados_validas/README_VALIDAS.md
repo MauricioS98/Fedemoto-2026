@@ -2,6 +2,21 @@
 
 Este documento explica cómo crear páginas de resultados para nuevas válidas de motocross (u otras disciplinas). Sirve como guía para desarrolladores y como base para prompts de IA.
 
+**Proyecto de uso interno de FEDEMOTO.**  
+*Developed by Mauricio Sánchez Aguilar - Fedemoto*
+
+---
+
+## Elementos obligatorios en todas las páginas de válidas
+
+Todas las páginas generadas **deben incluir**:
+
+1. **Menú de navegación** — Cargado dinámicamente con `load-menu.js` y el contenedor `<div id="menu-container"></div>`. El menú se inyecta desde `menu.html` en la raíz del proyecto.
+
+2. **Footer** — Al final de la página, con el siguiente contenido:
+   - *Developed by Mauricio Sánchez Aguilar - Fedemoto*
+   - *Este proyecto es de uso interno de FEDEMOTO.*
+
 ---
 
 ## Estructura existente (ejemplo: I Válida MX Girardota)
@@ -86,7 +101,8 @@ El `load-menu.js` ya ajusta rutas que empiezan con `Resultados_validas/`, no hac
 
 ## Funcionalidades que debe tener la página generada
 
-1. **Encabezado** con título de la válida y ubicación
+1. **Menú** — Cargado vía `load-menu.js` (contenedor `#menu-container`)
+2. **Encabezado** con título de la válida y ubicación
 2. **Barra de búsqueda** por nombre o N° del piloto
 3. **Tarjetas índice** que enlazan a cada categoría
 4. **Secciones por categoría** con:
@@ -96,6 +112,7 @@ El `load-menu.js` ya ajusta rutas que empiezan con `Resultados_validas/`, no hac
    - Desglose (Clasificatoria, Carrera 1, Carrera 2) solo si hay más de una tabla
 5. **Búsqueda**: oculta categorías sin resultados, marca las que sí tienen coincidencias
 6. **Exportar a PDF**: modal para elegir categorías, luego abre el diálogo de impresión del navegador
+7. **Footer** — "Developed by Mauricio Sánchez Aguilar - Fedemoto" y "Este proyecto es de uso interno de FEDEMOTO."
 
 ---
 
