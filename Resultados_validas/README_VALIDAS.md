@@ -17,6 +17,8 @@ Todas las páginas generadas **deben incluir**:
    - *Developed by Mauricio Sánchez Aguilar - Fedemoto*
    - *Este proyecto es de uso interno de FEDEMOTO.*
 
+**Nota sobre el menú:** Si el menú no carga, asegúrate de abrir la página **a través de un servidor web local** (Live Server en VS Code, `python -m http.server 8000`, etc.). Abrir el archivo HTML directamente con `file://` puede bloquear la carga del menú por restricciones de CORS del navegador.
+
 ---
 
 ## Estructura existente (ejemplo: I Válida MX Girardota)
@@ -78,7 +80,7 @@ Copia `generar_valida_girardota.py` como plantilla y adapta:
 | `get_category_sort_key()` | Añadir nuevas categorías si aplica |
 | Rutas relativas (`../../../../`) | Según profundidad de la carpeta respecto a la raíz |
 
-**Importante:** El script debe cargar `load-menu.js` y `menu.html` con la ruta correcta. Desde `Resultados_validas/Motocross/Primer semestre/` se usa `../../../../load-menu.js` (4 niveles hacia arriba hasta la raíz).
+**Importante:** El script debe cargar `load-menu.js` con la ruta correcta. Desde `Resultados_validas/Motocross/Primer semestre/` se usan **3 niveles** hacia arriba hasta la raíz: `../../../load-menu.js`. El `load-menu.js` calcula automáticamente la ruta para cargar `menu.html` y `menu-styles.css` desde la raíz del proyecto.
 
 ### 4. Ejecutar el script
 
