@@ -8,10 +8,19 @@ import csv
 import os
 import html
 import re
+import sys
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 FILES_DIR = os.path.join(SCRIPT_DIR, "FILES EXPORTED")
 OUTPUT_FILE = os.path.join(SCRIPT_DIR, "valida_i_enduro_2026.html")
+
+_RV_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "..", ".."))
+if _RV_ROOT not in sys.path:
+    sys.path.insert(0, _RV_ROOT)
+import vuelta_a_vuelta as vv
+
+VUELTA_A_VUELTA_FOLDER = None
+VUELTA_A_VUELTA_MAP = None
 
 def format_header(header):
     if not header:
@@ -118,6 +127,22 @@ def time_to_seconds(t):
 
 def escape_html(text):
     return html.escape(str(text)) if text else ""
+
+def build_vuelta_a_vuelta_map(pdf_dir):
+    return vv.build_laptimes_pdf_map(
+        pdf_dir,
+        format_categoria_name,
+        lambda p: vv.tipo_enduro(p, format_categoria_name),
+    )
+
+def session_title_block(categoria, tipo_sesion):
+    return vv.session_title_block(
+        categoria,
+        tipo_sesion,
+        escape_html,
+        VUELTA_A_VUELTA_MAP,
+        VUELTA_A_VUELTA_FOLDER,
+    )
 
 def slugify(text):
     s = re.sub(r'[^\w\s-]', '', str(text).lower())
@@ -282,6 +307,7 @@ def generate_html():
         .times-summary-items p { margin-bottom: 10px; font-size: 1em; }
         .final-block { padding: 0 30px 30px; }
         .final-block h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.8em; color: #123E92; margin: 25px 0 15px; padding-bottom: 8px; border-bottom: 3px solid #F7C31D; letter-spacing: 1px; }
+''' + vv.CSS_PLACEHOLDER + r'''
         .desglose-block { padding: 0 30px 30px; background: #fafafa; border-top: 1px solid #e0e0e0; }
         .desglose-block h3 { font-family: 'Roboto Condensed', sans-serif; font-size: 1.2em; color: #666; margin: 20px 0 12px; padding-bottom: 6px; border-bottom: 1px solid #C0C0C0; font-weight: 700; }
         .table-wrapper { overflow-x: auto; margin-bottom: 20px; border-radius: 8px; border: 1px solid #d1d5db; }
@@ -413,8 +439,8 @@ def generate_html():
         if main_table:
             headers, rows, comentarios = main_table
             html_content += '\n                <div class="final-block">'
-            html_content += f'''
-                <h3>{escape_html(main_tipo)}</h3>
+            html_content += session_title_block(categoria, main_tipo)
+            html_content += '''
                 <div class="table-wrapper">
                     <table>
                         <thead><tr>'''
@@ -433,8 +459,8 @@ def generate_html():
             html_content += '\n                <div class="desglose-block">'
             html_content += '\n                    <h3>Desglose por sesión</h3>'
             for tipo, headers, rows, comentarios in desglose:
-                html_content += f'''
-                    <h3>{escape_html(tipo)}</h3>
+                html_content += session_title_block(categoria, tipo)
+                html_content += '''
                     <div class="table-wrapper">
                         <table>
                             <thead><tr>'''
@@ -564,7 +590,12 @@ def generate_html():
 </body>
 </html>
 '''
-    
+
+    html_content = vv.inject_vuelta_css(
+        html_content,
+        bool(VUELTA_A_VUELTA_MAP and VUELTA_A_VUELTA_FOLDER),
+    )
+
     with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
         f.write(html_content)
     
