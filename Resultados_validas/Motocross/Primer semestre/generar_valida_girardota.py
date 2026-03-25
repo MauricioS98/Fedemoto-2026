@@ -6,10 +6,24 @@ import csv
 import os
 import html
 import re
+from urllib.parse import quote
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 FILES_DIR = os.path.join(SCRIPT_DIR, "FILES EXPORTED")
 OUTPUT_FILE = os.path.join(SCRIPT_DIR, "valida_i_mx_girardota.html")
+
+# II Barranquilla: asignar carpeta y mapa antes de generate_html(); None = sin botones vuelta a vuelta
+VUELTA_A_VUELTA_FOLDER = None
+VUELTA_A_VUELTA_MAP = None
+
+VUELTA_A_VUELTA_CSS = """
+        .session-title-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin: 25px 0 15px; padding-bottom: 8px; border-bottom: 3px solid #F7C31D; }
+        .session-title-row h3 { margin: 0; padding: 0; border: none; font-family: 'Bebas Neue', sans-serif; font-size: 1.8em; color: #123E92; letter-spacing: 1px; }
+        .btn-vuelta-a-vuelta { display: inline-block; padding: 8px 16px; background: #123E92; color: white; text-decoration: none; border-radius: 8px; font-family: 'Roboto Condensed', sans-serif; font-weight: 700; font-size: 0.9em; white-space: nowrap; transition: all 0.2s ease; }
+        .btn-vuelta-a-vuelta:hover { background: #0f3377; color: white; }
+        .desglose-block .session-title-row { margin: 20px 0 12px; padding-bottom: 6px; border-bottom: 1px solid #C0C0C0; }
+        .desglose-block .session-title-row h3 { font-family: 'Roboto Condensed', sans-serif; font-size: 1.2em; color: #666; font-weight: 700; }
+"""
 
 def format_header(header):
     if not header:
@@ -36,6 +50,70 @@ def parse_filename(filename):
         tipo, sort_key = format_categoria_name(parts[-1]), 0
     categoria = format_categoria_name(' - '.join(parts[:-1]))
     return (categoria, tipo, sort_key)
+
+def session_tipo_from_last_part(tipo_str):
+    """Misma lógica que parse_filename para el último segmento (CSV o PDF Laptimes)."""
+    tipo_str = str(tipo_str).lower().strip()
+    if "final" in tipo_str and "1 carrera" not in tipo_str and "2 carrera" not in tipo_str:
+        return "Final"
+    if "clasificatoria" in tipo_str or "clasificacion" in tipo_str:
+        return "Clasificatoria"
+    if "1 carrera" in tipo_str:
+        return "Carrera 1"
+    if "2 carrera" in tipo_str:
+        return "Carrera 2"
+    return format_categoria_name(tipo_str)
+
+def build_vuelta_a_vuelta_map(pdf_dir):
+    """
+    Lee PDFs tipo 'CATEGORIA - ... - Laptimes.pdf' y arma
+    (categoria.lower(), tipo_sesion) -> nombre exacto del archivo.
+    """
+    m = {}
+    if not pdf_dir or not os.path.isdir(pdf_dir):
+        return m
+    for fn in os.listdir(pdf_dir):
+        if not fn.lower().endswith(".pdf"):
+            continue
+        stem = fn[:-4]
+        stem = re.sub(r"\s*-\s*Laptimes\s*$", "", stem, flags=re.I).strip()
+        parts = [p.strip() for p in re.split(r"\s+-\s+", stem, flags=re.I) if p.strip()]
+        if len(parts) < 2:
+            continue
+        cat_part = " - ".join(parts[:-1])
+        categoria = format_categoria_name(cat_part)
+        tipo = session_tipo_from_last_part(parts[-1])
+        key = (categoria.lower(), tipo)
+        if key in m and m[key] != fn:
+            print("Aviso: clave duplicada vuelta a vuelta", key, m[key], "->", fn)
+        m[key] = fn
+    return m
+
+def vuelta_a_vuelta_button_html(categoria, tipo_sesion):
+    """Botón que abre el PDF en nueva pestaña; vacío si no hay mapa o archivo."""
+    if not VUELTA_A_VUELTA_MAP or not VUELTA_A_VUELTA_FOLDER:
+        return ""
+    fn = VUELTA_A_VUELTA_MAP.get((categoria.lower(), tipo_sesion))
+    if not fn:
+        return ""
+    href = quote(VUELTA_A_VUELTA_FOLDER, safe="") + "/" + quote(fn, safe="")
+    return (
+        f'<a class="btn-vuelta-a-vuelta" href="{escape_html(href)}" '
+        f'target="_blank" rel="noopener noreferrer">Ver vuelta a vuelta</a>'
+    )
+
+def session_title_block(categoria, tipo_sesion):
+    """
+    Título de salida: en páginas con vuelta a vuelta (mapa activo) usa fila + botón PDF;
+    en Girardota u otras, solo <h3> como antes.
+    """
+    if VUELTA_A_VUELTA_MAP and VUELTA_A_VUELTA_FOLDER:
+        btn = vuelta_a_vuelta_button_html(categoria, tipo_sesion)
+        return (
+            f'<div class="session-title-row">'
+            f'<h3>{escape_html(tipo_sesion)}</h3>{btn}</div>'
+        )
+    return f'<h3>{escape_html(tipo_sesion)}</h3>'
 
 def format_categoria_name(name):
     if not name:
@@ -298,6 +376,7 @@ def generate_html():
         .times-summary-items p:last-child { margin-bottom: 0; }
         .final-block { padding: 0 30px 30px; }
         .final-block h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.8em; color: #123E92; margin: 25px 0 15px; padding-bottom: 8px; border-bottom: 3px solid #F7C31D; letter-spacing: 1px; }
+        /*__VUELTA_CSS__*/
         .desglose-block { padding: 0 30px 30px; background: #fafafa; border-top: 1px solid #e0e0e0; }
         .desglose-block h3 { font-family: 'Roboto Condensed', sans-serif; font-size: 1.2em; color: #666; margin: 20px 0 12px; padding-bottom: 6px; border-bottom: 1px solid #C0C0C0; font-weight: 700; }
         .table-wrapper { overflow-x: auto; margin-bottom: 20px; border-radius: 8px; border: 1px solid #d1d5db; }
@@ -418,8 +497,8 @@ def generate_html():
         if main_table:
             headers, rows, comentarios = main_table
             html_content += '\n                <div class="final-block">'
-            html_content += f'''
-                <h3>{escape_html(main_tipo)}</h3>
+            html_content += session_title_block(categoria, main_tipo)
+            html_content += '''
                 <div class="table-wrapper">
                     <table>
                         <thead><tr>'''
@@ -439,8 +518,8 @@ def generate_html():
             html_content += '\n                <div class="desglose-block">'
             html_content += '\n                    <h3>Desglose por sesión</h3>'
             for tipo, headers, rows, comentarios in desglose:
+                html_content += session_title_block(categoria, tipo)
                 html_content += f'''
-                    <h3>{escape_html(tipo)}</h3>
                     <div class="table-wrapper">
                         <table>
                             <thead><tr>'''
@@ -591,7 +670,14 @@ def generate_html():
 </body>
 </html>
 '''
-    
+
+    vuelta_css = (
+        VUELTA_A_VUELTA_CSS
+        if (VUELTA_A_VUELTA_MAP and VUELTA_A_VUELTA_FOLDER)
+        else ""
+    )
+    html_content = html_content.replace("        /*__VUELTA_CSS__*/\n", vuelta_css)
+
     with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
         f.write(html_content)
     
