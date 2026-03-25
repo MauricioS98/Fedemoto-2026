@@ -65,8 +65,8 @@
         .pos-2 { background: rgba(192, 192, 192, 0.2) !important; }
         .pos-3 { background: rgba(139, 90, 43, 0.1) !important; }
         .pos-cell { display: inline-block; margin-right: 4px; }
-        .comentario-icon { display: inline-block; width: 16px; height: 16px; line-height: 16px; text-align: center; font-size: 12px; font-weight: bold; color: #123E92; background: #e8eef8; border-radius: 50%; cursor: help; vertical-align: middle; }
-        .comentario-icon:hover { background: #123E92; color: white; }
+        .comentario-btn { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; margin-left: 6px; border: 1px solid #123E92; border-radius: 999px; background: #e8eef8; color: #123E92; font-size: 14px; font-weight: 700; cursor: pointer; vertical-align: middle; }
+        .comentario-btn:hover, .comentario-btn:focus { background: #123E92; color: white; outline: none; }
         .pdf-section { text-align: center; padding: 40px 20px; border-top: 1px solid #C0C0C0; background: #f8f9fa; }
         .btn-pdf { display: inline-block; padding: 14px 32px; background: #123E92; color: white; border: none; border-radius: 8px; font-family: 'Roboto Condensed', sans-serif; font-size: 1.1em; font-weight: 700; cursor: pointer; transition: all 0.2s ease; }
         .btn-pdf:hover { background: #0f3377; transform: translateY(-2px); }
@@ -213,7 +213,7 @@
                 <h3>Carrera</h3>
                 <div class="table-wrapper">
                     <table>
-                        <thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Mejor tm</th><th>En vuelta</th><th>Dif. resp. 1°</th><th>Dif. resp. anterior</th><th>Puntos</th><th>Total t°</th><th>Vueltas</th><th>Liga</th><th>Moto</th></tr></thead><tbody><tr class="pos-1" data-numero="84" data-nombre="Jose Alejandro MOYANO MORENO"><td>1</td><td>84</td><td>Jose Alejandro MOYANO MORENO</td><td>5:19.926</td><td>9</td><td></td><td></td><td>15</td><td>1:04:16.283</td><td>11</td><td>Cundinamarca</td><td>Beta</td></tr><tr class="pos-2" data-numero="221" data-nombre="Juan José Pérez Murcia"><td>2</td><td>221</td><td>Juan José Pérez Murcia</td><td>5:32.129</td><td>9</td><td>1:19.657</td><td>1:19.657</td><td>13</td><td>1:05:35.940</td><td>11</td><td>Cundinamarca</td><td>GasGas</td></tr><tr class="pos-3" data-numero="34" data-nombre="Juan Sebastian CALDERON ROJAS"><td>3</td><td>34</td><td>Juan Sebastian CALDERON ROJAS</td><td>5:44.040</td><td>7</td><td>3:36.125</td><td>2:16.468</td><td>11</td><td>1:07:52.408</td><td>11</td><td>Cundinamarca</td><td>Sherco</td></tr><tr data-numero="12" data-nombre="Thomas MESA RONDON"><td>4</td><td>12</td><td>Thomas MESA RONDON</td><td>5:49.415</td><td>7</td><td>1 Vuelta</td><td>1 Vuelta</td><td>10</td><td>1:04:39.877</td><td>10</td><td>Caldas</td><td>KTM</td></tr><tr data-numero="11" data-nombre="Juan Martin TARQUINO SUAREZ"><td>5</td><td>11</td><td>Juan Martin TARQUINO SUAREZ</td><td>6:05.465</td><td>10</td><td>1 Vuelta</td><td>1:42.613</td><td>9</td><td>1:06:22.490</td><td>10</td><td>Cundinamarca</td><td>Husqvarna</td></tr><tr data-numero="710" data-nombre="Juan David MENDOZA DUARTE"><td>6</td><td>710</td><td>Juan David MENDOZA DUARTE</td><td>5:50.532</td><td>2</td><td>1 Vuelta</td><td>1:37.253</td><td>8</td><td>1:07:59.743</td><td>10</td><td>Meta</td><td>KTM</td></tr><tr data-numero="274" data-nombre="Andres Santiago PEREZ DIAZ"><td><span class="pos-cell">7</span><span class="comentario-icon" title="Ayuda externa" aria-label="Comentario">ℹ</span></td><td>274</td><td>Andres Santiago PEREZ DIAZ</td><td>6:47.449</td><td>5</td><td>2 Vueltas</td><td>1 Vuelta</td><td>7</td><td>1:08:56.692</td><td>9</td><td>Bogotá D.C.</td><td>KTM</td></tr><tr data-numero="28" data-nombre="Maria Paula SCARPATI SARMIENTO"><td>8</td><td>28</td><td>Maria Paula SCARPATI SARMIENTO</td><td>7:37.724</td><td>4</td><td>4 Vueltas</td><td>2 Vueltas</td><td>6</td><td>1:06:06.457</td><td>7</td><td>Cundinamarca</td><td>Husqvarna</td></tr><tr data-numero="49" data-nombre="Martin ARIAS"><td>NT</td><td>49</td><td>Martin ARIAS</td><td>17:12.755</td><td>1</td><td>NT</td><td></td><td>0</td><td>19:23.200</td><td>1</td><td>Valle del Cauca</td><td>KTM</td></tr></tbody></table></div></div>
+                        <thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Mejor tm</th><th>En vuelta</th><th>Dif. resp. 1°</th><th>Dif. resp. anterior</th><th>Puntos</th><th>Total t°</th><th>Vueltas</th><th>Liga</th><th>Moto</th></tr></thead><tbody><tr class="pos-1" data-numero="84" data-nombre="Jose Alejandro MOYANO MORENO"><td>1</td><td>84</td><td>Jose Alejandro MOYANO MORENO</td><td>5:19.926</td><td>9</td><td></td><td></td><td>15</td><td>1:04:16.283</td><td>11</td><td>Cundinamarca</td><td>Beta</td></tr><tr class="pos-2" data-numero="221" data-nombre="Juan José Pérez Murcia"><td>2</td><td>221</td><td>Juan José Pérez Murcia</td><td>5:32.129</td><td>9</td><td>1:19.657</td><td>1:19.657</td><td>13</td><td>1:05:35.940</td><td>11</td><td>Cundinamarca</td><td>GasGas</td></tr><tr class="pos-3" data-numero="34" data-nombre="Juan Sebastian CALDERON ROJAS"><td>3</td><td>34</td><td>Juan Sebastian CALDERON ROJAS</td><td>5:44.040</td><td>7</td><td>3:36.125</td><td>2:16.468</td><td>11</td><td>1:07:52.408</td><td>11</td><td>Cundinamarca</td><td>Sherco</td></tr><tr data-numero="12" data-nombre="Thomas MESA RONDON"><td>4</td><td>12</td><td>Thomas MESA RONDON</td><td>5:49.415</td><td>7</td><td>1 Vuelta</td><td>1 Vuelta</td><td>10</td><td>1:04:39.877</td><td>10</td><td>Caldas</td><td>KTM</td></tr><tr data-numero="11" data-nombre="Juan Martin TARQUINO SUAREZ"><td>5</td><td>11</td><td>Juan Martin TARQUINO SUAREZ</td><td>6:05.465</td><td>10</td><td>1 Vuelta</td><td>1:42.613</td><td>9</td><td>1:06:22.490</td><td>10</td><td>Cundinamarca</td><td>Husqvarna</td></tr><tr data-numero="710" data-nombre="Juan David MENDOZA DUARTE"><td>6</td><td>710</td><td>Juan David MENDOZA DUARTE</td><td>5:50.532</td><td>2</td><td>1 Vuelta</td><td>1:37.253</td><td>8</td><td>1:07:59.743</td><td>10</td><td>Meta</td><td>KTM</td></tr><tr data-numero="274" data-nombre="Andres Santiago PEREZ DIAZ"><td><span class="pos-cell">7</span><button type="button" class="comentario-btn" data-comentario="Ayuda externa" aria-label="Ver comentario">i</button></td><td>274</td><td>Andres Santiago PEREZ DIAZ</td><td>6:47.449</td><td>5</td><td>2 Vueltas</td><td>1 Vuelta</td><td>7</td><td>1:08:56.692</td><td>9</td><td>Bogotá D.C.</td><td>KTM</td></tr><tr data-numero="28" data-nombre="Maria Paula SCARPATI SARMIENTO"><td>8</td><td>28</td><td>Maria Paula SCARPATI SARMIENTO</td><td>7:37.724</td><td>4</td><td>4 Vueltas</td><td>2 Vueltas</td><td>6</td><td>1:06:06.457</td><td>7</td><td>Cundinamarca</td><td>Husqvarna</td></tr><tr data-numero="49" data-nombre="Martin ARIAS"><td>NT</td><td>49</td><td>Martin ARIAS</td><td>17:12.755</td><td>1</td><td>NT</td><td></td><td>0</td><td>19:23.200</td><td>1</td><td>Valle del Cauca</td><td>KTM</td></tr></tbody></table></div></div>
             </div>
             <div class="categoria-section" id="junior-carrera" data-categoria-id="junior-carrera">
                 <div class="categoria-header">
@@ -373,6 +373,15 @@
             </div>
         </div>
     </div>
+    <div id="modalComentario" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Comentario</h3>
+            <p id="modalComentarioTexto" style="margin-bottom: 20px; font-size: 1em; color: #111827; white-space: pre-wrap;"></p>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn-primary" id="modalComentarioCerrar">Cerrar</button>
+            </div>
+        </div>
+    </div>
     <script src="../../../load-menu.js"></script>
     <script>
         document.getElementById('descargarPDF').addEventListener('click', function() {
@@ -384,6 +393,20 @@
         document.getElementById('modalDeselectAll').addEventListener('click', function() { document.querySelectorAll('#modalCategorias input').forEach(function(cb){ cb.checked = false; }); });
         document.getElementById('modalCancelar').addEventListener('click', function() { document.getElementById('modalExportar').classList.remove('open'); });
         document.getElementById('modalExportar').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
+        var modalComentario = document.getElementById('modalComentario');
+        var modalComentarioTexto = document.getElementById('modalComentarioTexto');
+        document.addEventListener('click', function(e) {
+            var btn = e.target.closest('.comentario-btn');
+            if (!btn) return;
+            modalComentarioTexto.textContent = btn.getAttribute('data-comentario') || '';
+            modalComentario.classList.add('open');
+        });
+        document.getElementById('modalComentarioCerrar').addEventListener('click', function() {
+            modalComentario.classList.remove('open');
+        });
+        modalComentario.addEventListener('click', function(e) {
+            if (e.target === this) this.classList.remove('open');
+        });
         document.getElementById('modalExportarBtn').addEventListener('click', function() {
             var selected = [];
             document.querySelectorAll('#modalCategorias input[type="checkbox"]').forEach(function(cb) { if (cb.checked) selected.push(cb.value); });

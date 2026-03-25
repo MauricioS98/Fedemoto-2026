@@ -70,6 +70,16 @@ def remove_clase_column(headers, rows):
     return ([h for i, h in enumerate(headers) if i != idx],
             [[c for i, c in enumerate(row) if i != idx] for row in rows])
 
+def remove_comentario_column_and_collect(headers, rows):
+    headers, rows = remove_clase_column(headers, rows)
+    idx = next((i for i, h in enumerate(headers) if str(h).strip().lower() == 'comentario'), None)
+    if idx is None:
+        return headers, rows, [''] * len(rows)
+    comentarios = [str(row[idx]).strip() if len(row) > idx else '' for row in rows]
+    new_headers = [h for i, h in enumerate(headers) if i != idx]
+    new_rows = [[c for i, c in enumerate(row) if i != idx] for row in rows]
+    return new_headers, new_rows, comentarios
+
 def find_mejor_tm_index(headers):
     for i, h in enumerate(headers):
         hl = str(h).strip().lower()
@@ -158,6 +168,31 @@ def get_mejor_tm_carreras(c1_data, c2_data, num_idx=1, nombre_idx=2):
                     best = (num, nombre, s, tm, nombre_carrera)
     return (best[0], best[1], best[3], best[4]) if best else None
 
+def render_row(row, comentario, search_attrs):
+    pos_class = ''
+    if row and str(row[0]).strip() == '1':
+        pos_class = ' class="pos-1"'
+    elif row and str(row[0]).strip() == '2':
+        pos_class = ' class="pos-2"'
+    elif row and str(row[0]).strip() == '3':
+        pos_class = ' class="pos-3"'
+    html_parts = [f'<tr{pos_class}{search_attrs}>']
+    for i, cell in enumerate(row):
+        if i == 0:
+            pos_content = escape_html(cell)
+            if comentario:
+                html_parts.append(
+                    f'<td><span class="pos-cell">{pos_content}</span>'
+                    f'<button type="button" class="comentario-btn" data-comentario="{escape_html(comentario)}" '
+                    f'aria-label="Ver comentario">i</button></td>'
+                )
+            else:
+                html_parts.append(f'<td>{pos_content}</td>')
+        else:
+            html_parts.append(f'<td>{escape_html(cell)}</td>')
+    html_parts.append('</tr>')
+    return ''.join(html_parts)
+
 def generate_html():
     categorias_data = {}
     for filename in os.listdir(FILES_DIR):
@@ -167,12 +202,12 @@ def generate_html():
         if not os.path.isfile(filepath):
             continue
         headers, rows = parse_csv(filepath)
-        headers, rows = remove_clase_column(headers, rows)
+        headers, rows, comentarios = remove_comentario_column_and_collect(headers, rows)
         headers = [format_header(h) for h in headers]
         categoria, tipo, sort_key = parse_filename(filename)
         if categoria not in categorias_data:
             categorias_data[categoria] = []
-        categorias_data[categoria].append((tipo, sort_key, headers, rows))
+        categorias_data[categoria].append((tipo, sort_key, headers, rows, comentarios))
     
     for cat in categorias_data:
         categorias_data[cat].sort(key=lambda x: (x[1], x[0]))
@@ -182,7 +217,7 @@ def generate_html():
     categorias_para_html = []
     for categoria in sorted_categorias:
         items = categorias_data[categoria]
-        tablas = [(tipo, headers, rows) for tipo, _, headers, rows in items]
+        tablas = [(tipo, headers, rows, comentarios) for tipo, _, headers, rows, comentarios in items]
         first_tipo = tablas[0][0] if tablas else "Final"
         section_id = slugify(f"{categoria} {first_tipo}")
         categorias_para_html.append((categoria, section_id, tablas))
@@ -274,6 +309,9 @@ def generate_html():
         .pos-1 { background: rgba(247, 195, 29, 0.15) !important; }
         .pos-2 { background: rgba(192, 192, 192, 0.2) !important; }
         .pos-3 { background: rgba(139, 90, 43, 0.1) !important; }
+        .pos-cell { display: inline-block; margin-right: 4px; }
+        .comentario-btn { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; margin-left: 6px; border: 1px solid #123E92; border-radius: 999px; background: #e8eef8; color: #123E92; font-size: 14px; font-weight: 700; cursor: pointer; vertical-align: middle; }
+        .comentario-btn:hover, .comentario-btn:focus { background: #123E92; color: white; outline: none; }
         .pdf-section { text-align: center; padding: 40px 20px; border-top: 1px solid #C0C0C0; background: #f8f9fa; }
         .btn-pdf { display: inline-block; padding: 14px 32px; background: #123E92; color: white; border: none; border-radius: 8px; font-family: 'Roboto Condensed', sans-serif; font-size: 1.1em; font-weight: 700; cursor: pointer; transition: all 0.2s ease; }
         .btn-pdf:hover { background: #0f3377; transform: translateY(-2px); }
@@ -332,9 +370,9 @@ def generate_html():
         clasif_data = None
         c1_data = None
         c2_data = None
-        for tipo, headers, rows in tablas:
+        for tipo, headers, rows, comentarios in tablas:
             if tipo == 'Final':
-                final_data = (headers, rows)
+                final_data = (headers, rows, comentarios)
             elif tipo == 'Clasificatoria':
                 clasif_data = (headers, rows)
             elif tipo == 'Carrera 1':
@@ -344,7 +382,7 @@ def generate_html():
         
         # Si no hay Final (ej. 50cc), la primera tabla es la principal
         if not final_data and tablas:
-            final_data = (tablas[0][1], tablas[0][2])
+            final_data = (tablas[0][1], tablas[0][2], tablas[0][3])
         
         html_content += f'''
             <div class="categoria-section" id="{section_id}" data-categoria-id="{section_id}">
@@ -375,10 +413,10 @@ def generate_html():
                 html_content += '</div></div>'
         
         # Bloque principal (Final o primera tabla)
-        main_tipo = 'Final' if final_data and any(t == 'Final' for t, _, _ in tablas) else (tablas[0][0] if tablas else 'Resultados')
-        main_table = final_data if final_data else (tablas[0][1], tablas[0][2]) if tablas else (None, None)
+        main_tipo = 'Final' if final_data and any(t == 'Final' for t, _, _, _ in tablas) else (tablas[0][0] if tablas else 'Resultados')
+        main_table = final_data if final_data else (tablas[0][1], tablas[0][2], tablas[0][3]) if tablas else (None, None, None)
         if main_table:
-            headers, rows = main_table
+            headers, rows, comentarios = main_table
             html_content += '\n                <div class="final-block">'
             html_content += f'''
                 <h3>{escape_html(main_tipo)}</h3>
@@ -388,28 +426,19 @@ def generate_html():
             for h in headers:
                 html_content += f'<th>{escape_html(h)}</th>'
             html_content += '</tr></thead><tbody>'
-            for row in rows:
-                pos_class = ''
-                if row and str(row[0]).strip() == '1':
-                    pos_class = ' class="pos-1"'
-                elif row and str(row[0]).strip() == '2':
-                    pos_class = ' class="pos-2"'
-                elif row and str(row[0]).strip() == '3':
-                    pos_class = ' class="pos-3"'
+            for i, row in enumerate(rows):
+                com = comentarios[i] if i < len(comentarios) else ''
                 search_attrs = f' data-numero="{escape_html(row[1] if len(row) > 1 else "")}" data-nombre="{escape_html(row[2] if len(row) > 2 else "")}"'
-                html_content += f'<tr{pos_class}{search_attrs}>'
-                for cell in row:
-                    html_content += f'<td>{escape_html(cell)}</td>'
-                html_content += '</tr>'
+                html_content += render_row(row, com, search_attrs)
             html_content += '</tbody></table></div></div>'
         
         # Bloque Desglose: solo si hay más de una tabla (evitar repetir info en 50cc, etc.)
         main_tipo_for_desglose = main_tipo
-        desglose = [(t, h, r) for t, h, r in tablas if t != main_tipo_for_desglose]
+        desglose = [(t, h, r, c) for t, h, r, c in tablas if t != main_tipo_for_desglose]
         if len(tablas) > 1 and desglose:
             html_content += '\n                <div class="desglose-block">'
             html_content += '\n                    <h3>Desglose por sesión</h3>'
-            for tipo, headers, rows in desglose:
+            for tipo, headers, rows, comentarios in desglose:
                 html_content += f'''
                     <h3>{escape_html(tipo)}</h3>
                     <div class="table-wrapper">
@@ -418,19 +447,10 @@ def generate_html():
                 for h in headers:
                     html_content += f'<th>{escape_html(h)}</th>'
                 html_content += '</tr></thead><tbody>'
-                for row in rows:
-                    pos_class = ''
-                    if row and str(row[0]).strip() == '1':
-                        pos_class = ' class="pos-1"'
-                    elif row and str(row[0]).strip() == '2':
-                        pos_class = ' class="pos-2"'
-                    elif row and str(row[0]).strip() == '3':
-                        pos_class = ' class="pos-3"'
+                for i, row in enumerate(rows):
+                    com = comentarios[i] if i < len(comentarios) else ''
                     search_attrs = f' data-numero="{escape_html(row[1] if len(row) > 1 else "")}" data-nombre="{escape_html(row[2] if len(row) > 2 else "")}"'
-                    html_content += f'<tr{pos_class}{search_attrs}>'
-                    for cell in row:
-                        html_content += f'<td>{escape_html(cell)}</td>'
-                    html_content += '</tr>'
+                    html_content += render_row(row, com, search_attrs)
                 html_content += '</tbody></table></div>'
             html_content += '</div>'
         
@@ -468,6 +488,15 @@ def generate_html():
             </div>
         </div>
     </div>
+    <div id="modalComentario" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Comentario</h3>
+            <p id="modalComentarioTexto" style="margin-bottom: 20px; font-size: 1em; color: #111827; white-space: pre-wrap;"></p>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn-primary" id="modalComentarioCerrar">Cerrar</button>
+            </div>
+        </div>
+    </div>
     <script src="../../../load-menu.js"></script>
     <script>
         document.getElementById('descargarPDF').addEventListener('click', function() {
@@ -485,6 +514,20 @@ def generate_html():
             document.getElementById('modalExportar').classList.remove('open');
         });
         document.getElementById('modalExportar').addEventListener('click', function(e) {
+            if (e.target === this) this.classList.remove('open');
+        });
+        var modalComentario = document.getElementById('modalComentario');
+        var modalComentarioTexto = document.getElementById('modalComentarioTexto');
+        document.addEventListener('click', function(e) {
+            var btn = e.target.closest('.comentario-btn');
+            if (!btn) return;
+            modalComentarioTexto.textContent = btn.getAttribute('data-comentario') || '';
+            modalComentario.classList.add('open');
+        });
+        document.getElementById('modalComentarioCerrar').addEventListener('click', function() {
+            modalComentario.classList.remove('open');
+        });
+        modalComentario.addEventListener('click', function(e) {
             if (e.target === this) this.classList.remove('open');
         });
         document.getElementById('modalExportarBtn').addEventListener('click', function() {

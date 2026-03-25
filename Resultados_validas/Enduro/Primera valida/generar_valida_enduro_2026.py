@@ -168,10 +168,10 @@ def render_row(row, comentario, search_attrs, with_comentario_icon=True):
     html_parts = [f'<tr{pos_class}{search_attrs}>']
     for i, cell in enumerate(row):
         if i == 0 and with_comentario_icon and comentario:
-            title_attr = f' title="{escape_html(comentario)}"'
             html_parts.append(
                 f'<td><span class="pos-cell">{escape_html(cell)}</span>'
-                f'<span class="comentario-icon"{title_attr} aria-label="Comentario">ℹ</span></td>'
+                f'<button type="button" class="comentario-btn" data-comentario="{escape_html(comentario)}" '
+                f'aria-label="Ver comentario">i</button></td>'
             )
         elif i == 0 and with_comentario_icon:
             html_parts.append(f'<td>{escape_html(cell)}</td>')
@@ -294,8 +294,8 @@ def generate_html():
         .pos-2 { background: rgba(192, 192, 192, 0.2) !important; }
         .pos-3 { background: rgba(139, 90, 43, 0.1) !important; }
         .pos-cell { display: inline-block; margin-right: 4px; }
-        .comentario-icon { display: inline-block; width: 16px; height: 16px; line-height: 16px; text-align: center; font-size: 12px; font-weight: bold; color: #123E92; background: #e8eef8; border-radius: 50%; cursor: help; vertical-align: middle; }
-        .comentario-icon:hover { background: #123E92; color: white; }
+        .comentario-btn { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; margin-left: 6px; border: 1px solid #123E92; border-radius: 999px; background: #e8eef8; color: #123E92; font-size: 14px; font-weight: 700; cursor: pointer; vertical-align: middle; }
+        .comentario-btn:hover, .comentario-btn:focus { background: #123E92; color: white; outline: none; }
         .pdf-section { text-align: center; padding: 40px 20px; border-top: 1px solid #C0C0C0; background: #f8f9fa; }
         .btn-pdf { display: inline-block; padding: 14px 32px; background: #123E92; color: white; border: none; border-radius: 8px; font-family: 'Roboto Condensed', sans-serif; font-size: 1.1em; font-weight: 700; cursor: pointer; transition: all 0.2s ease; }
         .btn-pdf:hover { background: #0f3377; transform: translateY(-2px); }
@@ -482,6 +482,15 @@ def generate_html():
             </div>
         </div>
     </div>
+    <div id="modalComentario" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Comentario</h3>
+            <p id="modalComentarioTexto" style="margin-bottom: 20px; font-size: 1em; color: #111827; white-space: pre-wrap;"></p>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn-primary" id="modalComentarioCerrar">Cerrar</button>
+            </div>
+        </div>
+    </div>
     <script src="../../../load-menu.js"></script>
     <script>
         document.getElementById('descargarPDF').addEventListener('click', function() {
@@ -493,6 +502,20 @@ def generate_html():
         document.getElementById('modalDeselectAll').addEventListener('click', function() { document.querySelectorAll('#modalCategorias input').forEach(function(cb){ cb.checked = false; }); });
         document.getElementById('modalCancelar').addEventListener('click', function() { document.getElementById('modalExportar').classList.remove('open'); });
         document.getElementById('modalExportar').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
+        var modalComentario = document.getElementById('modalComentario');
+        var modalComentarioTexto = document.getElementById('modalComentarioTexto');
+        document.addEventListener('click', function(e) {
+            var btn = e.target.closest('.comentario-btn');
+            if (!btn) return;
+            modalComentarioTexto.textContent = btn.getAttribute('data-comentario') || '';
+            modalComentario.classList.add('open');
+        });
+        document.getElementById('modalComentarioCerrar').addEventListener('click', function() {
+            modalComentario.classList.remove('open');
+        });
+        modalComentario.addEventListener('click', function(e) {
+            if (e.target === this) this.classList.remove('open');
+        });
         document.getElementById('modalExportarBtn').addEventListener('click', function() {
             var selected = [];
             document.querySelectorAll('#modalCategorias input[type="checkbox"]').forEach(function(cb) { if (cb.checked) selected.push(cb.value); });
