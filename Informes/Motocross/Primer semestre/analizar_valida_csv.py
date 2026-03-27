@@ -12,7 +12,19 @@ import json
 from collections import defaultdict
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-FILES_DIR = os.path.join(SCRIPT_DIR, "FILES EXPORTED")
+# Misma fuente que la página de resultados Girardota en Resultados_validas/
+FILES_DIR = os.path.normpath(
+    os.path.join(
+        SCRIPT_DIR,
+        "..",
+        "..",
+        "..",
+        "Resultados_validas",
+        "Motocross",
+        "Primer semestre",
+        "FILES EXPORTED-girardota",
+    )
+)
 OUTPUT_JSON = os.path.join(SCRIPT_DIR, "datos_informe_valida.json")
 
 # Variantes de nombre de club -> nombre canónico (mismo club, distinta escritura en CSV)
