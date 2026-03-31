@@ -2,6 +2,93 @@
 
 Sistema de análisis y visualización de datos de participantes y campeonatos de FEDEMOTO para el año 2025.
 
+## Operación actual (válidas, informes y resultados generales)
+
+Además del informe anual, este repositorio ya incluye flujo operativo 2026 para:
+
+- páginas de **Resultados de válidas**
+- páginas de **Informes por válida**
+- páginas de **Resultados generales por modalidad/campeonato**
+
+### Estructura que se usa hoy
+
+- `Resultados_validas/`: páginas por válida y scripts generadores por modalidad.
+- `Informes/`: informes estadísticos por válida.
+- `Resultados generales/`: acumulados por categoría (puntos por válida + total).
+- `menu.html`: enlaces de navegación para todo el sitio.
+
+### Regenerar todo en un solo comando
+
+En Windows (CMD):
+
+```bat
+generar_todo_2026.bat
+```
+
+En PowerShell:
+
+```powershell
+.\generar_todo_2026.ps1
+```
+
+Estos scripts ejecutan, en orden:
+
+1. Generación de páginas de válidas activas:
+   - Motocross: Girardota y Barranquilla
+   - Velotierra: Tuluá y Barcelona
+   - Enduro: I válida 2026
+2. Generación de informes por válida:
+   - `Informes/generar_informes_validas.py`
+   - Regeneración del informe existente de MX Girardota
+3. Generación de resultados generales:
+   - `Resultados generales/generar_resultados_generales.py`
+
+### Comandos individuales útiles
+
+Resultados de válidas:
+
+```bash
+python "Resultados_validas/Motocross/Primer semestre/generar_valida_girardota.py"
+python "Resultados_validas/Motocross/Primer semestre/generar_valida_ii_mx_barranquilla.py"
+python "Resultados_validas/Velotierra/Primer semestre/generar_valida_vt_tulua.py"
+python "Resultados_validas/Velotierra/Primer semestre/generar_valida_ii_vt_barcelona.py"
+python "Resultados_validas/Enduro/Primera valida/generar_valida_enduro_2026.py"
+```
+
+Informes por válida:
+
+```bash
+python "Informes/generar_informes_validas.py"
+python "Informes/Motocross/Primer semestre/analizar_valida_csv.py"
+python "Informes/Motocross/Primer semestre/generar_informe_html.py"
+```
+
+Resultados generales:
+
+```bash
+python "Resultados generales/generar_resultados_generales.py"
+```
+
+### Reglas implementadas en resultados generales
+
+- Consolidación por piloto usando **N°**, válido **dentro de cada modalidad**.
+- Campos por fila: `Nombre`, `Liga`, `Club`, `Moto`, puntos por válida, `Total`.
+- Cuando existe tabla final se toma su puntaje; si no existe, se toma la carrera única.
+- Orden por categoría respetando el orden de cada modalidad.
+- Desempate por la válida más reciente.
+- UI alineada a resultados de válidas:
+  - barra de búsqueda por `Nombre` o `N°`
+  - botón de flecha hacia arriba por categoría
+  - resaltado/ocultamiento de categorías e índice según búsqueda
+
+### Cómo ampliar cuando llegue una nueva válida
+
+1. Crear/actualizar la página de resultados en `Resultados_validas/...`.
+2. Si aplica informe, agregar configuración en `Informes/generar_informes_validas.py`.
+3. Agregar la nueva válida en `CHAMPIONSHIPS` dentro de `Resultados generales/generar_resultados_generales.py`.
+4. Ejecutar `generar_todo_2026.bat` (o `.ps1`).
+5. Verificar enlaces en `menu.html`.
+
 ## 📋 Descripción
 
 Este proyecto genera un informe web interactivo que presenta estadísticas completas sobre:

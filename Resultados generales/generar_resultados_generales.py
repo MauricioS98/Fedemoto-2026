@@ -300,18 +300,29 @@ def render_html(champ, table_by_categoria):
         .container > header {{ background: linear-gradient(135deg, #123E92 0%, #0f3377 100%); color: white; padding: 40px; text-align: center; }}
         .container > header h1 {{ font-family: 'Bebas Neue', sans-serif; font-size: 2.2em; margin-bottom: 10px; letter-spacing: 2px; }}
         .container > header p {{ font-family: 'Roboto Condensed', sans-serif; font-size: 1.2em; opacity: 0.95; }}
+        .toolbar {{ padding: 25px 40px; background: #f8f9fa; border-bottom: 1px solid #c0c0c0; }}
+        .search-box {{ width: 100%; padding: 12px 20px; font-family: 'Inter', sans-serif; font-size: 1em; border: 2px solid #d1d5db; border-radius: 8px; }}
+        .search-box:focus {{ outline: none; border-color: #123E92; box-shadow: 0 0 0 3px rgba(18, 62, 146, 0.2); }}
         .index-cards {{ display: flex; flex-wrap: wrap; gap: 12px; padding: 25px 40px; background: #f8f9fa; border-bottom: 1px solid #c0c0c0; }}
         .index-card {{ display: inline-block; padding: 10px 20px; background: white; color: #123E92; border: 2px solid #123E92; border-radius: 8px; font-family: 'Roboto Condensed', sans-serif; font-weight: 700; text-decoration: none; }}
+        .index-card.search-match {{ background: #F7C31D; color: #123E92; border-color: #F7C31D; }}
+        .index-card.search-no-results {{ display: none !important; }}
         .content-section {{ padding: 40px; }}
         .categoria-section {{ margin-bottom: 38px; border: 2px solid #e0e0e0; border-radius: 12px; overflow: hidden; scroll-margin-top: 115px; }}
-        .categoria-header {{ background: linear-gradient(135deg, #123E92 0%, #0f3377 100%); color: white; padding: 20px 26px; }}
+        .categoria-section.search-match {{ border-color: #F7C31D; box-shadow: 0 0 0 3px rgba(247, 195, 29, 0.4); }}
+        .categoria-section.search-no-results {{ display: none !important; }}
+        .categoria-header {{ background: linear-gradient(135deg, #123E92 0%, #0f3377 100%); color: white; padding: 20px 26px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }}
         .categoria-header h2 {{ font-family: 'Bebas Neue', sans-serif; font-size: 1.9em; letter-spacing: 1px; }}
+        .btn-top {{ display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; background: rgba(255,255,255,0.2); color: white; border: 2px solid rgba(255,255,255,0.6); border-radius: 8px; cursor: pointer; transition: all 0.2s ease; flex-shrink: 0; }}
+        .btn-top:hover {{ background: #F7C31D; color: #123E92; border-color: #F7C31D; }}
+        .btn-top svg {{ width: 16px; height: 16px; }}
         .table-wrapper {{ overflow-x: auto; margin: 0; border-top: 1px solid #d1d5db; }}
         table {{ width: 100%; border-collapse: collapse; font-size: 0.92em; }}
         th, td {{ padding: 10px 12px; text-align: left; border-bottom: 1px solid #e0e0e0; white-space: nowrap; }}
         th {{ background: #123E92; color: white; font-family: 'Roboto Condensed', sans-serif; font-weight: 700; position: sticky; top: 0; }}
         tr:nth-child(odd) {{ background: #fafafa; }}
         tr:hover {{ background: #f0f4fc; }}
+        tr.search-hidden {{ display: none !important; }}
         .col-total {{ font-weight: 700; color: #123E92; }}
         footer {{ background: #f8f9fa; padding: 30px 40px; text-align: center; border-top: 1px solid #c0c0c0; color: #000; font-family: 'Inter', sans-serif; font-size: 0.9em; }}
         footer .developer {{ font-family: 'Roboto Condensed', sans-serif; font-weight: 700; color: #123E92; }}
@@ -324,6 +335,9 @@ def render_html(champ, table_by_categoria):
             <h1>{esc(h1)}</h1>
             <p>{esc(subtitle)}</p>
         </header>
+        <div class="toolbar">
+            <input type="text" id="buscador" class="search-box" placeholder="Buscar por nombre o N° del piloto..." />
+        </div>
         <div class="index-cards">
 """]
 
@@ -338,8 +352,8 @@ def render_html(champ, table_by_categoria):
     for cat in categorias:
         sid = re.sub(r"[^a-z0-9]+", "-", normalize_key(cat)).strip("-")
         rows = table_by_categoria.get(cat, [])
-        html_parts.append(f"""            <div class="categoria-section" id="{sid}">
-                <div class="categoria-header"><h2>{esc(cat)}</h2></div>
+        html_parts.append(f"""            <div class="categoria-section" id="{sid}" data-categoria-id="{sid}">
+                <div class="categoria-header"><h2>{esc(cat)}</h2><button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg></button></div>
                 <div class="table-wrapper">
                     <table>
                         <thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Liga</th><th>Club</th><th>Moto</th>""")
@@ -347,7 +361,7 @@ def render_html(champ, table_by_categoria):
             html_parts.append(f"<th>{esc(v['label'])}</th>")
         html_parts.append("<th>Total</th></tr></thead><tbody>")
         for i, r in enumerate(rows, start=1):
-            html_parts.append("<tr>")
+            html_parts.append(f'<tr data-numero="{esc(r["numero"])}" data-nombre="{esc(r["nombre"])}">')
             html_parts.append(f"<td>{i}</td><td>{esc(r['numero'])}</td><td>{esc(r['nombre'])}</td><td>{esc(r['liga'])}</td><td>{esc(r['club'])}</td><td>{esc(r['moto'])}</td>")
             for p in r["por_valida"]:
                 html_parts.append(f"<td>{fmt_points(p)}</td>")
@@ -361,6 +375,43 @@ def render_html(champ, table_by_categoria):
         </footer>
     </div>
     <script src="{rel_to_root}load-menu.js"></script>
+    <script>
+        document.querySelectorAll('.btn-top').forEach(function(btn) {{
+            btn.addEventListener('click', function() {{ window.scrollTo({{ top: 0, behavior: 'smooth' }}); }});
+        }});
+        var buscador = document.getElementById('buscador');
+        buscador.addEventListener('input', function() {{
+            var q = this.value.trim().toLowerCase();
+            var sections = document.querySelectorAll('.categoria-section');
+            var cards = document.querySelectorAll('.index-card');
+            cards.forEach(function(c){{ c.classList.remove('search-match', 'search-no-results'); }});
+            sections.forEach(function(s){{ s.classList.remove('search-match', 'search-no-results'); }});
+            if (!q) {{
+                document.querySelectorAll('.search-hidden').forEach(function(tr){{ tr.classList.remove('search-hidden'); }});
+                return;
+            }}
+            sections.forEach(function(section) {{
+                var rows = section.querySelectorAll('tbody tr[data-numero], tbody tr[data-nombre]');
+                var visible = 0;
+                rows.forEach(function(tr) {{
+                    var num = (tr.getAttribute('data-numero') || '').toLowerCase();
+                    var nom = (tr.getAttribute('data-nombre') || '').toLowerCase();
+                    var match = num.indexOf(q) >= 0 || nom.indexOf(q) >= 0;
+                    tr.classList.toggle('search-hidden', !match);
+                    if (match) visible++;
+                }});
+                var id = section.getAttribute('data-categoria-id');
+                var card = document.querySelector('.index-card[href="#' + id + '"]');
+                if (visible > 0) {{
+                    section.classList.add('search-match');
+                    if (card) card.classList.add('search-match');
+                }} else {{
+                    section.classList.add('search-no-results');
+                    if (card) card.classList.add('search-no-results');
+                }}
+            }});
+        }});
+    </script>
 </body>
 </html>""")
     return "".join(html_parts)
