@@ -5,9 +5,11 @@ Generador de resultados generales por modalidad/campeonato.
 
 import csv
 import html
+import json
 import os
 import re
 import unicodedata
+from datetime import datetime
 from collections import defaultdict
 
 ROOT_DIR = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
@@ -282,7 +284,15 @@ def render_html(champ, table_by_categoria):
     title = f"Resultados generales - {champ['modalidad']} - {champ['campeonato']} | FEDEMOTO"
     h1 = f"Resultados generales {champ['modalidad']}"
     subtitle = champ["campeonato"]
-    liga_podium = defaultdict(lambda: {"first": 0, "second": 0, "third": 0})
+    generated_at = datetime.now().strftime("%d/%m/%Y")
+    liga_podium = defaultdict(
+        lambda: {
+            "first": 0,
+            "second": 0,
+            "third": 0,
+            "details": {"first": [], "second": [], "third": []},
+        }
+    )
     for _cat, rows in table_by_categoria.items():
         for pos, rr in enumerate(rows[:3], start=1):
             liga = (rr.get("liga") or "").strip()
@@ -290,10 +300,19 @@ def render_html(champ, table_by_categoria):
                 continue
             if pos == 1:
                 liga_podium[liga]["first"] += 1
+                liga_podium[liga]["details"]["first"].append(
+                    {"categoria": _cat, "piloto": rr.get("nombre", ""), "puntos": rr.get("total", 0)}
+                )
             elif pos == 2:
                 liga_podium[liga]["second"] += 1
+                liga_podium[liga]["details"]["second"].append(
+                    {"categoria": _cat, "piloto": rr.get("nombre", ""), "puntos": rr.get("total", 0)}
+                )
             elif pos == 3:
                 liga_podium[liga]["third"] += 1
+                liga_podium[liga]["details"]["third"].append(
+                    {"categoria": _cat, "piloto": rr.get("nombre", ""), "puntos": rr.get("total", 0)}
+                )
     liga_rows = sorted(
         liga_podium.items(),
         key=lambda kv: (-kv[1]["first"], -kv[1]["second"], -kv[1]["third"], kv[0].lower()),
@@ -319,6 +338,7 @@ def render_html(champ, table_by_categoria):
         .toolbar {{ padding: 25px 40px; background: #f8f9fa; border-bottom: 1px solid #c0c0c0; }}
         .search-box {{ width: 100%; padding: 12px 20px; font-family: 'Inter', sans-serif; font-size: 1em; border: 2px solid #d1d5db; border-radius: 8px; }}
         .search-box:focus {{ outline: none; border-color: #123E92; box-shadow: 0 0 0 3px rgba(18, 62, 146, 0.2); }}
+        .intro-message {{ padding: 22px 40px; background: #f0f4fc; border-left: 5px solid #123E92; color: #1f2937; border-bottom: 1px solid #c0c0c0; }}
         .index-cards {{ display: flex; flex-wrap: wrap; gap: 12px; padding: 25px 40px; background: #f8f9fa; border-bottom: 1px solid #c0c0c0; }}
         .index-card {{ display: inline-block; padding: 10px 20px; background: white; color: #123E92; border: 2px solid #123E92; border-radius: 8px; font-family: 'Roboto Condensed', sans-serif; font-weight: 700; text-decoration: none; }}
         .index-card.search-match {{ background: #F7C31D; color: #123E92; border-color: #F7C31D; }}
@@ -349,6 +369,18 @@ def render_html(champ, table_by_categoria):
         .liga-summary th, .liga-summary td {{ padding: 8px 10px; border-bottom: 1px solid #e5e7eb; text-align: left; }}
         .liga-summary th {{ background: #123E92; color: white; font-family: 'Roboto Condensed', sans-serif; }}
         .liga-summary .num {{ font-family: 'Bebas Neue', sans-serif; font-size: 1.2em; color: #123E92; }}
+        .liga-summary tr.pos-1 {{ background: rgba(247, 195, 29, 0.15); }}
+        .liga-summary tr.pos-2 {{ background: rgba(192, 192, 192, 0.20); }}
+        .liga-summary tr.pos-3 {{ background: rgba(184, 115, 51, 0.16); }}
+        .info-btn {{ display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; margin-left: 6px; border: 1px solid #123E92; border-radius: 999px; background: #e8eef8; color: #123E92; font-size: 12px; font-weight: 700; cursor: pointer; }}
+        .info-btn:hover {{ background: #123E92; color: #fff; }}
+        .modal-overlay {{ display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 10020; align-items: center; justify-content: center; }}
+        .modal-overlay.open {{ display: flex; }}
+        .modal-box {{ background: #fff; border-radius: 12px; padding: 24px; max-width: 680px; width: 92%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }}
+        .modal-box h3 {{ font-family: 'Bebas Neue', sans-serif; font-size: 1.6em; color: #123E92; margin-bottom: 14px; }}
+        .modal-box ul {{ margin-left: 18px; }}
+        .modal-box li {{ margin-bottom: 6px; }}
+        .modal-close {{ margin-top: 14px; padding: 10px 16px; border: 0; border-radius: 8px; background: #123E92; color: #fff; font-family: 'Roboto Condensed', sans-serif; cursor: pointer; }}
         footer {{ background: #f8f9fa; padding: 30px 40px; text-align: center; border-top: 1px solid #c0c0c0; color: #000; font-family: 'Inter', sans-serif; font-size: 0.9em; }}
         footer .developer {{ font-family: 'Roboto Condensed', sans-serif; font-weight: 700; color: #123E92; }}
     </style>
@@ -360,6 +392,9 @@ def render_html(champ, table_by_categoria):
             <h1>{esc(h1)}</h1>
             <p>{esc(subtitle)}</p>
         </header>
+        <div class="intro-message">
+            <p>Los resultados generales presentados en esta página están actualizados hasta la fecha <strong>{generated_at}</strong>.</p>
+        </div>
         <div class="toolbar">
             <input type="text" id="buscador" class="search-box" placeholder="Buscar por nombre o N° del piloto..." />
         </div>
@@ -378,9 +413,25 @@ def render_html(champ, table_by_categoria):
                     <thead><tr><th>Liga</th><th>1ros</th><th>2dos</th><th>3ros</th></tr></thead>
                     <tbody>
 """)
-    for liga, cnt in liga_rows:
+    for i, (liga, cnt) in enumerate(liga_rows, start=1):
+        row_class = ""
+        if i == 1:
+            row_class = ' class="pos-1"'
+        elif i == 2:
+            row_class = ' class="pos-2"'
+        elif i == 3:
+            row_class = ' class="pos-3"'
+        first_d = html.escape(json.dumps(cnt["details"]["first"], ensure_ascii=False))
+        second_d = html.escape(json.dumps(cnt["details"]["second"], ensure_ascii=False))
+        third_d = html.escape(json.dumps(cnt["details"]["third"], ensure_ascii=False))
+        first_info = f'<button type="button" class="info-btn" data-title="1ros puestos - {esc(liga)}" data-details="{first_d}">i</button>' if cnt["first"] else ""
+        second_info = f'<button type="button" class="info-btn" data-title="2dos puestos - {esc(liga)}" data-details="{second_d}">i</button>' if cnt["second"] else ""
+        third_info = f'<button type="button" class="info-btn" data-title="3ros puestos - {esc(liga)}" data-details="{third_d}">i</button>' if cnt["third"] else ""
         html_parts.append(
-            f'<tr><td>{esc(liga)}</td><td class="num">{cnt["first"]}</td><td class="num">{cnt["second"]}</td><td class="num">{cnt["third"]}</td></tr>'
+            f'<tr{row_class}><td>{esc(liga)}</td>'
+            f'<td class="num">{cnt["first"]}{first_info}</td>'
+            f'<td class="num">{cnt["second"]}{second_info}</td>'
+            f'<td class="num">{cnt["third"]}{third_info}</td></tr>'
         )
     if not liga_rows:
         html_parts.append('<tr><td colspan="4">Sin datos de podio por liga.</td></tr>')
@@ -423,8 +474,48 @@ def render_html(champ, table_by_categoria):
             <p>Este proyecto es de uso interno de FEDEMOTO.</p>
         </footer>
     </div>
+    <div id="modalLigaDetalle" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="modalLigaDetalleTitle">Detalle</h3>
+            <div id="modalLigaDetalleBody"></div>
+            <button type="button" id="modalLigaDetalleClose" class="modal-close">Cerrar</button>
+        </div>
+    </div>
     <script src="{rel_to_root}load-menu.js"></script>
     <script>
+        function escapeHtml(t) {{
+            return (t + '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }}
+        function renderLigaDetails(raw) {{
+            var list = [];
+            try {{ list = JSON.parse(raw); }} catch (e) {{ list = []; }}
+            if (!Array.isArray(list) || list.length === 0) return '<p>Sin detalles disponibles.</p>';
+            var html = '<ul>';
+            list.forEach(function(item) {{
+                var cat = (item.categoria || '');
+                var pil = (item.piloto || '');
+                var pts = (item.puntos || 0);
+                html += '<li><strong>' + escapeHtml(cat) + '</strong> — ' + escapeHtml(pil) + ' (' + pts + ' pts)</li>';
+            }});
+            html += '</ul>';
+            return html;
+        }}
+        var modal = document.getElementById('modalLigaDetalle');
+        var modalTitle = document.getElementById('modalLigaDetalleTitle');
+        var modalBody = document.getElementById('modalLigaDetalleBody');
+        document.querySelectorAll('.info-btn').forEach(function(btn) {{
+            btn.addEventListener('click', function() {{
+                modalTitle.textContent = this.getAttribute('data-title') || 'Detalle';
+                modalBody.innerHTML = renderLigaDetails(this.getAttribute('data-details') || '[]');
+                modal.classList.add('open');
+            }});
+        }});
+        document.getElementById('modalLigaDetalleClose').addEventListener('click', function() {{
+            modal.classList.remove('open');
+        }});
+        modal.addEventListener('click', function(e) {{
+            if (e.target === this) this.classList.remove('open');
+        }});
         document.querySelectorAll('.btn-top').forEach(function(btn) {{
             btn.addEventListener('click', function() {{ window.scrollTo({{ top: 0, behavior: 'smooth' }}); }});
         }});

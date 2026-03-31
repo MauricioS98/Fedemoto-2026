@@ -87,6 +87,10 @@ python "Resultados generales/generar_resultados_generales.py"
 - Resumen de ligas por campeonato (debajo del selector de categorías):
   - cuenta solo puestos 1°, 2° y 3° por categoría
   - ordena por: cantidad de 1°; luego 2°; luego 3°
+  - aplica también resaltado de podio para las 3 primeras ligas
+  - incluye botón `i` en 1ros/2dos/3ros para ver detalle (categoría, piloto y puntaje)
+- Mensaje de actualización:
+  - antes del buscador se muestra la fecha de última actualización del documento (fecha de generación)
 
 ### Cómo ampliar cuando llegue una nueva válida
 

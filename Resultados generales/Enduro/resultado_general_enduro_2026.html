@@ -18,6 +18,7 @@
         .toolbar { padding: 25px 40px; background: #f8f9fa; border-bottom: 1px solid #c0c0c0; }
         .search-box { width: 100%; padding: 12px 20px; font-family: 'Inter', sans-serif; font-size: 1em; border: 2px solid #d1d5db; border-radius: 8px; }
         .search-box:focus { outline: none; border-color: #123E92; box-shadow: 0 0 0 3px rgba(18, 62, 146, 0.2); }
+        .intro-message { padding: 22px 40px; background: #f0f4fc; border-left: 5px solid #123E92; color: #1f2937; border-bottom: 1px solid #c0c0c0; }
         .index-cards { display: flex; flex-wrap: wrap; gap: 12px; padding: 25px 40px; background: #f8f9fa; border-bottom: 1px solid #c0c0c0; }
         .index-card { display: inline-block; padding: 10px 20px; background: white; color: #123E92; border: 2px solid #123E92; border-radius: 8px; font-family: 'Roboto Condensed', sans-serif; font-weight: 700; text-decoration: none; }
         .index-card.search-match { background: #F7C31D; color: #123E92; border-color: #F7C31D; }
@@ -48,6 +49,18 @@
         .liga-summary th, .liga-summary td { padding: 8px 10px; border-bottom: 1px solid #e5e7eb; text-align: left; }
         .liga-summary th { background: #123E92; color: white; font-family: 'Roboto Condensed', sans-serif; }
         .liga-summary .num { font-family: 'Bebas Neue', sans-serif; font-size: 1.2em; color: #123E92; }
+        .liga-summary tr.pos-1 { background: rgba(247, 195, 29, 0.15); }
+        .liga-summary tr.pos-2 { background: rgba(192, 192, 192, 0.20); }
+        .liga-summary tr.pos-3 { background: rgba(184, 115, 51, 0.16); }
+        .info-btn { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; margin-left: 6px; border: 1px solid #123E92; border-radius: 999px; background: #e8eef8; color: #123E92; font-size: 12px; font-weight: 700; cursor: pointer; }
+        .info-btn:hover { background: #123E92; color: #fff; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 10020; align-items: center; justify-content: center; }
+        .modal-overlay.open { display: flex; }
+        .modal-box { background: #fff; border-radius: 12px; padding: 24px; max-width: 680px; width: 92%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .modal-box h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.6em; color: #123E92; margin-bottom: 14px; }
+        .modal-box ul { margin-left: 18px; }
+        .modal-box li { margin-bottom: 6px; }
+        .modal-close { margin-top: 14px; padding: 10px 16px; border: 0; border-radius: 8px; background: #123E92; color: #fff; font-family: 'Roboto Condensed', sans-serif; cursor: pointer; }
         footer { background: #f8f9fa; padding: 30px 40px; text-align: center; border-top: 1px solid #c0c0c0; color: #000; font-family: 'Inter', sans-serif; font-size: 0.9em; }
         footer .developer { font-family: 'Roboto Condensed', sans-serif; font-weight: 700; color: #123E92; }
     </style>
@@ -59,6 +72,9 @@
             <h1>Resultados generales Enduro</h1>
             <p>Campeonato 2026</p>
         </header>
+        <div class="intro-message">
+            <p>Los resultados generales presentados en esta página están actualizados hasta la fecha <strong>30/03/2026</strong>.</p>
+        </div>
         <div class="toolbar">
             <input type="text" id="buscador" class="search-box" placeholder="Buscar por nombre o N° del piloto..." />
         </div>
@@ -84,7 +100,7 @@
                 <table>
                     <thead><tr><th>Liga</th><th>1ros</th><th>2dos</th><th>3ros</th></tr></thead>
                     <tbody>
-<tr><td>Valle del Cauca</td><td class="num">4</td><td class="num">4</td><td class="num">0</td></tr><tr><td>Cundinamarca</td><td class="num">4</td><td class="num">3</td><td class="num">3</td></tr><tr><td>Bogotá D.C.</td><td class="num">3</td><td class="num">0</td><td class="num">3</td></tr><tr><td>Antioquia</td><td class="num">1</td><td class="num">2</td><td class="num">2</td></tr><tr><td>Quindío</td><td class="num">1</td><td class="num">1</td><td class="num">0</td></tr><tr><td>Risaralda</td><td class="num">1</td><td class="num">1</td><td class="num">0</td></tr><tr><td>Tolima</td><td class="num">0</td><td class="num">2</td><td class="num">2</td></tr><tr><td>Caldas</td><td class="num">0</td><td class="num">1</td><td class="num">2</td></tr>                    </tbody>
+<tr class="pos-1"><td>Valle del Cauca</td><td class="num">4<button type="button" class="info-btn" data-title="1ros puestos - Valle del Cauca" data-details="[{&quot;categoria&quot;: &quot;No Racer&quot;, &quot;piloto&quot;: &quot;Sebastian CLAVIJO LONDOÑO&quot;, &quot;puntos&quot;: 15.0}, {&quot;categoria&quot;: &quot;Enduro 2&quot;, &quot;piloto&quot;: &quot;Juan David OLAYA LOPEZ&quot;, &quot;puntos&quot;: 15.0}, {&quot;categoria&quot;: &quot;Master A&quot;, &quot;piloto&quot;: &quot;Gino MOLINA FALDUTO&quot;, &quot;puntos&quot;: 15.0}, {&quot;categoria&quot;: &quot;Enduro 3&quot;, &quot;piloto&quot;: &quot;Franciso ALVAREZ NIÑO&quot;, &quot;puntos&quot;: 15.0}]">i</button></td><td class="num">4<button type="button" class="info-btn" data-title="2dos puestos - Valle del Cauca" data-details="[{&quot;categoria&quot;: &quot;Infantil Enduro 2&quot;, &quot;piloto&quot;: &quot;Samuel MAYA SANCHEZ&quot;, &quot;puntos&quot;: 13.0}, {&quot;categoria&quot;: &quot;Junior Novatos&quot;, &quot;piloto&quot;: &quot;Juan Jacobo RENGIFO GOMEZ&quot;, &quot;puntos&quot;: 13.0}, {&quot;categoria&quot;: &quot;Enduro 3&quot;, &quot;piloto&quot;: &quot;Cesar CORREA ESCOBAR&quot;, &quot;puntos&quot;: 13.0}, {&quot;categoria&quot;: &quot;Master B&quot;, &quot;piloto&quot;: &quot;Adolfo León RENGIFO&quot;, &quot;puntos&quot;: 13.0}]">i</button></td><td class="num">0</td></tr><tr class="pos-2"><td>Cundinamarca</td><td class="num">4<button type="button" class="info-btn" data-title="1ros puestos - Cundinamarca" data-details="[{&quot;categoria&quot;: &quot;Infantil Enduro 2&quot;, &quot;piloto&quot;: &quot;Andres Felipe RODRIGUEZ CASTILLO&quot;, &quot;puntos&quot;: 15.0}, {&quot;categoria&quot;: &quot;Inicio&quot;, &quot;piloto&quot;: &quot;Sebastián Vela Villa&quot;, &quot;puntos&quot;: 15.0}, {&quot;categoria&quot;: &quot;Junior Novatos&quot;, &quot;piloto&quot;: &quot;Nicolas Felipe REY REY&quot;, &quot;puntos&quot;: 15.0}, {&quot;categoria&quot;: &quot;Juvenil&quot;, &quot;piloto&quot;: &quot;Jose Alejandro MOYANO MORENO&quot;, &quot;puntos&quot;: 15.0}]">i</button></td><td class="num">3<button type="button" class="info-btn" data-title="2dos puestos - Cundinamarca" data-details="[{&quot;categoria&quot;: &quot;Juvenil&quot;, &quot;piloto&quot;: &quot;Juan José Pérez Murcia&quot;, &quot;puntos&quot;: 13.0}, {&quot;categoria&quot;: &quot;Femenino&quot;, &quot;piloto&quot;: &quot;Maria Paula SCARPATI SARMIENTO&quot;, &quot;puntos&quot;: 13.0}, {&quot;categoria&quot;: &quot;Enduro 1&quot;, &quot;piloto&quot;: &quot;Nestor Felipe URBINA MORENO&quot;, &quot;puntos&quot;: 13.0}]">i</button></td><td class="num">3<button type="button" class="info-btn" data-title="3ros puestos - Cundinamarca" data-details="[{&quot;categoria&quot;: &quot;Infantil Enduro 3&quot;, &quot;piloto&quot;: &quot;Juan Jose NAVARRETE SANCHEZ&quot;, &quot;puntos&quot;: 11.0}, {&quot;categoria&quot;: &quot;Juvenil&quot;, &quot;piloto&quot;: &quot;Juan Sebastian CALDERON ROJAS&quot;, &quot;puntos&quot;: 11.0}, {&quot;categoria&quot;: &quot;Enduro 3&quot;, &quot;piloto&quot;: &quot;Hosney Bustos Bustos&quot;, &quot;puntos&quot;: 11.0}]">i</button></td></tr><tr class="pos-3"><td>Bogotá D.C.</td><td class="num">3<button type="button" class="info-btn" data-title="1ros puestos - Bogotá D.C." data-details="[{&quot;categoria&quot;: &quot;Infantil Enduro 3&quot;, &quot;piloto&quot;: &quot;Simon OCAMPO BURBANO&quot;, &quot;puntos&quot;: 15.0}, {&quot;categoria&quot;: &quot;Femenino&quot;, &quot;piloto&quot;: &quot;Daniella ACOSTA SABOGAL&quot;, &quot;puntos&quot;: 15.0}, {&quot;categoria&quot;: &quot;Enduro 1&quot;, &quot;piloto&quot;: &quot;Tomas JARAMILLO CARRANZA&quot;, &quot;puntos&quot;: 15.0}]">i</button></td><td class="num">0</td><td class="num">3<button type="button" class="info-btn" data-title="3ros puestos - Bogotá D.C." data-details="[{&quot;categoria&quot;: &quot;Enduro 2&quot;, &quot;piloto&quot;: &quot;Pablo ANCIZAR KLOCH&quot;, &quot;puntos&quot;: 11.0}, {&quot;categoria&quot;: &quot;Infantil Enduro 1&quot;, &quot;piloto&quot;: &quot;Jeronimo CASTILLO JIMENEZ&quot;, &quot;puntos&quot;: 24.0}, {&quot;categoria&quot;: &quot;Junior&quot;, &quot;piloto&quot;: &quot;Santiago Ramirez Cabrera&quot;, &quot;puntos&quot;: 11.0}]">i</button></td></tr><tr><td>Antioquia</td><td class="num">1<button type="button" class="info-btn" data-title="1ros puestos - Antioquia" data-details="[{&quot;categoria&quot;: &quot;Master B&quot;, &quot;piloto&quot;: &quot;Carlos Eduardo PELAEZ LONDOÑO&quot;, &quot;puntos&quot;: 15.0}]">i</button></td><td class="num">2<button type="button" class="info-btn" data-title="2dos puestos - Antioquia" data-details="[{&quot;categoria&quot;: &quot;Master A&quot;, &quot;piloto&quot;: &quot;Sebastian VELEZ ARANGO&quot;, &quot;puntos&quot;: 13.0}, {&quot;categoria&quot;: &quot;Junior&quot;, &quot;piloto&quot;: &quot;Juan Jose GIRALDO HENAO&quot;, &quot;puntos&quot;: 13.0}]">i</button></td><td class="num">2<button type="button" class="info-btn" data-title="3ros puestos - Antioquia" data-details="[{&quot;categoria&quot;: &quot;Junior Novatos&quot;, &quot;piloto&quot;: &quot;Miguel matius sanchez zapata&quot;, &quot;puntos&quot;: 11.0}, {&quot;categoria&quot;: &quot;Master A&quot;, &quot;piloto&quot;: &quot;Diego PENAGOS ECHAVARRIA&quot;, &quot;puntos&quot;: 11.0}]">i</button></td></tr><tr><td>Quindío</td><td class="num">1<button type="button" class="info-btn" data-title="1ros puestos - Quindío" data-details="[{&quot;categoria&quot;: &quot;Junior&quot;, &quot;piloto&quot;: &quot;Miguel Angel LOPEZ MARTINEZ&quot;, &quot;puntos&quot;: 15.0}]">i</button></td><td class="num">1<button type="button" class="info-btn" data-title="2dos puestos - Quindío" data-details="[{&quot;categoria&quot;: &quot;No Racer&quot;, &quot;piloto&quot;: &quot;Carlos Mario HERNANDEZ RAMIREZ&quot;, &quot;puntos&quot;: 13.0}]">i</button></td><td class="num">0</td></tr><tr><td>Risaralda</td><td class="num">1<button type="button" class="info-btn" data-title="1ros puestos - Risaralda" data-details="[{&quot;categoria&quot;: &quot;Infantil Enduro 1&quot;, &quot;piloto&quot;: &quot;Juan Jose LEYTON ERASO&quot;, &quot;puntos&quot;: 28.0}]">i</button></td><td class="num">1<button type="button" class="info-btn" data-title="2dos puestos - Risaralda" data-details="[{&quot;categoria&quot;: &quot;Infantil Enduro 3&quot;, &quot;piloto&quot;: &quot;Juan Antonio PIEDRAHITA VARELA&quot;, &quot;puntos&quot;: 13.0}]">i</button></td><td class="num">0</td></tr><tr><td>Tolima</td><td class="num">0</td><td class="num">2<button type="button" class="info-btn" data-title="2dos puestos - Tolima" data-details="[{&quot;categoria&quot;: &quot;Enduro 2&quot;, &quot;piloto&quot;: &quot;Edwar Orlando GARZON ZAMORA&quot;, &quot;puntos&quot;: 13.0}, {&quot;categoria&quot;: &quot;Infantil Enduro 1&quot;, &quot;piloto&quot;: &quot;Samuel BELTRÁN PRIETO&quot;, &quot;puntos&quot;: 25.0}]">i</button></td><td class="num">2<button type="button" class="info-btn" data-title="3ros puestos - Tolima" data-details="[{&quot;categoria&quot;: &quot;Enduro 1&quot;, &quot;piloto&quot;: &quot;Robinson Fabian GARCIA PASTOR&quot;, &quot;puntos&quot;: 11.0}, {&quot;categoria&quot;: &quot;Master B&quot;, &quot;piloto&quot;: &quot;Andres Bernardo Mejia Londoño&quot;, &quot;puntos&quot;: 11.0}]">i</button></td></tr><tr><td>Caldas</td><td class="num">0</td><td class="num">1<button type="button" class="info-btn" data-title="2dos puestos - Caldas" data-details="[{&quot;categoria&quot;: &quot;Inicio&quot;, &quot;piloto&quot;: &quot;jorge Hernan montoya Jimenez&quot;, &quot;puntos&quot;: 13.0}]">i</button></td><td class="num">2<button type="button" class="info-btn" data-title="3ros puestos - Caldas" data-details="[{&quot;categoria&quot;: &quot;Infantil Enduro 2&quot;, &quot;piloto&quot;: &quot;Ivvana Rugeles Avendaño&quot;, &quot;puntos&quot;: 11.0}, {&quot;categoria&quot;: &quot;Inicio&quot;, &quot;piloto&quot;: &quot;Jorge Hernan Giraldo Gallego&quot;, &quot;puntos&quot;: 11.0}]">i</button></td></tr>                    </tbody>
                 </table>
             </div>
         </div>
@@ -165,8 +181,48 @@
             <p>Este proyecto es de uso interno de FEDEMOTO.</p>
         </footer>
     </div>
+    <div id="modalLigaDetalle" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="modalLigaDetalleTitle">Detalle</h3>
+            <div id="modalLigaDetalleBody"></div>
+            <button type="button" id="modalLigaDetalleClose" class="modal-close">Cerrar</button>
+        </div>
+    </div>
     <script src="../../load-menu.js"></script>
     <script>
+        function escapeHtml(t) {
+            return (t + '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+        function renderLigaDetails(raw) {
+            var list = [];
+            try { list = JSON.parse(raw); } catch (e) { list = []; }
+            if (!Array.isArray(list) || list.length === 0) return '<p>Sin detalles disponibles.</p>';
+            var html = '<ul>';
+            list.forEach(function(item) {
+                var cat = (item.categoria || '');
+                var pil = (item.piloto || '');
+                var pts = (item.puntos || 0);
+                html += '<li><strong>' + escapeHtml(cat) + '</strong> — ' + escapeHtml(pil) + ' (' + pts + ' pts)</li>';
+            });
+            html += '</ul>';
+            return html;
+        }
+        var modal = document.getElementById('modalLigaDetalle');
+        var modalTitle = document.getElementById('modalLigaDetalleTitle');
+        var modalBody = document.getElementById('modalLigaDetalleBody');
+        document.querySelectorAll('.info-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                modalTitle.textContent = this.getAttribute('data-title') || 'Detalle';
+                modalBody.innerHTML = renderLigaDetails(this.getAttribute('data-details') || '[]');
+                modal.classList.add('open');
+            });
+        });
+        document.getElementById('modalLigaDetalleClose').addEventListener('click', function() {
+            modal.classList.remove('open');
+        });
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) this.classList.remove('open');
+        });
         document.querySelectorAll('.btn-top').forEach(function(btn) {
             btn.addEventListener('click', function() { window.scrollTo({ top: 0, behavior: 'smooth' }); });
         });
