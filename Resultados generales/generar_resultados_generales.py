@@ -282,6 +282,22 @@ def render_html(champ, table_by_categoria):
     title = f"Resultados generales - {champ['modalidad']} - {champ['campeonato']} | FEDEMOTO"
     h1 = f"Resultados generales {champ['modalidad']}"
     subtitle = champ["campeonato"]
+    liga_podium = defaultdict(lambda: {"first": 0, "second": 0, "third": 0})
+    for _cat, rows in table_by_categoria.items():
+        for pos, rr in enumerate(rows[:3], start=1):
+            liga = (rr.get("liga") or "").strip()
+            if not liga:
+                continue
+            if pos == 1:
+                liga_podium[liga]["first"] += 1
+            elif pos == 2:
+                liga_podium[liga]["second"] += 1
+            elif pos == 3:
+                liga_podium[liga]["third"] += 1
+    liga_rows = sorted(
+        liga_podium.items(),
+        key=lambda kv: (-kv[1]["first"], -kv[1]["second"], -kv[1]["third"], kv[0].lower()),
+    )
 
     html_parts = [f"""<!DOCTYPE html>
 <html lang="es">
@@ -322,8 +338,17 @@ def render_html(champ, table_by_categoria):
         th {{ background: #123E92; color: white; font-family: 'Roboto Condensed', sans-serif; font-weight: 700; position: sticky; top: 0; }}
         tr:nth-child(odd) {{ background: #fafafa; }}
         tr:hover {{ background: #f0f4fc; }}
+        tr.pos-1 {{ background: rgba(247, 195, 29, 0.15) !important; }}
+        tr.pos-2 {{ background: rgba(192, 192, 192, 0.20) !important; }}
+        tr.pos-3 {{ background: rgba(184, 115, 51, 0.16) !important; }}
         tr.search-hidden {{ display: none !important; }}
         .col-total {{ font-weight: 700; color: #123E92; }}
+        .liga-summary {{ padding: 22px 40px; background: #f8f9fa; border-bottom: 1px solid #c0c0c0; }}
+        .liga-summary h3 {{ font-family: 'Bebas Neue', sans-serif; font-size: 1.6em; color: #123E92; letter-spacing: 1px; margin-bottom: 10px; }}
+        .liga-summary table {{ width: 100%; border-collapse: collapse; font-size: 0.92em; }}
+        .liga-summary th, .liga-summary td {{ padding: 8px 10px; border-bottom: 1px solid #e5e7eb; text-align: left; }}
+        .liga-summary th {{ background: #123E92; color: white; font-family: 'Roboto Condensed', sans-serif; }}
+        .liga-summary .num {{ font-family: 'Bebas Neue', sans-serif; font-size: 1.2em; color: #123E92; }}
         footer {{ background: #f8f9fa; padding: 30px 40px; text-align: center; border-top: 1px solid #c0c0c0; color: #000; font-family: 'Inter', sans-serif; font-size: 0.9em; }}
         footer .developer {{ font-family: 'Roboto Condensed', sans-serif; font-weight: 700; color: #123E92; }}
     </style>
@@ -346,6 +371,23 @@ def render_html(champ, table_by_categoria):
         html_parts.append(f'            <a href="#{sid}" class="index-card">{esc(cat)}</a>\n')
 
     html_parts.append("""        </div>
+        <div class="liga-summary">
+            <h3>Resumen de ligas (podios)</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead><tr><th>Liga</th><th>1ros</th><th>2dos</th><th>3ros</th></tr></thead>
+                    <tbody>
+""")
+    for liga, cnt in liga_rows:
+        html_parts.append(
+            f'<tr><td>{esc(liga)}</td><td class="num">{cnt["first"]}</td><td class="num">{cnt["second"]}</td><td class="num">{cnt["third"]}</td></tr>'
+        )
+    if not liga_rows:
+        html_parts.append('<tr><td colspan="4">Sin datos de podio por liga.</td></tr>')
+    html_parts.append("""                    </tbody>
+                </table>
+            </div>
+        </div>
         <div class="content-section">
 """)
 
@@ -361,7 +403,14 @@ def render_html(champ, table_by_categoria):
             html_parts.append(f"<th>{esc(v['label'])}</th>")
         html_parts.append("<th>Total</th></tr></thead><tbody>")
         for i, r in enumerate(rows, start=1):
-            html_parts.append(f'<tr data-numero="{esc(r["numero"])}" data-nombre="{esc(r["nombre"])}">')
+            pos_class = ""
+            if i == 1:
+                pos_class = "pos-1"
+            elif i == 2:
+                pos_class = "pos-2"
+            elif i == 3:
+                pos_class = "pos-3"
+            html_parts.append(f'<tr class="{pos_class}" data-numero="{esc(r["numero"])}" data-nombre="{esc(r["nombre"])}">')
             html_parts.append(f"<td>{i}</td><td>{esc(r['numero'])}</td><td>{esc(r['nombre'])}</td><td>{esc(r['liga'])}</td><td>{esc(r['club'])}</td><td>{esc(r['moto'])}</td>")
             for p in r["por_valida"]:
                 html_parts.append(f"<td>{fmt_points(p)}</td>")

@@ -80,6 +80,13 @@ python "Resultados generales/generar_resultados_generales.py"
   - barra de búsqueda por `Nombre` o `N°`
   - botón de flecha hacia arriba por categoría
   - resaltado/ocultamiento de categorías e índice según búsqueda
+- Resaltado visual de podio por categoría:
+  - 1° puesto: dorado/amarillo tenue
+  - 2° puesto: plateado/gris tenue
+  - 3° puesto: cobre rojizo tenue
+- Resumen de ligas por campeonato (debajo del selector de categorías):
+  - cuenta solo puestos 1°, 2° y 3° por categoría
+  - ordena por: cantidad de 1°; luego 2°; luego 3°
 
 ### Cómo ampliar cuando llegue una nueva válida
 
