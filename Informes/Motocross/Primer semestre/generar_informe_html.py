@@ -90,6 +90,39 @@ def main():
         .intro-message p:last-child { margin-bottom: 0; }
         .footer-informe { background: #f8f9fa; padding: 24px 40px; text-align: center; color: #666; font-size: 0.9em; border-top: 1px solid #e0e0e0; }
         .footer-informe .developer { font-family: 'Roboto Condensed', sans-serif; font-weight: 700; color: #123E92; }
+        @media (max-width: 1024px) {
+            body { padding: 12px; padding-top: 105px; }
+            .header-content { padding: 10px 14px; gap: 10px; }
+            .nav-menu > li > a { padding: 10px 14px; font-size: 1em; }
+            .container > header { padding: 28px 20px; }
+            .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 20px; gap: 12px; }
+            .section { padding: 24px 20px; }
+            .intro-message { padding: 20px; margin: 0 10px 8px; }
+        }
+        @media (max-width: 768px) {
+            body { padding: 8px; padding-top: 96px; }
+            .header-content { align-items: flex-start; flex-direction: column; }
+            .logo-container img { height: 42px; }
+            .nav-menu { width: 100%; overflow-x: auto; white-space: nowrap; padding-bottom: 4px; }
+            .nav-menu > li > a { padding: 9px 12px; font-size: 0.95em; }
+            .dropdown-menu { min-width: 180px; width: 190px; }
+            .container > header h1 { font-size: 1.7em; letter-spacing: 1px; }
+            .container > header p { font-size: 1em; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .stat-card { padding: 16px; }
+            .stat-card .number { font-size: 2em; }
+            .section h2 { font-size: 1.5em; margin-bottom: 14px; }
+            .chart-row { align-items: flex-start; flex-direction: column; gap: 6px; }
+            .chart-row .label { flex: 0 0 auto; width: 100%; white-space: normal; }
+            .chart-row .bar-wrap { width: 100%; }
+            .chart-row .value { flex: 0 0 auto; width: 100%; text-align: left; }
+        }
+        @media (max-width: 480px) {
+            .container > header { padding: 22px 14px; }
+            .intro-message { padding: 14px; margin: 0 6px 8px; font-size: 0.92em; }
+            .section { padding: 18px 14px; }
+            .footer-informe { padding: 18px 14px; }
+        }
     </style>
 </head>
 <body>
