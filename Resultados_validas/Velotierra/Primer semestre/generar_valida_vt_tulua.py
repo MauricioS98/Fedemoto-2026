@@ -9,7 +9,7 @@ import re
 import sys
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-FILES_DIR = os.path.join(SCRIPT_DIR, "FILES EXPORTED")
+FILES_DIR = os.path.join(SCRIPT_DIR, "FILES EXPORTED_tulua")
 OUTPUT_FILE = os.path.join(SCRIPT_DIR, "valida_i_vt_tulua.html")
 
 _RV_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "..", ".."))
