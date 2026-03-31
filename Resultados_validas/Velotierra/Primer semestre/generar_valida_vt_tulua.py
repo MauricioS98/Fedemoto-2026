@@ -374,7 +374,7 @@ def generate_html():
                 </div>'''
         
         if final_data and (clasif_data or c1_data or c2_data):
-            c_headers, c_rows = clasif_data[0], clasif_data[1] if clasif_data else (None, None)
+            c_headers, c_rows = (clasif_data[0], clasif_data[1]) if clasif_data else (None, None)
             best_clasif = get_mejor_tm_absoluto(c_rows, 1, find_mejor_tm_index(c_headers), 2) if clasif_data else None
             best_carreras = get_mejor_tm_carreras(c1_data, c2_data) if (c1_data or c2_data) else None
             if best_clasif or best_carreras:
