@@ -156,7 +156,16 @@ def choose_main_file(files):
 
 
 def find_indexes(headers):
-    idx = {"numero": None, "nombre": None, "liga": None, "club": None, "moto": None, "puntos": None}
+    idx = {
+        "numero": None,
+        "nombre": None,
+        "liga": None,
+        "club": None,
+        "moto": None,
+        "puntos": None,
+        "pos": None,
+        "clase": None,
+    }
     for i, h in enumerate(headers):
         hk = normalize_key(h)
         if hk in ("n", "no", "numero"):
@@ -169,6 +178,10 @@ def find_indexes(headers):
             idx["club"] = i
         elif "moto" in hk:
             idx["moto"] = i
+        elif hk == "pos":
+            idx["pos"] = i
+        elif hk in ("clase", "categoria") and idx["clase"] is None:
+            idx["clase"] = i
         elif hk in ("totalpuntos", "puntostotales", "puntos"):
             if idx["puntos"] is None or hk == "totalpuntos":
                 idx["puntos"] = i
@@ -181,6 +194,33 @@ def parse_points(value):
         return 0.0
     m = re.search(r"-?\d+(\.\d+)?", s)
     return float(m.group(0)) if m else 0.0
+
+
+def parse_position_int(value):
+    """Primera cifra entera en la celda de posición (p. ej. '1' o '12')."""
+    s = str(value or "").strip()
+    m = re.search(r"\d+", s)
+    return int(m.group(0)) if m else 0
+
+
+def puntos_fedemoto_carrera_por_posicion(pos):
+    """Tabla Fedemoto carrera: posición → puntos (Scratch sin columna Puntos)."""
+    if pos <= 0:
+        return 0.0
+    tabla = {
+        1: 15, 2: 13, 3: 11, 4: 10, 5: 9, 6: 8, 7: 7, 8: 6, 9: 5, 10: 4, 11: 3, 12: 2,
+    }
+    if pos in tabla:
+        return float(tabla[pos])
+    if 13 <= pos <= 15:
+        return 1.0
+    return 0.0
+
+
+def csv_delimiter_from_first_line(first_line):
+    if not first_line:
+        return ","
+    return ";" if first_line.count(";") > first_line.count(",") else ","
 
 
 def load_valida_category_rows(files_dir, modalidad=None):
@@ -200,28 +240,55 @@ def load_valida_category_rows(files_dir, modalidad=None):
     for categoria, files in by_cat_files.items():
         _tipo, main_path = choose_main_file(files)
         with open(main_path, "r", encoding="utf-8-sig", newline="") as f:
-            rows = list(csv.reader(f))
+            raw = f.read()
+        lines = raw.splitlines()
+        if not lines:
+            continue
+        delim = csv_delimiter_from_first_line(lines[0])
+        rows = list(csv.reader(lines, delimiter=delim))
         if not rows:
             continue
         headers = rows[0]
         body = rows[1:]
         idx = find_indexes(headers)
-        if idx["numero"] is None or idx["nombre"] is None or idx["puntos"] is None:
-            continue
+        scratch = modalidad == "Enduro" and categoria == "Scratch"
+        if scratch:
+            if idx["numero"] is None or idx["nombre"] is None or idx["pos"] is None:
+                continue
+            need = [idx["numero"], idx["nombre"], idx["pos"]]
+            if idx["clase"] is not None:
+                need.append(idx["clase"])
+            max_ix = max(need)
+        else:
+            if idx["numero"] is None or idx["nombre"] is None or idx["puntos"] is None:
+                continue
+            max_ix = max(idx["numero"], idx["nombre"], idx["puntos"])
         cat_rows = []
         for r in body:
-            if len(r) <= max(idx["numero"], idx["nombre"], idx["puntos"]):
+            if len(r) <= max_ix:
                 continue
             numero = str(r[idx["numero"]]).strip()
             if not numero:
                 continue
+            if scratch:
+                pos = parse_position_int(r[idx["pos"]])
+                pts = puntos_fedemoto_carrera_por_posicion(pos)
+                clase_v = (
+                    str(r[idx["clase"]]).strip()
+                    if idx["clase"] is not None and idx["clase"] < len(r)
+                    else ""
+                )
+            else:
+                pts = parse_points(r[idx["puntos"]])
+                clase_v = ""
             cat_rows.append({
                 "numero": numero,
                 "nombre": str(r[idx["nombre"]]).strip(),
                 "liga": str(r[idx["liga"]]).strip() if idx["liga"] is not None and idx["liga"] < len(r) else "",
                 "club": str(r[idx["club"]]).strip() if idx["club"] is not None and idx["club"] < len(r) else "",
                 "moto": str(r[idx["moto"]]).strip() if idx["moto"] is not None and idx["moto"] < len(r) else "",
-                "puntos": parse_points(r[idx["puntos"]]),
+                "clase": clase_v,
+                "puntos": pts,
             })
         out[categoria] = cat_rows
     return out
@@ -251,12 +318,13 @@ def build_general_table(champ):
                         "liga": row["liga"],
                         "club": row["club"],
                         "moto": row["moto"],
+                        "clase": row.get("clase", ""),
                         "por_valida": [0.0] * len(validas),
                     }
                 riders[key]["por_valida"][i] = row["puntos"]
                 # Prefer latest valida values for profile fields when present
-                for f in ("nombre", "liga", "club", "moto"):
-                    if row[f]:
+                for f in ("nombre", "liga", "club", "moto", "clase"):
+                    if row.get(f):
                         riders[key][f] = row[f]
 
         rows = []
@@ -454,11 +522,17 @@ def render_html(champ, table_by_categoria):
     for cat in categorias:
         sid = re.sub(r"[^a-z0-9]+", "-", normalize_key(cat)).strip("-")
         rows = table_by_categoria.get(cat, [])
+        is_scratch = cat == "Scratch"
         html_parts.append(f"""            <div class="categoria-section" id="{sid}" data-categoria-id="{sid}">
                 <div class="categoria-header"><h2>{esc(cat)}</h2><button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg></button></div>
                 <div class="table-wrapper">
                     <table>
-                        <thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Liga</th><th>Club</th><th>Moto</th>""")
+                        <thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Liga</th>""")
+        if is_scratch:
+            html_parts.append("<th>Clase</th>")
+        if not is_scratch:
+            html_parts.append("<th>Club</th>")
+        html_parts.append("<th>Moto</th>")
         for v in validas:
             html_parts.append(f"<th>{esc(v['label'])}</th>")
         html_parts.append("<th>Total</th></tr></thead><tbody>")
@@ -471,7 +545,12 @@ def render_html(champ, table_by_categoria):
             elif i == 3:
                 pos_class = "pos-3"
             html_parts.append(f'<tr class="{pos_class}" data-numero="{esc(r["numero"])}" data-nombre="{esc(r["nombre"])}">')
-            html_parts.append(f"<td>{i}</td><td>{esc(r['numero'])}</td><td>{esc(r['nombre'])}</td><td>{esc(r['liga'])}</td><td>{esc(r['club'])}</td><td>{esc(r['moto'])}</td>")
+            html_parts.append(f"<td>{i}</td><td>{esc(r['numero'])}</td><td>{esc(r['nombre'])}</td><td>{esc(r['liga'])}</td>")
+            if is_scratch:
+                html_parts.append(f"<td>{esc(r.get('clase', ''))}</td>")
+            if not is_scratch:
+                html_parts.append(f"<td>{esc(r['club'])}</td>")
+            html_parts.append(f"<td>{esc(r['moto'])}</td>")
             for p in r["por_valida"]:
                 html_parts.append(f"<td>{fmt_points(p)}</td>")
             html_parts.append(f'<td class="col-total">{fmt_points(r["total"])}</td></tr>')

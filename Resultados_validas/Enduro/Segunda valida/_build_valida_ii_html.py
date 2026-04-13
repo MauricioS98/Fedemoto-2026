@@ -11,6 +11,7 @@ OUT = ROOT / "valida_ii_enduro_pasca.html"
 
 # (id, titulo h2, orden en pagina)
 ORDER = [
+    ("scratch", "Scratch"),
     ("infantil-enduro-1-final", "Infantil Enduro 1"),
     ("infantil-enduro-2-carrera", "Infantil Enduro 2"),
     ("infantil-enduro-3-carrera", "Infantil Enduro 3"),
@@ -66,8 +67,11 @@ def norm_key(k):
 
 def read_csv_rows(name):
     path = CSV_DIR / name
+    sample = path.read_text(encoding="utf-8-sig")
+    first = sample.splitlines()[0] if sample else ""
+    delim = ";" if first.count(";") > first.count(",") else ","
     with path.open(encoding="utf-8-sig", newline="") as f:
-        r = csv.DictReader(f)
+        r = csv.DictReader(f, delimiter=delim)
         rows = []
         for row in r:
             rows.append(
@@ -188,6 +192,72 @@ def session_row(title, pdf_name):
     )
 
 
+def read_scratch_raw():
+    path = CSV_DIR / "Scratch - Resultados.csv"
+    with path.open(encoding="utf-8-sig", newline="") as f:
+        return list(csv.DictReader(f, delimiter=";"))
+
+
+def tr_scratch(row):
+    pos = (row.get("Pos.") or row.get("Pos") or "").strip()
+    num = (row.get("N°") or row.get("Nº") or row.get("No") or "").strip()
+    nom = (row.get("Nombre") or "").strip()
+    liga = (row.get("LIGA") or row.get("Liga") or "").strip()
+    moto = (row.get("MOTO") or row.get("Moto") or "").strip()
+    clase = (row.get("Clase") or "").strip()
+    vueltas = (row.get("Vueltas") or "").strip()
+    tot = (row.get("Total T°") or "").strip()
+    if not tot:
+        for k in row:
+            if "total" in k.lower() and "t" in k.lower():
+                tot = (row.get(k) or "").strip()
+                break
+    t_aj = (row.get("Tiempo ajustado") or "").strip()
+    if not t_aj:
+        for k in row:
+            if "tiempo" in k.lower() and "ajust" in k.lower():
+                t_aj = (row.get(k) or "").strip()
+                break
+
+    pc = pos_class(pos) if pos.isdigit() else ""
+    otr = f'<tr class="{pc}" data-numero="{esc(num)}" data-nombre="{esc(nom)}">' if pc else f'<tr data-numero="{esc(num)}" data-nombre="{esc(nom)}">'
+    return (
+        otr
+        + f"<td>{esc(pos)}</td>"
+        + f"<td>{esc(num)}</td>"
+        + f"<td>{esc(nom)}</td>"
+        + f"<td>{esc(liga)}</td>"
+        + f"<td>{esc(moto)}</td>"
+        + f"<td>{esc(clase)}</td>"
+        + f"<td>{esc(vueltas)}</td>"
+        + f"<td>{esc(tot)}</td>"
+        + f"<td>{esc(t_aj)}</td>"
+        + "</tr>"
+    )
+
+
+def _scratch_row_nonempty(row):
+    for k in ("Pos.", "Pos", "N°", "Nº", "Nombre"):
+        if (row.get(k) or "").strip():
+            return True
+    return False
+
+
+def table_scratch(rows):
+    thead = "<thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Liga</th><th>Moto</th><th>Clase</th><th>Vueltas</th><th>Total t°</th><th>Tiempo ajustado</th></tr></thead>"
+    body = "<tbody>" + "".join(tr_scratch(r) for r in rows if _scratch_row_nonempty(r)) + "</tbody>"
+    return f"<table>{thead}{body}</table>"
+
+
+def block_scratch():
+    rows = read_scratch_raw()
+    return (
+        '<div class="final-block"><h3>Resultados</h3><div class="table-wrapper">'
+        + table_scratch(rows)
+        + "</div></div>"
+    )
+
+
 def block_infantil_e1():
     final_rows = read_csv_rows("inf e1 - final - resultados.csv")
     c1_rows = read_csv_rows("infantil enduro 1 - carrera 1 - resultados.csv")
@@ -227,7 +297,9 @@ def block_simple_carrera(cat_id):
 
 def section(cat_id, title_h2):
     body = ""
-    if cat_id == "infantil-enduro-1-final":
+    if cat_id == "scratch":
+        body = block_scratch()
+    elif cat_id == "infantil-enduro-1-final":
         body = block_infantil_e1()
     else:
         body = block_simple_carrera(cat_id)
