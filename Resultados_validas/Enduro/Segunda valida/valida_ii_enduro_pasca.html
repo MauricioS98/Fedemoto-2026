@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>II Válida Nacional de Enduro - Pasca, Cundinamarca | FEDEMOTO</title>
+    <link rel="icon" type="image/png" href="../../../fedemoto-logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto+Condensed:wght@300;400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f5f5f5; color: #000; line-height: 1.6; padding: 20px; padding-top: 120px; min-height: 100vh; }
+        .fixed-header { position: fixed; top: 0; left: 0; right: 0; background: #123E92; color: white; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .header-content { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 15px 30px; }
+        .logo-container { display: flex; align-items: center; gap: 15px; }
+        .logo-container a { display: flex; align-items: center; gap: 15px; text-decoration: none; color: inherit; }
+        .logo-container img { height: 50px; width: auto; }
+        .nav-menu { display: flex; gap: 0; list-style: none; margin: 0; padding: 0; }
+        .nav-menu li { margin: 0; position: relative; }
+        .nav-menu > li > a { display: block; padding: 12px 25px; color: white; text-decoration: none; font-family: 'Roboto Condensed', sans-serif; font-weight: 400; font-size: 1.1em; transition: all 0.2s ease; border-radius: 8px; }
+        .nav-menu > li > a:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+        .dropdown { position: relative; }
+        .dropdown > a::after { content: ' ▼'; font-size: 0.8em; margin-left: 5px; }
+        .dropdown-menu { display: none; position: absolute; top: calc(100% + 5px); left: 0; background: white; min-width: 200px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); border-radius: 8px; z-index: 10001; list-style: none; padding: 0; margin: 0; border: 1px solid #d1d5db; }
+        .nav-menu > .dropdown:hover > .dropdown-menu { display: block; }
+        .dropdown-menu a { display: block; padding: 12px 20px; color: #000; text-decoration: none; font-family: 'Inter', sans-serif; font-size: 1em; transition: all 0.2s ease; border-bottom: 1px solid #f0f0f0; }
+        .dropdown-menu a:hover { background: #f8f9fa; color: #123E92; }
+        .container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; margin-bottom: 40px; }
+        .container > header { background: linear-gradient(135deg, #123E92 0%, #0f3377 100%); color: white; padding: 40px; text-align: center; }
+        .container > header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 2.2em; margin-bottom: 10px; letter-spacing: 2px; }
+        .container > header p { font-family: 'Roboto Condensed', sans-serif; font-size: 1.2em; opacity: 0.95; }
+        .toolbar { padding: 25px 40px; background: #f8f9fa; border-bottom: 1px solid #C0C0C0; }
+        .search-box { width: 100%; padding: 12px 20px; font-family: 'Inter', sans-serif; font-size: 1em; border: 2px solid #d1d5db; border-radius: 8px; }
+        .search-box:focus { outline: none; border-color: #123E92; box-shadow: 0 0 0 3px rgba(18, 62, 146, 0.2); }
+        .index-cards { display: flex; flex-wrap: wrap; gap: 12px; padding: 25px 40px; background: #f8f9fa; border-bottom: 1px solid #C0C0C0; }
+        .index-card { display: inline-block; padding: 10px 20px; background: white; color: #123E92; border: 2px solid #123E92; border-radius: 8px; font-family: 'Roboto Condensed', sans-serif; font-weight: 700; text-decoration: none; transition: all 0.2s ease; }
+        .index-card:hover { background: #123E92; color: white; transform: translateY(-2px); }
+        .index-card.search-match { background: #F7C31D; color: #123E92; border-color: #F7C31D; }
+        .index-card.search-no-results { display: none !important; }
+        .content-section { padding: 40px; }
+        .categoria-section { margin-bottom: 50px; scroll-margin-top: 120px; border: 2px solid #e0e0e0; border-radius: 12px; overflow: hidden; }
+        .categoria-section:last-child { margin-bottom: 0; }
+        .categoria-section.search-match { border-color: #F7C31D; box-shadow: 0 0 0 3px rgba(247, 195, 29, 0.4); }
+        .categoria-section.search-no-results { display: none !important; }
+        .categoria-header { background: linear-gradient(135deg, #123E92 0%, #0f3377 100%); color: white; padding: 25px 30px; display: flex; align-items: center; justify-content: space-between; gap: 15px; }
+        .categoria-header h2 { font-family: 'Bebas Neue', sans-serif; font-size: 2em; letter-spacing: 2px; }
+        .btn-top { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: rgba(255,255,255,0.2); color: white; border: 2px solid rgba(255,255,255,0.6); border-radius: 8px; cursor: pointer; transition: all 0.2s ease; flex-shrink: 0; }
+        .btn-top:hover { background: #F7C31D; color: #123E92; border-color: #F7C31D; }
+        .btn-top svg { width: 20px; height: 20px; }
+        .final-block { padding: 0 30px 30px; }
+        .final-block h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.8em; color: #123E92; margin: 25px 0 15px; padding-bottom: 8px; border-bottom: 3px solid #F7C31D; letter-spacing: 1px; }
+        .desglose-block { padding: 0 30px 30px; background: #fafafa; border-top: 1px solid #e0e0e0; }
+        .desglose-block h3 { font-family: 'Roboto Condensed', sans-serif; font-size: 1.2em; color: #666; margin: 20px 0 12px; padding-bottom: 6px; border-bottom: 1px solid #C0C0C0; font-weight: 700; }
+
+        .session-title-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin: 25px 0 15px; padding-bottom: 8px; border-bottom: 3px solid #F7C31D; }
+        .session-title-row h3 { margin: 0; padding: 0; border: none; font-family: 'Bebas Neue', sans-serif; font-size: 1.8em; color: #123E92; letter-spacing: 1px; }
+        .btn-vuelta-a-vuelta { display: inline-block; padding: 8px 16px; background: #123E92; color: white; text-decoration: none; border-radius: 8px; font-family: 'Roboto Condensed', sans-serif; font-weight: 700; font-size: 0.9em; white-space: nowrap; transition: all 0.2s ease; }
+        .btn-vuelta-a-vuelta:hover { background: #0f3377; color: white; }
+        .desglose-block .session-title-row { margin: 20px 0 12px; padding-bottom: 6px; border-bottom: 1px solid #C0C0C0; }
+        .desglose-block .session-title-row h3 { font-family: 'Roboto Condensed', sans-serif; font-size: 1.2em; color: #666; font-weight: 700; }
+        .final-block .session-title-row { margin: 20px 0 12px; }
+        .final-block .session-title-row h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.8em; color: #123E92; letter-spacing: 1px; }
+
+        .table-wrapper { overflow-x: auto; margin-bottom: 20px; border-radius: 8px; border: 1px solid #d1d5db; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e0e0e0; }
+        th { background: #123E92; color: white; font-family: 'Roboto Condensed', sans-serif; font-weight: 700; }
+        tr:hover { background: #f8f9fa; }
+        tr.search-hidden { display: none !important; }
+        .pos-1 { background: rgba(247, 195, 29, 0.15) !important; }
+        .pos-2 { background: rgba(192, 192, 192, 0.2) !important; }
+        .pos-3 { background: rgba(139, 90, 43, 0.1) !important; }
+        .pos-cell { display: inline-block; margin-right: 4px; }
+        .comentario-btn { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; margin-left: 6px; border: 1px solid #123E92; border-radius: 999px; background: #e8eef8; color: #123E92; font-size: 14px; font-weight: 700; cursor: pointer; vertical-align: middle; }
+        .comentario-btn:hover, .comentario-btn:focus { background: #123E92; color: white; outline: none; }
+        .pdf-section { text-align: center; padding: 40px 20px; border-top: 1px solid #C0C0C0; background: #f8f9fa; }
+        .btn-pdf { display: inline-block; padding: 14px 32px; background: #123E92; color: white; border: none; border-radius: 8px; font-family: 'Roboto Condensed', sans-serif; font-size: 1.1em; font-weight: 700; cursor: pointer; transition: all 0.2s ease; }
+        .btn-pdf:hover { background: #0f3377; transform: translateY(-2px); }
+        .pdf-hint { margin-top: 12px; font-size: 0.9em; color: #666; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center; }
+        .modal-overlay.open { display: flex; }
+        .modal-box { background: white; border-radius: 12px; padding: 30px; max-width: 450px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .modal-box h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.6em; color: #123E92; margin-bottom: 20px; }
+        .modal-categorias { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-bottom: 20px; }
+        .modal-cat-item { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .modal-cat-item input { cursor: pointer; width: 18px; height: 18px; accent-color: #123E92; }
+        .modal-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+        .modal-btn { padding: 10px 20px; border-radius: 8px; font-family: 'Roboto Condensed', sans-serif; font-weight: 700; cursor: pointer; border: none; font-size: 1em; transition: all 0.2s ease; }
+        .modal-btn-primary { background: #123E92; color: white; }
+        .modal-btn-primary:hover { background: #0f3377; }
+        .modal-btn-secondary { background: #e5e7eb; color: #374151; }
+        .modal-btn-secondary:hover { background: #d1d5db; }
+        .modal-btn-link { background: transparent; color: #123E92; text-decoration: underline; }
+        .modal-btn-link:hover { color: #0f3377; }
+        .categoria-section.pdf-exclude { display: none !important; }
+        footer { background: #f8f9fa; padding: 30px 40px; text-align: center; border-top: 1px solid #C0C0C0; color: #000; font-family: 'Inter', sans-serif; font-size: 0.9em; font-weight: 400; line-height: 1.8; }
+        footer .developer { font-family: 'Roboto Condensed', sans-serif; font-weight: 700; color: #123E92; }
+        @media print { @page { size: A4 landscape; margin: 15mm; } body { padding: 0 !important; padding-top: 0 !important; background: white !important; } #menu-container, .fixed-header, .pdf-section, .toolbar, .index-cards, .btn-top, footer { display: none !important; } .container { box-shadow: none !important; max-width: 100% !important; } .categoria-section { break-before: page; page-break-before: always; } .categoria-section:first-child { break-before: auto; page-break-before: auto; } .modal-overlay { display: none !important; } .container > header, .categoria-header, th { -webkit-print-color-adjust: exact; print-color-adjust: exact; } table { font-size: 0.75em; } }
+    </style>
+</head>
+<body>
+    <div id="menu-container"></div>
+    <div id="contenido-exportar" class="container">
+        <header>
+            <h1>II Válida Nacional de Enduro</h1>
+            <p>Pasca, Cundinamarca - Resultados por categoría</p>
+        </header>
+        <div class="toolbar">
+            <input type="text" id="buscador" class="search-box" placeholder="Buscar por nombre o N° del piloto..." />
+        </div>
+        <div class="index-cards">
+            <a href="#infantil-enduro-1-final" class="index-card" data-categoria-id="infantil-enduro-1-final">Infantil Enduro 1</a>
+            <a href="#infantil-enduro-2-carrera" class="index-card" data-categoria-id="infantil-enduro-2-carrera">Infantil Enduro 2</a>
+            <a href="#infantil-enduro-3-carrera" class="index-card" data-categoria-id="infantil-enduro-3-carrera">Infantil Enduro 3</a>
+            <a href="#inicio-carrera" class="index-card" data-categoria-id="inicio-carrera">Inicio</a>
+            <a href="#juvenil-carrera" class="index-card" data-categoria-id="juvenil-carrera">Juvenil</a>
+            <a href="#junior-carrera" class="index-card" data-categoria-id="junior-carrera">Junior</a>
+            <a href="#junior-novatos-carrera" class="index-card" data-categoria-id="junior-novatos-carrera">Junior Novatos</a>
+            <a href="#no-racer-carrera" class="index-card" data-categoria-id="no-racer-carrera">No Racer</a>
+            <a href="#femenino-carrera" class="index-card" data-categoria-id="femenino-carrera">Femenino</a>
+            <a href="#enduro-1-carrera" class="index-card" data-categoria-id="enduro-1-carrera">Enduro 1</a>
+            <a href="#enduro-2-carrera" class="index-card" data-categoria-id="enduro-2-carrera">Enduro 2</a>
+            <a href="#enduro-3-carrera" class="index-card" data-categoria-id="enduro-3-carrera">Enduro 3</a>
+            <a href="#master-a-carrera" class="index-card" data-categoria-id="master-a-carrera">Master A</a>
+            <a href="#master-b-carrera" class="index-card" data-categoria-id="master-b-carrera">Master B</a>
+        </div>
+        <div class="content-section">
+
+            <div class="categoria-section" id="infantil-enduro-1-final" data-categoria-id="infantil-enduro-1-final">
+                <div class="categoria-header">
+                    <h2>Infantil Enduro 1</h2>
+                    <button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg>
+                    </button>
+                </div>
+                <div class="final-block"><div class="session-title-row"><h3>Final</h3></div><div class="table-wrapper"><table><thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Total puntos</th><th>Dif. resp. 1°</th><th>Moto</th><th>Liga</th><th>Club</th><th>C1</th><th>C2</th></tr></thead><tbody><tr class="pos-1" data-numero="255" data-nombre="Juan Jose LEYTON ERASO"><td>1</td><td>255</td><td>Juan Jose LEYTON ERASO</td><td>28</td><td>0</td><td>KTM</td><td>Risaralda</td><td>CLUB LOS GUEPARDOS</td><td>13</td><td>15</td></tr><tr class="pos-2" data-numero="21" data-nombre="Jeronimo CASTILLO JIMENEZ"><td>2</td><td>21</td><td>Jeronimo CASTILLO JIMENEZ</td><td>28</td><td>0</td><td>KTM</td><td>Bogotá D.C.</td><td>Xspeed Racing</td><td>15</td><td>13</td></tr><tr class="pos-3" data-numero="78" data-nombre="Aranza ORTIZ ULLOA"><td>3</td><td>78</td><td>Aranza ORTIZ ULLOA</td><td>21</td><td>7</td><td>KTM</td><td>Cundinamarca</td><td>CLUB SCOOTER PERFORMANCE GIRARDOT</td><td>10</td><td>11</td></tr><tr data-numero="110" data-nombre="Isaak Dominic CAICEDO CALLE"><td>4</td><td>110</td><td>Isaak Dominic CAICEDO CALLE</td><td>21</td><td>7</td><td>Husqvarna</td><td>Cundinamarca</td><td>CLUB SCOOTER PERFORMANCE GIRARDOT</td><td>11</td><td>10</td></tr><tr data-numero="831" data-nombre="Marthin Joel LIBERATO LONDOÑO"><td>5</td><td>831</td><td>Marthin Joel LIBERATO LONDOÑO</td><td>18</td><td>10</td><td>Yamaha</td><td>Bogotá D.C.</td><td>Racing pilots Academy</td><td>9</td><td>9</td></tr></tbody></table></div></div><div class="desglose-block"><h3>Desglose por sesión</h3><div class="session-title-row"><h3>Carrera 1</h3><a class="btn-vuelta-a-vuelta" href="Vuelta%20a%20vuelta/INF%20E1%20-%20CARRERA%201%20-%20Laptimes.pdf" target="_blank" rel="noopener noreferrer">Ver vuelta a vuelta</a></div><div class="table-wrapper"><table><thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Mejor tm</th><th>En vuelta</th><th>Dif. resp. 1°</th><th>Puntos</th><th>Total t°</th><th>Vueltas</th><th>Liga</th><th>Club</th><th>Moto</th></tr></thead><tbody><tr class="pos-1" data-numero="21" data-nombre="Jeronimo CASTILLO JIMENEZ"><td>1</td><td>21</td><td>Jeronimo CASTILLO JIMENEZ</td><td>1:54.080</td><td>5</td><td></td><td>15</td><td>12:10.680</td><td>6</td><td>Bogotá D.C.</td><td>Xspeed Racing</td><td>KTM</td></tr><tr class="pos-2" data-numero="255" data-nombre="Juan Jose LEYTON ERASO"><td>2</td><td>255</td><td>Juan Jose LEYTON ERASO</td><td>1:50.394</td><td>4</td><td>14.271</td><td>13</td><td>12:24.951</td><td>6</td><td>Risaralda</td><td>CLUB LOS GUEPARDOS</td><td>KTM</td></tr><tr class="pos-3" data-numero="110" data-nombre="Isaak Dominic CAICEDO CALLE"><td>3</td><td>110</td><td>Isaak Dominic CAICEDO CALLE</td><td>1:55.185</td><td>5</td><td>1:28.287</td><td>11</td><td>13:38.967</td><td>6</td><td>Cundinamarca</td><td>CLUB SCOOTER PERFORMANCE GIRARDOT</td><td>Husqvarna</td></tr><tr data-numero="78" data-nombre="Aranza ORTIZ ULLOA"><td>4</td><td>78</td><td>Aranza ORTIZ ULLOA</td><td>2:03.013</td><td>5</td><td>1:38.093</td><td>10</td><td>13:48.773</td><td>6</td><td>Cundinamarca</td><td>CLUB SCOOTER PERFORMANCE GIRARDOT</td><td>KTM</td></tr><tr data-numero="831" data-nombre="Marthin Joel LIBERATO LONDOÑO"><td>5</td><td>831</td><td>Marthin Joel LIBERATO LONDOÑO</td><td>2:27.041</td><td>1</td><td>1 Vuelta</td><td>9</td><td>14:09.587</td><td>5</td><td>Bogotá D.C.</td><td>Racing pilots Academy</td><td>Yamaha</td></tr></tbody></table></div><div class="session-title-row"><h3>Carrera 2</h3><a class="btn-vuelta-a-vuelta" href="Vuelta%20a%20vuelta/INF%20E1%20-%20CARRERA%202%20-%20Laptimes.pdf" target="_blank" rel="noopener noreferrer">Ver vuelta a vuelta</a></div><div class="table-wrapper"><table><thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Mejor tm</th><th>En vuelta</th><th>Dif. resp. 1°</th><th>Puntos</th><th>Total t°</th><th>Vueltas</th><th>Liga</th><th>Club</th><th>Moto</th></tr></thead><tbody><tr class="pos-1" data-numero="255" data-nombre="Juan Jose LEYTON ERASO"><td>1</td><td>255</td><td>Juan Jose LEYTON ERASO</td><td>1:54.951</td><td>1</td><td></td><td>15</td><td>12:52.339</td><td>6</td><td>Risaralda</td><td>CLUB LOS GUEPARDOS</td><td>KTM</td></tr><tr class="pos-2" data-numero="21" data-nombre="Jeronimo CASTILLO JIMENEZ"><td>2</td><td>21</td><td>Jeronimo CASTILLO JIMENEZ</td><td>2:00.402</td><td>5</td><td>20.274</td><td>13</td><td>13:12.613</td><td>6</td><td>Bogotá D.C.</td><td>Xspeed Racing</td><td>KTM</td></tr><tr class="pos-3" data-numero="78" data-nombre="Aranza ORTIZ ULLOA"><td>3</td><td>78</td><td>Aranza ORTIZ ULLOA</td><td>2:01.092</td><td>1</td><td>44.263</td><td>11</td><td>13:36.602</td><td>6</td><td>Cundinamarca</td><td>CLUB SCOOTER PERFORMANCE GIRARDOT</td><td>KTM</td></tr><tr data-numero="110" data-nombre="Isaak Dominic CAICEDO CALLE"><td>4</td><td>110</td><td>Isaak Dominic CAICEDO CALLE</td><td>2:01.563</td><td>2</td><td>1:09.158</td><td>10</td><td>14:01.497</td><td>6</td><td>Cundinamarca</td><td>CLUB SCOOTER PERFORMANCE GIRARDOT</td><td>Husqvarna</td></tr><tr data-numero="831" data-nombre="Marthin Joel LIBERATO LONDOÑO"><td>5</td><td>831</td><td>Marthin Joel LIBERATO LONDOÑO</td><td>2:16.556</td><td>3</td><td>1 Vuelta</td><td>9</td><td>14:27.834</td><td>5</td><td>Bogotá D.C.</td><td>Racing pilots Academy</td><td>Yamaha</td></tr></tbody></table></div></div>
+            </div>
+
+            <div class="categoria-section" id="infantil-enduro-2-carrera" data-categoria-id="infantil-enduro-2-carrera">
+                <div class="categoria-header">
+                    <h2>Infantil Enduro 2</h2>
+                    <button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg>
+                    </button>
+                </div>
+                <div class="final-block"><div class="session-title-row"><h3>Carrera</h3><a class="btn-vuelta-a-vuelta" href="Vuelta%20a%20vuelta/INF%20E2%20-%20CARRERA%20%20-%20Laptimes.pdf" target="_blank" rel="noopener noreferrer">Ver vuelta a vuelta</a></div><div class="table-wrapper"><table><thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Mejor tm</th><th>En vuelta</th><th>Dif. resp. 1°</th><th>Puntos</th><th>Total t°</th><th>Vueltas</th><th>Liga</th><th>Club</th><th>Moto</th></tr></thead><tbody><tr class="pos-1" data-numero="826" data-nombre="Andres Felipe RODRIGUEZ CASTILLO"><td>1</td><td>826</td><td>Andres Felipe RODRIGUEZ CASTILLO</td><td>6:39.118</td><td>4</td><td></td><td>15</td><td>44:04.219</td><td>6</td><td>Cundinamarca</td><td>CLUB IGUANA RACING GIRARDOT</td><td>KTM</td></tr><tr class="pos-2" data-numero="801" data-nombre="Samuel MAYA SANCHEZ"><td>2</td><td>801</td><td>Samuel MAYA SANCHEZ</td><td>6:34.135</td><td>3</td><td>1:27.292</td><td>13</td><td>45:31.511</td><td>6</td><td>Valle del Cauca</td><td>Carasucias</td><td>Yamaha</td></tr><tr class="pos-3" data-numero="99" data-nombre="Benjamin ROCHA RUEDA"><td>3</td><td>99</td><td>Benjamin ROCHA RUEDA</td><td>7:20.656</td><td>3</td><td>4:17.607</td><td>11</td><td>48:21.826</td><td>6</td><td>Bogotá D.C.</td><td>Xspeed Racing</td><td>KTM</td></tr><tr data-numero="777" data-nombre="Mariana ARISMEDI TRUJILLO"><td>4</td><td>777</td><td>Mariana ARISMEDI TRUJILLO</td><td>7:19.520</td><td>6</td><td>6:05.866</td><td>10</td><td>50:10.085</td><td>6</td><td>Bogotá D.C.</td><td>Todo terreno track</td><td>KTM</td></tr><tr data-numero="449" data-nombre="Ivvana Rugeles Avendaño"><td>5</td><td>449</td><td>Ivvana Rugeles Avendaño</td><td>7:48.270</td><td>3</td><td>1 Vuelta</td><td>9</td><td>44:53.519</td><td>5</td><td>Caldas</td><td>CLUB VILLAMARIA RACING CLUB</td><td>KTM</td></tr><tr data-numero="727" data-nombre="AGUSTIN GALEANO TORRES"><td>6</td><td>727</td><td>AGUSTIN GALEANO TORRES</td><td>9:58.832</td><td>2</td><td>2 Vueltas</td><td>8</td><td>48:17.295</td><td>4</td><td>Bogotá D.C.</td><td>Xspeed Racing</td><td>GasGas</td></tr></tbody></table></div></div>
+            </div>
+
+            <div class="categoria-section" id="infantil-enduro-3-carrera" data-categoria-id="infantil-enduro-3-carrera">
+                <div class="categoria-header">
+                    <h2>Infantil Enduro 3</h2>
+                    <button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg>
+                    </button>
+                </div>
+                <div class="final-block"><div class="session-title-row"><h3>Carrera</h3><a class="btn-vuelta-a-vuelta" href="Vuelta%20a%20vuelta/INF%20E3%20-%20CARRERA%20-%20Laptimes.pdf" target="_blank" rel="noopener noreferrer">Ver vuelta a vuelta</a></div><div class="table-wrapper"><table><thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Mejor tm</th><th>En vuelta</th><th>Dif. resp. 1°</th><th>Puntos</th><th>Total t°</th><th>Vueltas</th><th>Liga</th><th>Club</th><th>Moto</th></tr></thead><tbody><tr class="pos-1" data-numero="126" data-nombre="Simon OCAMPO BURBANO"><td>1</td><td>126</td><td>Simon OCAMPO BURBANO</td><td>7:44.284</td><td>3</td><td></td><td>15</td><td>1:10:27.069</td><td>7</td><td>Bogotá D.C.</td><td>Xspeed Racing</td><td>KTM</td></tr><tr class="pos-2" data-numero="626" data-nombre="Juan Antonio PIEDRAHITA VARELA"><td>2</td><td>626</td><td>Juan Antonio PIEDRAHITA VARELA</td><td>8:02.346</td><td>1</td><td>3:16.613</td><td>13</td><td>1:13:43.682</td><td>7</td><td>Risaralda</td><td>CLUB LOS GUEPARDOS</td><td>GasGas</td></tr><tr class="pos-3" data-numero="175" data-nombre="Joan esteban Valdez Osorio"><td>3</td><td>175</td><td>Joan esteban Valdez Osorio</td><td>8:33.503</td><td>2</td><td>1 Vuelta</td><td>11</td><td>1:06:37.541</td><td>6</td><td>Quindío</td><td>CLUB RUTEROS DEL QUINDIO</td><td>Husqvarna</td></tr><tr data-numero="24" data-nombre="Juan Jose NAVARRETE SANCHEZ"><td>4</td><td>24</td><td>Juan Jose NAVARRETE SANCHEZ</td><td>8:56.860</td><td>2</td><td>1 Vuelta</td><td>10</td><td>1:09:25.040</td><td>6</td><td>Cundinamarca</td><td>CLUB SCOOTER PERFORMANCE GIRARDOT</td><td>KTM</td></tr><tr data-numero="120" data-nombre="Matias GOMEZ ORJUELA"><td>5</td><td>120</td><td>Matias GOMEZ ORJUELA</td><td>12:56.416</td><td>3</td><td>3 Vueltas</td><td>9</td><td>1:14:16.732</td><td>4</td><td>Bogotá D.C.</td><td>Todo terreno track</td><td>KTM</td></tr><tr data-numero="615" data-nombre="samuel hernandez rabe"><td>6</td><td>615</td><td>samuel hernandez rabe</td><td>18:29.316</td><td>1</td><td>5 Vueltas</td><td>8</td><td>1:09:09.422</td><td>2</td><td>Valle del Cauca</td><td>Carasucias</td><td>GasGas</td></tr></tbody></table></div></div>
+            </div>
+
+            <div class="categoria-section" id="inicio-carrera" data-categoria-id="inicio-carrera">
+                <div class="categoria-header">
+                    <h2>Inicio</h2>
+                    <button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg>
+                    </button>
+                </div>
+                <div class="final-block"><div class="session-title-row"><h3>Carrera</h3><a class="btn-vuelta-a-vuelta" href="Vuelta%20a%20vuelta/INICIO%20-%20CARRERA%20-%20Laptimes.pdf" target="_blank" rel="noopener noreferrer">Ver vuelta a vuelta</a></div><div class="table-wrapper"><table><thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Mejor tm</th><th>En vuelta</th><th>Dif. resp. 1°</th><th>Puntos</th><th>Total t°</th><th>Vueltas</th><th>Liga</th><th>Club</th><th>Moto</th></tr></thead><tbody><tr class="pos-1" data-numero="878" data-nombre="Sebastián Vela Villa"><td>1</td><td>878</td><td>Sebastián Vela Villa</td><td>6:02.573</td><td>2</td><td></td><td>15</td><td>1:18:23.859</td><td>10</td><td>Cundinamarca</td><td>CLUB SCOOTER PERFORMANCE GIRARDOT</td><td>Beta</td></tr><tr class="pos-2" data-numero="91" data-nombre="Brayhan Exneyder ALVAREZ RESTREPO"><td>2</td><td>91</td><td>Brayhan Exneyder ALVAREZ RESTREPO</td><td>8:42.962</td><td>2</td><td>2 Vueltas</td><td>13</td><td>1:23:17.794</td><td>8</td><td>Antioquia</td><td>CLUB ANTIOQUIA 2 RUEDAS RACER</td><td>KTM</td></tr><tr class="pos-3" data-numero="55" data-nombre="Jorge Hernan Giraldo Gallego"><td>3</td><td>55</td><td>Jorge Hernan Giraldo Gallego</td><td>9:19.118</td><td>3</td><td>2 Vueltas</td><td>11</td><td>1:26:44.225</td><td>8</td><td>Caldas</td><td>CLUB DE MOTOCICLISMO JP36</td><td>KTM</td></tr><tr data-numero="107" data-nombre="jorge Hernan montoya Jimenez"><td>4</td><td>107</td><td>jorge Hernan montoya Jimenez</td><td>8:40.282</td><td>2</td><td>3 Vueltas</td><td>10</td><td>1:22:12.715</td><td>7</td><td>Caldas</td><td>CLUB DE MOTOCICLISMO JP36</td><td>KTM</td></tr><tr data-numero="100" data-nombre="Federico CALLE HOYOS"><td>5</td><td>100</td><td>Federico CALLE HOYOS</td><td>11:50.995</td><td>1</td><td>4 Vueltas</td><td>9</td><td>1:37:46.132</td><td>6</td><td>Cundinamarca</td><td>CLUB GIRARDOT RACING</td><td>Beta</td></tr></tbody></table></div></div>
+            </div>
+
+            <div class="categoria-section" id="juvenil-carrera" data-categoria-id="juvenil-carrera">
+                <div class="categoria-header">
+                    <h2>Juvenil</h2>
+                    <button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg>
+                    </button>
+                </div>
+                <div class="final-block"><div class="session-title-row"><h3>Carrera</h3><a class="btn-vuelta-a-vuelta" href="Vuelta%20a%20vuelta/JUVENIL%20-%20CARRERA%20-%20Laptimes.pdf" target="_blank" rel="noopener noreferrer">Ver vuelta a vuelta</a></div><div class="table-wrapper"><table><thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Mejor tm</th><th>En vuelta</th><th>Dif. resp. 1°</th><th>Puntos</th><th>Total t°</th><th>Vueltas</th><th>Liga</th><th>Club</th><th>Moto</th></tr></thead><tbody><tr class="pos-1" data-numero="34" data-nombre="Juan Sebastian CALDERON ROJAS"><td>1</td><td>34</td><td>Juan Sebastian CALDERON ROJAS</td><td>6:19.496</td><td>3</td><td></td><td>15</td><td>1:02:38.815</td><td>9</td><td>Cundinamarca</td><td>CLUB IGUANA RACING GIRARDOT</td><td>Sherco</td></tr><tr class="pos-2" data-numero="84" data-nombre="Jose Alejandro MOYANO MORENO"><td>2</td><td>84</td><td>Jose Alejandro MOYANO MORENO</td><td>5:43.995</td><td>9</td><td>1:02.067</td><td>13</td><td>1:03:40.882</td><td>9</td><td>Cundinamarca</td><td>CLUB IGUANA RACING GIRARDOT</td><td>Beta</td></tr><tr class="pos-3" data-numero="20" data-nombre="Jeronimo MESA ESPINEL"><td>3</td><td>20</td><td>Jeronimo MESA ESPINEL</td><td>6:10.692</td><td>3</td><td>2:16.601</td><td>11</td><td>1:04:55.416</td><td>9</td><td>Bogotá D.C.</td><td>Xspeed Racing</td><td>KTM</td></tr><tr data-numero="11" data-nombre="Juan Martin TARQUINO SUAREZ"><td>4</td><td>11</td><td>Juan Martin TARQUINO SUAREZ</td><td>6:32.170</td><td>1</td><td>6:02.053</td><td>10</td><td>1:08:40.868</td><td>9</td><td>Cundinamarca</td><td>CLUB SCOOTER PERFORMANCE GIRARDOT</td><td>Husqvarna</td></tr><tr data-numero="274" data-nombre="Andres Santiago PEREZ DIAZ"><td>5</td><td>274</td><td>Andres Santiago PEREZ DIAZ</td><td>7:07.062</td><td>2</td><td>1 Vuelta</td><td>9</td><td>1:03:24.055</td><td>8</td><td>Bogotá D.C.</td><td>Todo terreno track</td><td>KTM</td></tr><tr data-numero="710" data-nombre="Juan David MENDOZA DUARTE"><td>6</td><td>710</td><td>Juan David MENDOZA DUARTE</td><td>6:27.842</td><td>1</td><td>1 Vuelta</td><td>8</td><td>1:03:44.458</td><td>8</td><td>Meta</td><td>VILLAVICENCIO RACING CLUB</td><td>Husqvarna</td></tr><tr data-numero="221" data-nombre="Juan José Pérez Murcia"><td>7</td><td>221</td><td>Juan José Pérez Murcia</td><td>6:41.309</td><td>4</td><td>1 Vuelta</td><td>7</td><td>1:05:18.610</td><td>8</td><td>Cundinamarca</td><td>CLUB SCOOTER PERFORMANCE GIRARDOT</td><td>GasGas</td></tr><tr data-numero="28" data-nombre="Maria Paula SCARPATI SARMIENTO"><td>8</td><td>28</td><td>Maria Paula SCARPATI SARMIENTO</td><td>8:58.328</td><td>3</td><td>2 Vueltas</td><td>6</td><td>1:11:27.462</td><td>7</td><td>Cundinamarca</td><td>CLUB IGUANA RACING GIRARDOT</td><td>Husqvarna</td></tr><tr data-numero="49" data-nombre="Martin ARIAS"><td>9</td><td>49</td><td>Martin ARIAS</td><td>19:53.114</td><td>1</td><td>6 Vueltas</td><td>5</td><td>1:29:52.493</td><td>3</td><td>Valle del Cauca</td><td>Club VALLE</td><td>Husqvarna</td></tr><tr data-numero="526" data-nombre="Iván Andrés Ramírez Berrio"><td>NT</td><td>526</td><td>Iván Andrés Ramírez Berrio</td><td>2:52.137</td><td>1</td><td>NT</td><td>0</td><td>26:12.004</td><td>2</td><td>Cesar</td><td>K-LIMA RACING</td><td>KTM</td></tr></tbody></table></div></div>
+            </div>
+
+            <div class="categoria-section" id="junior-carrera" data-categoria-id="junior-carrera">
+                <div class="categoria-header">
+                    <h2>Junior</h2>
+                    <button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg>
+                    </button>
+                </div>
+                <div class="final-block"><div class="session-title-row"><h3>Carrera</h3><a class="btn-vuelta-a-vuelta" href="Vuelta%20a%20vuelta/JUNIOR%20-%20CARRERA%20-%20Laptimes.pdf" target="_blank" rel="noopener noreferrer">Ver vuelta a vuelta</a></div><div class="table-wrapper"><table><thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Mejor tm</th><th>En vuelta</th><th>Dif. resp. 1°</th><th>Puntos</th><th>Total t°</th><th>Vueltas</th><th>Liga</th><th>Club</th><th>Moto</th></tr></thead><tbody><tr class="pos-1" data-numero="114" data-nombre="Miguel Angel LOPEZ MARTINEZ"><td>1</td><td>114</td><td>Miguel Angel LOPEZ MARTINEZ</td><td>5:29.733</td><td>2</td><td></td><td>15</td><td>1:44:28.343</td><td>16</td><td>Quindío</td><td>CLUB RUTEROS DEL QUINDIO</td><td>Husqvarna</td></tr><tr class="pos-2" data-numero="226" data-nombre="JOHAN DAVID BARRETO GOMEZ"><td>2</td><td>226</td><td>JOHAN DAVID BARRETO GOMEZ</td><td>5:45.635</td><td>2</td><td>5:44.005</td><td>13</td><td>1:50:12.348</td><td>16</td><td>Cundinamarca</td><td>CLUB IGUANA RACING GIRARDOT</td><td>KTM</td></tr><tr class="pos-3" data-numero="25" data-nombre="Juan Jose GIRALDO HENAO"><td>3</td><td>25</td><td>Juan Jose GIRALDO HENAO</td><td>6:10.701</td><td>11</td><td>6:04.669</td><td>11</td><td>1:50:33.012</td><td>16</td><td>Antioquia</td><td>CLUB ANTIOQUIA 2 RUEDAS RACER</td><td>Yamaha</td></tr><tr data-numero="333" data-nombre="Santiago Ramirez Cabrera"><td>4</td><td>333</td><td>Santiago Ramirez Cabrera</td><td>5:54.023</td><td>2</td><td>6:05.714</td><td>10</td><td>1:50:34.057</td><td>16</td><td>Bogotá D.C.</td><td>Xspeed Racing</td><td>KTM</td></tr><tr data-numero="23" data-nombre="Martin CHICA CORREA"><td>5</td><td>23</td><td>Martin CHICA CORREA</td><td>6:10.743</td><td>2</td><td>2 Vueltas</td><td>9</td><td>1:51:17.885</td><td>14</td><td>Bogotá D.C.</td><td>Todo terreno track</td><td>Beta</td></tr><tr data-numero="876" data-nombre="Mateo VELA VILLA"><td>6</td><td>876</td><td>Mateo VELA VILLA</td><td>7:05.813</td><td>7</td><td>3 Vueltas</td><td>8</td><td>1:44:41.246</td><td>13</td><td>Cundinamarca</td><td>CLUB SCOOTER PERFORMANCE GIRARDOT</td><td>Beta</td></tr><tr data-numero="63" data-nombre="Juan Gabriel ALVAREZ ORTIZ"><td>7</td><td>63</td><td>Juan Gabriel ALVAREZ ORTIZ</td><td>5:56.767</td><td>1</td><td>3 Vueltas</td><td>7</td><td>1:47:27.914</td><td>13</td><td>Cundinamarca</td><td>CLUB SCOOTER PERFORMANCE GIRARDOT</td><td>KTM</td></tr><tr data-numero="722" data-nombre="Alan HERNANDEZ RABE"><td>8</td><td>722</td><td>Alan HERNANDEZ RABE</td><td>8:32.597</td><td>10</td><td>6 Vueltas</td><td>6</td><td>1:51:35.135</td><td>10</td><td>Valle del Cauca</td><td>Carasucias</td><td>Sherco</td></tr><tr data-numero="32" data-nombre="Daniella ACOSTA SABOGAL"><td>9</td><td>32</td><td>Daniella ACOSTA SABOGAL</td><td>8:02.142</td><td>2</td><td>6 Vueltas</td><td>5</td><td>1:53:12.408</td><td>10</td><td>Bogotá D.C.</td><td>Todo terreno track</td><td>Husqvarna</td></tr></tbody></table></div></div>
+            </div>
+
+            <div class="categoria-section" id="junior-novatos-carrera" data-categoria-id="junior-novatos-carrera">
+                <div class="categoria-header">
+                    <h2>Junior Novatos</h2>
+                    <button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg>
+                    </button>
+                </div>
+                <div class="final-block"><div class="session-title-row"><h3>Carrera</h3><a class="btn-vuelta-a-vuelta" href="Vuelta%20a%20vuelta/JUNIOR%20NOVATOS%20-%20CARRERA%20-%20Laptimes.pdf" target="_blank" rel="noopener noreferrer">Ver vuelta a vuelta</a></div><div class="table-wrapper"><table><thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Mejor tm</th><th>En vuelta</th><th>Dif. resp. 1°</th><th>Puntos</th><th>Total t°</th><th>Vueltas</th><th>Liga</th><th>Club</th><th>Moto</th></tr></thead><tbody><tr class="pos-1" data-numero="199" data-nombre="Nicolas Felipe REY REY"><td>1</td><td>199</td><td>Nicolas Felipe REY REY</td><td>6:13.924</td><td>2</td><td></td><td>15</td><td>1:45:41.135</td><td>13</td><td>Cundinamarca</td><td>CLUB IGUANA RACING GIRARDOT</td><td>KTM</td></tr><tr class="pos-2" data-numero="26" data-nombre="Juan Jacobo RENGIFO GOMEZ"><td>2</td><td>26</td><td>Juan Jacobo RENGIFO GOMEZ</td><td>6:55.397</td><td>2</td><td>2 Vueltas</td><td>13</td><td>1:43:51.119</td><td>11</td><td>Valle del Cauca</td><td>Team Potenza</td><td>Husqvarna</td></tr></tbody></table></div></div>
+            </div>
+
+            <div class="categoria-section" id="no-racer-carrera" data-categoria-id="no-racer-carrera">
+                <div class="categoria-header">
+                    <h2>No Racer</h2>
+                    <button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg>
+                    </button>
+                </div>
+                <div class="final-block"><div class="session-title-row"><h3>Carrera</h3><a class="btn-vuelta-a-vuelta" href="Vuelta%20a%20vuelta/NO%20RACER%20-%20CARRERA%20-%20Laptimes.pdf" target="_blank" rel="noopener noreferrer">Ver vuelta a vuelta</a></div><div class="table-wrapper"><table><thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Mejor tm</th><th>En vuelta</th><th>Dif. resp. 1°</th><th>Puntos</th><th>Total t°</th><th>Vueltas</th><th>Liga</th><th>Club</th><th>Moto</th></tr></thead><tbody><tr class="pos-1" data-numero="135" data-nombre="Juan David HURTADO PARRA"><td>1</td><td>135</td><td>Juan David HURTADO PARRA</td><td>6:23.211</td><td>1</td><td></td><td>15</td><td>1:19:05.193</td><td>10</td><td>Caldas</td><td>CLUB LA DORADA</td><td>Honda</td></tr><tr class="pos-2" data-numero="288" data-nombre="Daniel Lopez M"><td>2</td><td>288</td><td>Daniel Lopez M</td><td>7:36.863</td><td>1</td><td>1 Vuelta</td><td>13</td><td>1:26:56.085</td><td>9</td><td>Valle del Cauca</td><td>Carasucias</td><td>Hero</td></tr><tr class="pos-3" data-numero="858" data-nombre="Sebastian CLAVIJO LONDOÑO"><td>3</td><td>858</td><td>Sebastian CLAVIJO LONDOÑO</td><td>12:13.504</td><td>2</td><td>4 Vueltas</td><td>11</td><td>1:35:37.587</td><td>6</td><td>Valle del Cauca</td><td>Carasucias</td><td>Honda</td></tr><tr data-numero="216" data-nombre="Carlos Mario HERNANDEZ RAMIREZ"><td>4</td><td>216</td><td>Carlos Mario HERNANDEZ RAMIREZ</td><td>11:05.716</td><td>1</td><td>6 Vueltas</td><td>10</td><td>1:25:50.651</td><td>4</td><td>Quindío</td><td>CLUB MONSTER GARAGE</td><td>Husqvarna</td></tr></tbody></table></div></div>
+            </div>
+
+            <div class="categoria-section" id="femenino-carrera" data-categoria-id="femenino-carrera">
+                <div class="categoria-header">
+                    <h2>Femenino</h2>
+                    <button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg>
+                    </button>
+                </div>
+                <div class="final-block"><div class="session-title-row"><h3>Carrera</h3><a class="btn-vuelta-a-vuelta" href="Vuelta%20a%20vuelta/FEM%20-%20CARRERA%20-%20Laptimes.pdf" target="_blank" rel="noopener noreferrer">Ver vuelta a vuelta</a></div><div class="table-wrapper"><table><thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Mejor tm</th><th>En vuelta</th><th>Dif. resp. 1°</th><th>Puntos</th><th>Total t°</th><th>Vueltas</th><th>Liga</th><th>Club</th><th>Moto</th></tr></thead><tbody><tr class="pos-1" data-numero="32" data-nombre="Daniella ACOSTA SABOGAL"><td>1</td><td>32</td><td>Daniella ACOSTA SABOGAL</td><td>6:52.702</td><td>6</td><td></td><td>15</td><td>1:03:16.368</td><td>8</td><td>Bogotá D.C.</td><td>Todo terreno track</td><td>Husqvarna</td></tr><tr class="pos-2" data-numero="28F" data-nombre="Maria Paula SCARPATI SARMIENTO"><td>2</td><td>28F</td><td>Maria Paula SCARPATI SARMIENTO</td><td>8:58.328</td><td>3</td><td>1 Vuelta</td><td>13</td><td>1:11:27.463</td><td>7</td><td>Cundinamarca</td><td>CLUB IGUANA RACING GIRARDOT</td><td>Husqvarna</td></tr><tr class="pos-3" data-numero="6" data-nombre="Luisa IBAÑEZ"><td>3</td><td>6</td><td>Luisa IBAÑEZ</td><td>11:46.891</td><td>5</td><td>3 Vueltas</td><td>11</td><td>1:05:34.158</td><td>5</td><td>Cundinamarca</td><td>CLUB SCOOTER PERFORMANCE GIRARDOT</td><td>GasGas</td></tr></tbody></table></div></div>
+            </div>
+
+            <div class="categoria-section" id="enduro-1-carrera" data-categoria-id="enduro-1-carrera">
+                <div class="categoria-header">
+                    <h2>Enduro 1</h2>
+                    <button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg>
+                    </button>
+                </div>
+                <div class="final-block"><div class="session-title-row"><h3>Carrera</h3><a class="btn-vuelta-a-vuelta" href="Vuelta%20a%20vuelta/E1%20-%20CARRERA%20-%20Laptimes.pdf" target="_blank" rel="noopener noreferrer">Ver vuelta a vuelta</a></div><div class="table-wrapper"><table><thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Mejor tm</th><th>En vuelta</th><th>Dif. resp. 1°</th><th>Puntos</th><th>Total t°</th><th>Vueltas</th><th>Liga</th><th>Club</th><th>Moto</th></tr></thead><tbody><tr class="pos-1" data-numero="96" data-nombre="Nestor Felipe URBINA MORENO"><td>1</td><td>96</td><td>Nestor Felipe URBINA MORENO</td><td>6:40.545</td><td>9</td><td></td><td>15</td><td>1:44:44.782</td><td>14</td><td>Cundinamarca</td><td>CLUB IGUANA RACING GIRARDOT</td><td>Husqvarna</td></tr><tr class="pos-2" data-numero="65" data-nombre="Tomas JARAMILLO CARRANZA"><td>2</td><td>65</td><td>Tomas JARAMILLO CARRANZA</td><td>5:59.148</td><td>3</td><td>1 Vuelta</td><td>13</td><td>1:57:56.120</td><td>13</td><td>Bogotá D.C.</td><td>Todo terreno track</td><td>Honda</td></tr><tr class="pos-3" data-numero="318" data-nombre="Oscar Javier CARVAJAL MOLINA"><td>3</td><td>318</td><td>Oscar Javier CARVAJAL MOLINA</td><td>7:32.133</td><td>1</td><td>3 Vueltas</td><td>11</td><td>1:49:25.876</td><td>11</td><td>Cundinamarca</td><td>CLUB IGUANA RACING GIRARDOT</td><td>KTM</td></tr><tr data-numero="44" data-nombre="Elmer Camilo CASTAÑO TORO"><td>4</td><td>44</td><td>Elmer Camilo CASTAÑO TORO</td><td>7:03.901</td><td>1</td><td>5 Vueltas</td><td>10</td><td>1:46:47.340</td><td>9</td><td>Cundinamarca</td><td>CLUB SCOOTER PERFORMANCE GIRARDOT</td><td>KTM</td></tr></tbody></table></div></div>
+            </div>
+
+            <div class="categoria-section" id="enduro-2-carrera" data-categoria-id="enduro-2-carrera">
+                <div class="categoria-header">
+                    <h2>Enduro 2</h2>
+                    <button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg>
+                    </button>
+                </div>
+                <div class="final-block"><div class="session-title-row"><h3>Carrera</h3><a class="btn-vuelta-a-vuelta" href="Vuelta%20a%20vuelta/E2%20-%20CARRERA%20-%20Laptimes.pdf" target="_blank" rel="noopener noreferrer">Ver vuelta a vuelta</a></div><div class="table-wrapper"><table><thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Mejor tm</th><th>En vuelta</th><th>Dif. resp. 1°</th><th>Puntos</th><th>Total t°</th><th>Vueltas</th><th>Liga</th><th>Club</th><th>Moto</th></tr></thead><tbody><tr class="pos-1" data-numero="97" data-nombre="Juan David OLAYA LOPEZ"><td>1</td><td>97</td><td>Juan David OLAYA LOPEZ</td><td>6:39.594</td><td>9</td><td></td><td>15</td><td>1:45:02.360</td><td>14</td><td>Valle del Cauca</td><td>Team Potenza</td><td>Beta</td></tr><tr class="pos-2" data-numero="264" data-nombre="Killer Danilo GONZALEZ ROJAS"><td>2</td><td>264</td><td>Killer Danilo GONZALEZ ROJAS</td><td>6:55.588</td><td>3</td><td>1 Vuelta</td><td>13</td><td>1:44:17.471</td><td>13</td><td>Cundinamarca</td><td>Club Velocidad Bogotá</td><td>Yamaha</td></tr><tr class="pos-3" data-numero="88" data-nombre="Pablo ANCIZAR KLOCH"><td>3</td><td>88</td><td>Pablo ANCIZAR KLOCH</td><td>7:00.047</td><td>1</td><td>1 Vuelta</td><td>11</td><td>1:50:25.640</td><td>13</td><td>Bogotá D.C.</td><td>Todo terreno track</td><td>Honda</td></tr><tr data-numero="379" data-nombre="Cesar CASTRO GUTIERREZ"><td>4</td><td>379</td><td>Cesar CASTRO GUTIERREZ</td><td>7:09.852</td><td>4</td><td>2 Vueltas</td><td>10</td><td>1:42:57.334</td><td>12</td><td>Cundinamarca</td><td>CLUB GIRARDOT RACING</td><td>Beta</td></tr><tr data-numero="27" data-nombre="Diego Fernando GUEVARA LINARES"><td>NT</td><td>27</td><td>Diego Fernando GUEVARA LINARES</td><td>8:40.242</td><td>4</td><td>NT</td><td>0</td><td>1:24:22.839</td><td>5</td><td>Cundinamarca</td><td>CLUB SCOOTER PERFORMANCE GIRARDOT</td><td>KTM</td></tr></tbody></table></div></div>
+            </div>
+
+            <div class="categoria-section" id="enduro-3-carrera" data-categoria-id="enduro-3-carrera">
+                <div class="categoria-header">
+                    <h2>Enduro 3</h2>
+                    <button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg>
+                    </button>
+                </div>
+                <div class="final-block"><div class="session-title-row"><h3>Carrera</h3><a class="btn-vuelta-a-vuelta" href="Vuelta%20a%20vuelta/E3%20%20-%20CARRERA%20-%20Laptimes.pdf" target="_blank" rel="noopener noreferrer">Ver vuelta a vuelta</a></div><div class="table-wrapper"><table><thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Mejor tm</th><th>En vuelta</th><th>Dif. resp. 1°</th><th>Puntos</th><th>Total t°</th><th>Vueltas</th><th>Liga</th><th>Club</th><th>Moto</th></tr></thead><tbody><tr class="pos-1" data-numero="180" data-nombre="Duvan Ferney SALDAÑA MEDINA"><td>1</td><td>180</td><td>Duvan Ferney SALDAÑA MEDINA</td><td>6:07.324</td><td>1</td><td></td><td>15</td><td>1:42:51.091</td><td>15</td><td>Cundinamarca</td><td>CLUB SCOOTER PERFORMANCE GIRARDOT</td><td>Husqvarna</td></tr><tr class="pos-2" data-numero="231" data-nombre="Juan Camilo DORADO GOMEZ"><td>2</td><td>231</td><td>Juan Camilo DORADO GOMEZ</td><td>6:07.933</td><td>8</td><td>1:44.787</td><td>13</td><td>1:44:35.878</td><td>15</td><td>Cundinamarca</td><td>CLUB IGUANA RACING GIRARDOT</td><td>Beta</td></tr><tr class="pos-3" data-numero="105" data-nombre="Hosney Bustos Bustos"><td>3</td><td>105</td><td>Hosney Bustos Bustos</td><td>6:44.311</td><td>1</td><td>2 Vueltas</td><td>11</td><td>1:51:07.520</td><td>13</td><td>Cundinamarca</td><td>CLUB IGUANA RACING GIRARDOT</td><td>Husqvarna</td></tr><tr data-numero="390" data-nombre="Diego AGUILAR MARTINEZ"><td>4</td><td>390</td><td>Diego AGUILAR MARTINEZ</td><td>7:17.799</td><td>5</td><td>2 Vueltas</td><td>10</td><td>1:55:21.578</td><td>13</td><td>Valle del Cauca</td><td>Carasucias</td><td>KTM</td></tr><tr data-numero="500" data-nombre="Jorge Ivan RAMIREZ DAZA"><td>5</td><td>500</td><td>Jorge Ivan RAMIREZ DAZA</td><td>7:51.983</td><td>7</td><td>3 Vueltas</td><td>9</td><td>1:46:11.703</td><td>12</td><td>Cesar</td><td>Club Cesar</td><td>KTM</td></tr><tr data-numero="315" data-nombre="Luis Eduardo ORTIZ CONTRERAS"><td>6</td><td>315</td><td>Luis Eduardo ORTIZ CONTRERAS</td><td>8:02.394</td><td>1</td><td>4 Vueltas</td><td>8</td><td>1:44:06.867</td><td>11</td><td>Cundinamarca</td><td>CLUB SCOOTER PERFORMANCE GIRARDOT</td><td>KTM</td></tr><tr data-numero="267" data-nombre="sebastian rodriguez ruiz"><td>7</td><td>267</td><td>sebastian rodriguez ruiz</td><td>9:37.231</td><td>4</td><td>6 Vueltas</td><td>7</td><td>2:00:10.359</td><td>9</td><td>Bogotá D.C.</td><td>Todo terreno track</td><td>Husqvarna</td></tr><tr data-numero="17" data-nombre="Franciso ALVAREZ NIÑO"><td>8</td><td>17</td><td>Franciso ALVAREZ NIÑO</td><td>6:49.523</td><td>4</td><td>7 Vueltas</td><td>6</td><td>1:13:21.669</td><td>8</td><td>Valle del Cauca</td><td>Carasucias</td><td>KTM</td></tr><tr data-numero="10" data-nombre="Cesar CORREA ESCOBAR"><td>NT</td><td>10</td><td>Cesar CORREA ESCOBAR</td><td></td><td>0</td><td>NT</td><td>0</td><td></td><td></td><td>Valle del Cauca</td><td>Carasucias</td><td>Husqvarna</td></tr></tbody></table></div></div>
+            </div>
+
+            <div class="categoria-section" id="master-a-carrera" data-categoria-id="master-a-carrera">
+                <div class="categoria-header">
+                    <h2>Master A</h2>
+                    <button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg>
+                    </button>
+                </div>
+                <div class="final-block"><div class="session-title-row"><h3>Carrera</h3><a class="btn-vuelta-a-vuelta" href="Vuelta%20a%20vuelta/MAS%20A%20-%20CARRERA%20-%20Laptimes.pdf" target="_blank" rel="noopener noreferrer">Ver vuelta a vuelta</a></div><div class="table-wrapper"><table><thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Mejor tm</th><th>En vuelta</th><th>Dif. resp. 1°</th><th>Puntos</th><th>Total t°</th><th>Vueltas</th><th>Liga</th><th>Club</th><th>Moto</th></tr></thead><tbody><tr class="pos-1" data-numero="999" data-nombre="Gino MOLINA FALDUTO"><td>1</td><td>999</td><td>Gino MOLINA FALDUTO</td><td>6:30.396</td><td>8</td><td></td><td>15</td><td>1:41:00.991</td><td>13</td><td>Valle del Cauca</td><td>Carasucias</td><td>GasGas</td></tr><tr class="pos-2" data-numero="176" data-nombre="Nestor CHAPARRO PARRA"><td>2</td><td>176</td><td>Nestor CHAPARRO PARRA</td><td>7:02.416</td><td>7</td><td>1 Vuelta</td><td>13</td><td>1:48:39.022</td><td>12</td><td>Bogotá D.C.</td><td>Xspeed Racing</td><td>GasGas</td></tr><tr class="pos-3" data-numero="369" data-nombre="Mario Andrés Díaz Serrato"><td>3</td><td>369</td><td>Mario Andrés Díaz Serrato</td><td>7:32.521</td><td>1</td><td>2 Vueltas</td><td>11</td><td>1:41:37.566</td><td>11</td><td>Valle del Cauca</td><td>Team Potenza</td><td>KTM</td></tr><tr data-numero="8" data-nombre="Sebastian VELEZ ARANGO"><td>4</td><td>8</td><td>Sebastian VELEZ ARANGO</td><td>6:51.746</td><td>1</td><td>4 Vueltas</td><td>10</td><td>1:41:24.301</td><td>9</td><td>Antioquia</td><td>CLUB ANTIOQUIA 2 RUEDAS RACER</td><td>Yamaha</td></tr><tr data-numero="357" data-nombre="Juan Jose DIAZ ROMO"><td>5</td><td>357</td><td>Juan Jose DIAZ ROMO</td><td>8:45.316</td><td>6</td><td>5 Vueltas</td><td>9</td><td>1:49:22.722</td><td>8</td><td>Cesar</td><td>ENDURO CESAR</td><td>KTM</td></tr><tr data-numero="587" data-nombre="Bernardo ALVAREZ NIÑO"><td>6</td><td>587</td><td>Bernardo ALVAREZ NIÑO</td><td>10:38.903</td><td>5</td><td>5 Vueltas</td><td>8</td><td>1:51:43.445</td><td>8</td><td>Valle del Cauca</td><td>Carasucias</td><td>KTM</td></tr><tr data-numero="882" data-nombre="William Eduardo CHIQUIZA GARZON"><td>7</td><td>882</td><td>William Eduardo CHIQUIZA GARZON</td><td>12:48.387</td><td>1</td><td>6 Vueltas</td><td>7</td><td>1:50:49.669</td><td>7</td><td>Cundinamarca</td><td>CLUB IGUANA RACING GIRARDOT</td><td>GasGas</td></tr><tr data-numero="412" data-nombre="Carlos Augusto GIRALDO BEDOYA"><td>8</td><td>412</td><td>Carlos Augusto GIRALDO BEDOYA</td><td>8:04.132</td><td>1</td><td>7 Vueltas</td><td>6</td><td>1:49:35.389</td><td>6</td><td>Antioquia</td><td>CLUB ANTIOQUIA 2 RUEDAS RACER</td><td>GasGas</td></tr></tbody></table></div></div>
+            </div>
+
+            <div class="categoria-section" id="master-b-carrera" data-categoria-id="master-b-carrera">
+                <div class="categoria-header">
+                    <h2>Master B</h2>
+                    <button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg>
+                    </button>
+                </div>
+                <div class="final-block"><div class="session-title-row"><h3>Carrera</h3><a class="btn-vuelta-a-vuelta" href="Vuelta%20a%20vuelta/MAS%20B%20-%20CARRERA%20-%20Laptimes.pdf" target="_blank" rel="noopener noreferrer">Ver vuelta a vuelta</a></div><div class="table-wrapper"><table><thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Mejor tm</th><th>En vuelta</th><th>Dif. resp. 1°</th><th>Puntos</th><th>Total t°</th><th>Vueltas</th><th>Liga</th><th>Club</th><th>Moto</th></tr></thead><tbody><tr class="pos-1" data-numero="82" data-nombre="Carlos Eduardo PELAEZ LONDOÑO"><td>1</td><td>82</td><td>Carlos Eduardo PELAEZ LONDOÑO</td><td>7:03.835</td><td>1</td><td></td><td>15</td><td>1:47:07.514</td><td>13</td><td>Antioquia</td><td>CLUB ANTIOQUIA 2 RUEDAS RACER</td><td>KTM</td></tr><tr class="pos-2" data-numero="476" data-nombre="Adolfo León RENGIFO"><td>2</td><td>476</td><td>Adolfo León RENGIFO</td><td>8:29.637</td><td>6</td><td>4 Vueltas</td><td>13</td><td>1:47:34.804</td><td>9</td><td>Valle del Cauca</td><td>Team Potenza</td><td>Husqvarna</td></tr><tr class="pos-3" data-numero="188" data-nombre="Dino Osvaldo RENTERIA SALAZAR"><td>3</td><td>188</td><td>Dino Osvaldo RENTERIA SALAZAR</td><td>8:38.892</td><td>6</td><td>4 Vueltas</td><td>11</td><td>1:48:32.633</td><td>9</td><td>Valle del Cauca</td><td>Club VALLE</td><td>Husqvarna</td></tr><tr data-numero="73" data-nombre="Andres GONZALEZ URIBE"><td>4</td><td>73</td><td>Andres GONZALEZ URIBE</td><td>11:01.232</td><td>1</td><td>6 Vueltas</td><td>10</td><td>1:46:56.474</td><td>7</td><td>Antioquia</td><td>CLUB GRILLOS RACING</td><td>KTM</td></tr><tr data-numero="436" data-nombre="Carlos Arturo ISAZA TORO"><td>5</td><td>436</td><td>Carlos Arturo ISAZA TORO</td><td>13:19.918</td><td>1</td><td>8 Vueltas</td><td>9</td><td>1:42:15.240</td><td>5</td><td>Quindío</td><td>CLUB MONSTER GARAGE</td><td>GasGas</td></tr><tr data-numero="477" data-nombre="Bernardo ALVAREZ ACERO"><td>6</td><td>477</td><td>Bernardo ALVAREZ ACERO</td><td>17:32.184</td><td>1</td><td>8 Vueltas</td><td>8</td><td>1:54:42.320</td><td>5</td><td>Valle del Cauca</td><td>Carasucias</td><td>Husqvarna</td></tr></tbody></table></div></div>
+            </div>
+
+        </div>
+        <div class="pdf-section">
+            <button id="descargarPDF" class="btn-pdf">Exportar a PDF</button>
+            <p class="pdf-hint">En el diálogo de impresión, elige "Guardar como PDF" o "Microsoft Print to PDF" como destino.</p>
+        </div>
+        <footer>
+            <p><span class="developer">Developed by Mauricio Sánchez Aguilar - Fedemoto</span></p>
+            <p>Este proyecto es de uso interno de FEDEMOTO.</p>
+        </footer>
+    </div>
+    <div id="modalExportar" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Exportar a PDF</h3>
+            <p style="margin-bottom: 16px; font-size: 0.95em; color: #374151;">Selecciona las categorías que deseas incluir:</p>
+            <div class="modal-categorias" id="modalCategorias">
+                <label class="modal-cat-item"><input type="checkbox" value="infantil-enduro-1-final" checked> Infantil Enduro 1</label>
+                <label class="modal-cat-item"><input type="checkbox" value="infantil-enduro-2-carrera" checked> Infantil Enduro 2</label>
+                <label class="modal-cat-item"><input type="checkbox" value="infantil-enduro-3-carrera" checked> Infantil Enduro 3</label>
+                <label class="modal-cat-item"><input type="checkbox" value="inicio-carrera" checked> Inicio</label>
+                <label class="modal-cat-item"><input type="checkbox" value="juvenil-carrera" checked> Juvenil</label>
+                <label class="modal-cat-item"><input type="checkbox" value="junior-carrera" checked> Junior</label>
+                <label class="modal-cat-item"><input type="checkbox" value="junior-novatos-carrera" checked> Junior Novatos</label>
+                <label class="modal-cat-item"><input type="checkbox" value="no-racer-carrera" checked> No Racer</label>
+                <label class="modal-cat-item"><input type="checkbox" value="femenino-carrera" checked> Femenino</label>
+                <label class="modal-cat-item"><input type="checkbox" value="enduro-1-carrera" checked> Enduro 1</label>
+                <label class="modal-cat-item"><input type="checkbox" value="enduro-2-carrera" checked> Enduro 2</label>
+                <label class="modal-cat-item"><input type="checkbox" value="enduro-3-carrera" checked> Enduro 3</label>
+                <label class="modal-cat-item"><input type="checkbox" value="master-a-carrera" checked> Master A</label>
+                <label class="modal-cat-item"><input type="checkbox" value="master-b-carrera" checked> Master B</label>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn-link" id="modalSelectAll">Seleccionar todo</button>
+                <button type="button" class="modal-btn modal-btn-link" id="modalDeselectAll">Deseleccionar todo</button>
+            </div>
+            <div class="modal-actions" style="margin-top: 20px;">
+                <button type="button" class="modal-btn modal-btn-primary" id="modalExportarBtn">Exportar</button>
+                <button type="button" class="modal-btn modal-btn-secondary" id="modalCancelar">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    <div id="modalComentario" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Comentario</h3>
+            <p id="modalComentarioTexto" style="margin-bottom: 20px; font-size: 1em; color: #111827; white-space: pre-wrap;"></p>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn-primary" id="modalComentarioCerrar">Cerrar</button>
+            </div>
+        </div>
+    </div>
+    <script src="../../../load-menu.js"></script>
+    <script>
+        document.getElementById('descargarPDF').addEventListener('click', function() {
+            document.querySelectorAll('.search-no-results').forEach(function(el){ el.classList.remove('search-no-results'); });
+            document.querySelectorAll('.search-hidden').forEach(function(el){ el.classList.remove('search-hidden'); });
+            document.getElementById('modalExportar').classList.add('open');
+        });
+        document.getElementById('modalSelectAll').addEventListener('click', function() { document.querySelectorAll('#modalCategorias input').forEach(function(cb){ cb.checked = true; }); });
+        document.getElementById('modalDeselectAll').addEventListener('click', function() { document.querySelectorAll('#modalCategorias input').forEach(function(cb){ cb.checked = false; }); });
+        document.getElementById('modalCancelar').addEventListener('click', function() { document.getElementById('modalExportar').classList.remove('open'); });
+        document.getElementById('modalExportar').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
+        var modalComentario = document.getElementById('modalComentario');
+        var modalComentarioTexto = document.getElementById('modalComentarioTexto');
+        document.addEventListener('click', function(e) {
+            var btn = e.target.closest('.comentario-btn');
+            if (!btn) return;
+            modalComentarioTexto.textContent = btn.getAttribute('data-comentario') || '';
+            modalComentario.classList.add('open');
+        });
+        document.getElementById('modalComentarioCerrar').addEventListener('click', function() {
+            modalComentario.classList.remove('open');
+        });
+        modalComentario.addEventListener('click', function(e) {
+            if (e.target === this) this.classList.remove('open');
+        });
+        document.getElementById('modalExportarBtn').addEventListener('click', function() {
+            var selected = [];
+            document.querySelectorAll('#modalCategorias input[type="checkbox"]').forEach(function(cb) { if (cb.checked) selected.push(cb.value); });
+            if (selected.length === 0) { alert('Selecciona al menos una categoría.'); return; }
+            document.querySelectorAll('.categoria-section').forEach(function(section) {
+                section.classList.toggle('pdf-exclude', selected.indexOf(section.getAttribute('data-categoria-id')) === -1);
+            });
+            document.getElementById('modalExportar').classList.remove('open');
+            void document.body.offsetHeight;
+            setTimeout(function() { window.print(); }, 150);
+        });
+        window.addEventListener('afterprint', function() {
+            document.querySelectorAll('.categoria-section').forEach(function(section) { section.classList.remove('pdf-exclude'); });
+        });
+        document.querySelectorAll('.btn-top').forEach(function(btn) {
+            btn.addEventListener('click', function() { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+        });
+        var buscador = document.getElementById('buscador');
+        buscador.addEventListener('input', function() {
+            var q = this.value.trim().toLowerCase();
+            var sections = document.querySelectorAll('.categoria-section');
+            var cards = document.querySelectorAll('.index-card');
+            cards.forEach(function(c){ c.classList.remove('search-match', 'search-no-results'); });
+            sections.forEach(function(s){ s.classList.remove('search-match', 'search-no-results'); });
+            if (!q) {
+                document.querySelectorAll('.search-hidden').forEach(function(tr){ tr.classList.remove('search-hidden'); });
+                return;
+            }
+            sections.forEach(function(section) {
+                var rows = section.querySelectorAll('tbody tr[data-numero], tbody tr[data-nombre]');
+                var visible = 0;
+                rows.forEach(function(tr) {
+                    var num = (tr.getAttribute('data-numero') || '').toLowerCase();
+                    var nom = (tr.getAttribute('data-nombre') || '').toLowerCase();
+                    var match = num.indexOf(q) >= 0 || nom.indexOf(q) >= 0;
+                    tr.classList.toggle('search-hidden', !match);
+                    if (match) visible++;
+                });
+                var id = section.getAttribute('data-categoria-id');
+                var card = document.querySelector('.index-card[data-categoria-id="' + id + '"]');
+                if (visible > 0) { section.classList.add('search-match'); if (card) card.classList.add('search-match'); }
+                else { section.classList.add('search-no-results'); if (card) card.classList.add('search-no-results'); }
+            });
+        });
+    </script>
+</body>
+</html>

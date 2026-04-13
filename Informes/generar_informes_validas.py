@@ -11,6 +11,10 @@ from collections import defaultdict
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.normpath(os.path.join(SCRIPT_DIR, ".."))
+import sys
+
+sys.path.insert(0, os.path.join(ROOT_DIR, "Resultados generales"))
+from enduro_categorias import canonical_enduro_categoria
 
 
 REPORT_CONFIGS = [
@@ -23,6 +27,17 @@ REPORT_CONFIGS = [
         "intro": (
             "A continuación se presentan las estadísticas generadas a partir de los resultados "
             "registrados para la I Válida de Enduro 2026."
+        ),
+    },
+    {
+        "output_html": os.path.join(SCRIPT_DIR, "Enduro", "Segunda valida", "informe_valida_ii_enduro_pasca.html"),
+        "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Enduro", "Segunda valida", "FILES EXPORTED"),
+        "title": "Informe II Válida Enduro - Pasca, Cundinamarca | FEDEMOTO",
+        "heading": "Informe II Válida Nacional de Enduro",
+        "subtitle": "Pasca, Cundinamarca — Estadísticas de la válida",
+        "intro": (
+            "A continuación se presentan las estadísticas generadas a partir de los resultados "
+            "registrados para la II Válida Nacional de Enduro 2026, realizada en Pasca, Cundinamarca."
         ),
     },
     {
@@ -150,6 +165,7 @@ def collect_rows_by_category(files_dir):
         if not os.path.isfile(filepath):
             continue
         categoria, tipo = parse_filename(filename)
+        categoria = canonical_enduro_categoria(categoria)
         files_per_cat[categoria].append((tipo, filepath))
 
     for categoria, files in files_per_cat.items():

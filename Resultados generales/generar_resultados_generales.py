@@ -15,6 +15,8 @@ from collections import defaultdict
 ROOT_DIR = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
+from enduro_categorias import canonical_enduro_categoria
+
 
 CHAMPIONSHIPS = [
     {
@@ -25,7 +27,11 @@ CHAMPIONSHIPS = [
             {
                 "label": "I Válida Enduro 2026",
                 "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Enduro", "Primera valida", "FILES EXPORTED"),
-            }
+            },
+            {
+                "label": "II Válida Enduro - Pasca",
+                "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Enduro", "Segunda valida", "FILES EXPORTED"),
+            },
         ],
         "output_html": os.path.join(SCRIPT_DIR, "Enduro", "resultado_general_enduro_2026.html"),
     },
@@ -177,7 +183,7 @@ def parse_points(value):
     return float(m.group(0)) if m else 0.0
 
 
-def load_valida_category_rows(files_dir):
+def load_valida_category_rows(files_dir, modalidad=None):
     by_cat_files = defaultdict(list)
     for filename in os.listdir(files_dir):
         if not filename.lower().endswith(".csv"):
@@ -186,6 +192,8 @@ def load_valida_category_rows(files_dir):
         if not os.path.isfile(path):
             continue
         categoria, tipo = parse_filename(filename)
+        if modalidad == "Enduro":
+            categoria = canonical_enduro_categoria(categoria)
         by_cat_files[categoria].append((tipo, path))
 
     out = {}
@@ -221,9 +229,10 @@ def load_valida_category_rows(files_dir):
 
 def build_general_table(champ):
     validas = champ["validas"]
+    modalidad = champ.get("modalidad")
     data_by_valida = []
     for v in validas:
-        data_by_valida.append(load_valida_category_rows(v["files_dir"]))
+        data_by_valida.append(load_valida_category_rows(v["files_dir"], modalidad=modalidad))
 
     categorias = set()
     for d in data_by_valida:
