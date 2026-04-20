@@ -399,6 +399,16 @@ def render_html(champ, table_by_categoria):
         key=lambda kv: (-kv[1]["first"], -kv[1]["second"], -kv[1]["third"], kv[0].lower()),
     )
 
+    roman_map = [
+        "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X",
+        "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX",
+    ]
+
+    def valida_col_label(index):
+        if index < len(roman_map):
+            return roman_map[index]
+        return str(index + 1)
+
     html_parts = [f"""<!DOCTYPE html>
 <html lang="es">
 <head>
@@ -537,8 +547,8 @@ def render_html(champ, table_by_categoria):
         if not is_scratch:
             html_parts.append("<th>Club</th>")
         html_parts.append("<th>Moto</th>")
-        for v in validas:
-            html_parts.append(f"<th>{esc(v['label'])}</th>")
+        for i, _v in enumerate(validas):
+            html_parts.append(f"<th>{esc(valida_col_label(i))}</th>")
         html_parts.append("<th>Total</th></tr></thead><tbody>")
         for i, r in enumerate(rows, start=1):
             pos_class = ""
