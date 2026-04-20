@@ -7,6 +7,7 @@ import csv
 import json
 import os
 import re
+import unicodedata
 from collections import defaultdict
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -54,6 +55,7 @@ REPORT_CONFIGS = [
     {
         "output_html": os.path.join(SCRIPT_DIR, "Velocidad", "informe_valida_i_velocidad_zarzal.html"),
         "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Velocidad", "FILES EXPORTED_ZARZAL"),
+        "session_priority": ["final", "carrera", "clasificatoria", "otros"],
         "title": "Informe I Válida Velocidad - Zarzal, Valle del Cauca | FEDEMOTO",
         "heading": "Informe I Válida Nacional de Velocidad",
         "subtitle": "Zarzal, Valle del Cauca — Estadísticas de la válida",
@@ -65,6 +67,7 @@ REPORT_CONFIGS = [
     {
         "output_html": os.path.join(SCRIPT_DIR, "Velocidad", "informe_valida_ii_velocidad_chachagui.html"),
         "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Velocidad", "FILES EXPORTED_CHACHAGUI"),
+        "session_priority": ["final", "carrera", "clasificatoria", "otros"],
         "title": "Informe II Válida Velocidad - Chachagüi, Nariño | FEDEMOTO",
         "heading": "Informe II Válida Nacional de Velocidad",
         "subtitle": "Chachagüi, Nariño — Estadísticas de la válida",
@@ -135,14 +138,29 @@ def parse_filename(filename):
     return (" - ".join(parts[:-1]), parts[-1].strip())
 
 
-def choose_main_file(files):
+def normalize_ascii(text):
+    raw = str(text or "")
+    return "".join(c for c in unicodedata.normalize("NFD", raw) if unicodedata.category(c) != "Mn")
+
+
+def session_bucket(tipo):
+    t = normalize_ascii(tipo).lower()
+    if "final" in t:
+        return "final"
+    if "carrera" in t:
+        return "carrera"
+    if "clasific" in t:
+        return "clasificatoria"
+    return "otros"
+
+
+def choose_main_file(files, session_priority=None):
+    priority = session_priority or ["final", "clasificatoria", "carrera", "otros"]
+    rank = {name: i for i, name in enumerate(priority)}
+
     def sort_key(item):
-        tipo = item[0].lower()
-        if "final" in tipo:
-            return 0
-        if "clasificatoria" in tipo or "clasificacion" in tipo or "clasificación" in tipo:
-            return 1
-        return 2
+        bucket = session_bucket(item[0])
+        return rank.get(bucket, len(rank))
 
     return sorted(files, key=sort_key)[0][1]
 
@@ -165,7 +183,7 @@ def find_header_indexes(headers):
     return idx_num, idx_nombre, idx_liga, idx_club, idx_moto
 
 
-def collect_rows_by_category(files_dir):
+def collect_rows_by_category(files_dir, session_priority=None):
     by_categoria = defaultdict(list)
     files_per_cat = defaultdict(list)
 
@@ -180,7 +198,7 @@ def collect_rows_by_category(files_dir):
         files_per_cat[categoria].append((tipo, filepath))
 
     for categoria, files in files_per_cat.items():
-        filepath = choose_main_file(files)
+        filepath = choose_main_file(files, session_priority=session_priority)
         with open(filepath, "r", encoding="utf-8-sig") as f:
             reader = csv.reader(f)
             headers = next(reader, [])
@@ -203,8 +221,8 @@ def collect_rows_by_category(files_dir):
     return by_categoria
 
 
-def analyze(files_dir):
-    by_categoria = collect_rows_by_category(files_dir)
+def analyze(files_dir, session_priority=None):
+    by_categoria = collect_rows_by_category(files_dir, session_priority=session_priority)
     total_participaciones = 0
     pilotos_unicos = set()
     por_liga = defaultdict(set)
@@ -410,7 +428,7 @@ def generate_report(config):
     if not os.path.isdir(files_dir):
         raise FileNotFoundError(f"No existe carpeta de entrada: {files_dir}")
     os.makedirs(os.path.dirname(output_html), exist_ok=True)
-    datos = analyze(files_dir)
+    datos = analyze(files_dir, session_priority=config.get("session_priority"))
 
     output_dir = os.path.dirname(output_html)
     root_rel_prefix = os.path.relpath(ROOT_DIR, output_dir).replace("\\", "/") + "/"
