@@ -58,8 +58,12 @@ CHAMPIONSHIPS = [
         "validas": [
             {
                 "label": "I Válida Velocidad - Zarzal",
-                "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Velocidad", "FILES EXPORTED"),
-            }
+                "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Velocidad", "FILES EXPORTED_ZARZAL"),
+            },
+            {
+                "label": "II Válida Velocidad - Chachagüi",
+                "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Velocidad", "FILES EXPORTED_CHACHAGUI"),
+            },
         ],
         "output_html": os.path.join(SCRIPT_DIR, "Velocidad", "resultado_general_velocidad_2026.html"),
     },

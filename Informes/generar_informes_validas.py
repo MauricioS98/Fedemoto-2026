@@ -53,13 +53,24 @@ REPORT_CONFIGS = [
     },
     {
         "output_html": os.path.join(SCRIPT_DIR, "Velocidad", "informe_valida_i_velocidad_zarzal.html"),
-        "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Velocidad", "FILES EXPORTED"),
+        "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Velocidad", "FILES EXPORTED_ZARZAL"),
         "title": "Informe I Válida Velocidad - Zarzal, Valle del Cauca | FEDEMOTO",
         "heading": "Informe I Válida Nacional de Velocidad",
         "subtitle": "Zarzal, Valle del Cauca — Estadísticas de la válida",
         "intro": (
             "A continuación se presentan las estadísticas generadas a partir de los resultados "
             "de la I Válida Nacional de Velocidad, realizada en Zarzal, Valle del Cauca."
+        ),
+    },
+    {
+        "output_html": os.path.join(SCRIPT_DIR, "Velocidad", "informe_valida_ii_velocidad_chachagui.html"),
+        "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Velocidad", "FILES EXPORTED_CHACHAGUI"),
+        "title": "Informe II Válida Velocidad - Chachagüi, Nariño | FEDEMOTO",
+        "heading": "Informe II Válida Nacional de Velocidad",
+        "subtitle": "Chachagüi, Nariño — Estadísticas de la válida",
+        "intro": (
+            "A continuación se presentan las estadísticas generadas a partir de los resultados "
+            "de la II Válida Nacional de Velocidad, realizada en Chachagüi, Nariño."
         ),
     },
     {
