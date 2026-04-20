@@ -193,14 +193,32 @@ def build_vuelta_map(vuelta_folder):
     return mapping
 
 
-def session_title_block(categoria_key, session_name, vuelta_map, vuelta_folder, source_files):
+def expected_pdf_filename(categoria_key, session_name):
+    if session_name == "Carrera":
+        return f"{categoria_key} - CARRERA - Laptimes.pdf"
+    if session_name == "Carrera 1":
+        return f"{categoria_key} - CARRERA 1 - Laptimes.pdf"
+    if session_name == "Carrera 2":
+        return f"{categoria_key} - CARRERA 2 - Laptimes.pdf"
+    if session_name == "Final":
+        return f"{categoria_key} - FINAL - Laptimes.pdf"
+    return None
+
+
+def session_title_block(categoria_key, session_name, vuelta_map, vuelta_folder, source_files, allow_link):
     btn = ""
-    if vuelta_folder:
+    if allow_link and vuelta_folder:
         fn = vuelta_map.get((categoria_key, session_name))
         if not fn:
+            fn = expected_pdf_filename(categoria_key, session_name)
+        if fn and not (vuelta_folder / fn).exists():
+            fn = None
+        if not fn:
             csv_name = source_files.get((categoria_key, session_name))
-            if csv_name:
-                fn = re.sub(r"(?i)\s*-\s*resultados\.csv$", " - Laptimes.pdf", csv_name).strip()
+            if csv_name and "CLASIFIC" not in normalize_text(csv_name):
+                candidate = re.sub(r"(?i)\s*-\s*resultados\.csv$", " - Laptimes.pdf", csv_name).strip()
+                if (vuelta_folder / candidate).exists():
+                    fn = candidate
         if fn:
             href = quote(vuelta_folder.name, safe="") + "/" + quote(fn, safe="")
             btn = (
@@ -358,24 +376,24 @@ def section_html(section_id, title, cat_key, all_data, vuelta_map, vuelta_folder
     sessions = all_data.get(cat_key, {})
     content = [times_summary(sessions)]
 
-    def add_session_block(label, builder):
+    def add_session_block(label, builder, allow_link=False):
         rows = sessions.get(label, [])
         if not rows:
             return
         content.append('<div class="final-block">')
-        content.append(session_title_block(cat_key, label, vuelta_map, vuelta_folder, source_files))
+        content.append(session_title_block(cat_key, label, vuelta_map, vuelta_folder, source_files, allow_link))
         content.append('<div class="table-wrapper">')
         content.append(builder(rows))
         content.append("</div></div>")
 
     if cat_key == "SUPERMOTO":
-        add_session_block("Clasificatoria", table_clasificatoria)
-        add_session_block("Final", table_supermoto_final)
-        add_session_block("Carrera 1", table_carrera)
-        add_session_block("Carrera 2", table_carrera)
+        add_session_block("Clasificatoria", table_clasificatoria, allow_link=False)
+        add_session_block("Final", table_supermoto_final, allow_link=False)
+        add_session_block("Carrera 1", table_carrera, allow_link=True)
+        add_session_block("Carrera 2", table_carrera, allow_link=True)
     else:
-        add_session_block("Clasificatoria", table_clasificatoria)
-        add_session_block("Carrera", table_carrera)
+        add_session_block("Clasificatoria", table_clasificatoria, allow_link=False)
+        add_session_block("Carrera", table_carrera, allow_link=True)
 
     return f"""            <div class="categoria-section" id="{section_id}" data-categoria-id="{section_id}">
                 <div class="categoria-header">
