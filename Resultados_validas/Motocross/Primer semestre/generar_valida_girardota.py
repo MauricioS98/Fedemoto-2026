@@ -90,6 +90,23 @@ def remove_comentario_column_and_collect(headers, rows):
     new_rows = [[c for i, c in enumerate(row) if i != idx] for row in rows]
     return new_headers, new_rows, comentarios
 
+def remove_fnrh_column(headers, rows):
+    """Elimina la columna FN/RH cuando exista en la tabla."""
+    idx = next(
+        (
+            i
+            for i, h in enumerate(headers)
+            if str(h).strip().lower().replace(" ", "") in ("fn/rh", "fnrh")
+        ),
+        None,
+    )
+    if idx is None:
+        return headers, rows
+    return (
+        [h for i, h in enumerate(headers) if i != idx],
+        [[c for i, c in enumerate(row) if i != idx] for row in rows],
+    )
+
 def find_mejor_tm_index(headers):
     for i, h in enumerate(headers):
         hl = str(h).strip().lower()
@@ -194,6 +211,102 @@ def get_mejor_tm_carreras(c1_data, c2_data, num_idx=1, nombre_idx=2):
                     best = (num, nombre, s, tm, nombre_carrera)
     return (best[0], best[1], best[3], best[4]) if best else None
 
+def find_col_index(headers, names):
+    wanted = {str(n).strip().lower().replace(" ", "") for n in names}
+    for i, h in enumerate(headers):
+        hk = str(h).strip().lower().replace(" ", "")
+        if hk in wanted:
+            return i
+    return -1
+
+def build_inicio_final_from_sessions(clasif_data, c1_data, c2_data):
+    """
+    Construye una tabla final de INICIO a partir de Clasificatoria + Carrera 1 + Carrera 2.
+    """
+    riders = {}
+
+    def load_session(data, key):
+        if not data:
+            return
+        headers, rows = data
+        idx_num = find_col_index(headers, ("n°", "nº", "numero", "n"))
+        idx_nombre = find_col_index(headers, ("nombre",))
+        idx_puntos = find_col_index(headers, ("puntos",))
+        idx_liga = find_col_index(headers, ("liga",))
+        idx_club = find_col_index(headers, ("club",))
+        idx_moto = find_col_index(headers, ("moto",))
+        if idx_num < 0 or idx_puntos < 0:
+            return
+        max_idx = max(i for i in (idx_num, idx_puntos, idx_nombre, idx_liga, idx_club, idx_moto) if i >= 0)
+        for r in rows:
+            if len(r) <= max_idx:
+                continue
+            num = str(r[idx_num]).strip()
+            if not num:
+                continue
+            pts_s = str(r[idx_puntos]).strip()
+            pts = 0
+            if re.search(r"^-?\d+$", pts_s):
+                pts = int(pts_s)
+            elif pts_s == "--":
+                pts = 0
+            if num not in riders:
+                riders[num] = {
+                    "numero": num,
+                    "nombre": "",
+                    "liga": "",
+                    "club": "",
+                    "moto": "",
+                    "Q": 0,
+                    "R1": 0,
+                    "R2": 0,
+                }
+            rr = riders[num]
+            rr[key] = pts
+            if idx_nombre >= 0 and idx_nombre < len(r) and str(r[idx_nombre]).strip():
+                rr["nombre"] = str(r[idx_nombre]).strip()
+            if idx_liga >= 0 and idx_liga < len(r) and str(r[idx_liga]).strip():
+                rr["liga"] = str(r[idx_liga]).strip()
+            if idx_club >= 0 and idx_club < len(r) and str(r[idx_club]).strip():
+                rr["club"] = str(r[idx_club]).strip()
+            if idx_moto >= 0 and idx_moto < len(r) and str(r[idx_moto]).strip():
+                rr["moto"] = str(r[idx_moto]).strip()
+
+    load_session(clasif_data, "Q")
+    load_session(c1_data, "R1")
+    load_session(c2_data, "R2")
+
+    if not riders:
+        return None
+
+    final_rows = []
+    for rider in riders.values():
+        total = rider["Q"] + rider["R1"] + rider["R2"]
+        rider["total"] = total
+        final_rows.append(rider)
+
+    final_rows.sort(key=lambda x: (-x["total"], -x["R2"], -x["R1"], -x["Q"], x["nombre"].lower()))
+    top_total = final_rows[0]["total"] if final_rows else 0
+
+    headers = ["Pos.", "N°", "Nombre", "Total puntos", "Dif. resp. 1°", "Moto", "Liga", "Club", "Q", "R1", "R2"]
+    rows = []
+    for pos, r in enumerate(final_rows, start=1):
+        diff = top_total - r["total"]
+        rows.append([
+            str(pos),
+            r["numero"],
+            r["nombre"],
+            str(r["total"]),
+            str(diff),
+            r["moto"],
+            r["liga"],
+            r["club"],
+            str(r["Q"]) if r["Q"] else "--",
+            str(r["R1"]) if r["R1"] else "--",
+            str(r["R2"]) if r["R2"] else "--",
+        ])
+    return headers, rows, [""] * len(rows)
+
 def render_row(row, comentario, search_attrs):
     pos_class = ''
     if row and str(row[0]).strip() == '1':
@@ -229,8 +342,10 @@ def generate_html():
             continue
         headers, rows = parse_csv(filepath)
         headers, rows, comentarios = remove_comentario_column_and_collect(headers, rows)
-        headers = [format_header(h) for h in headers]
         categoria, tipo, sort_key = parse_filename(filename)
+        if tipo == 'Final':
+            headers, rows = remove_fnrh_column(headers, rows)
+        headers = [format_header(h) for h in headers]
         if categoria not in categorias_data:
             categorias_data[categoria] = []
         categorias_data[categoria].append((tipo, sort_key, headers, rows, comentarios))
@@ -408,6 +523,10 @@ def generate_html():
                 c2_data = (headers, rows)
         
         # Si no hay Final (ej. 50cc), la primera tabla es la principal
+        if categoria.lower() == "inicio":
+            inicio_built = build_inicio_final_from_sessions(clasif_data, c1_data, c2_data)
+            if inicio_built:
+                final_data = inicio_built
         if not final_data and tablas:
             final_data = (tablas[0][1], tablas[0][2], tablas[0][3])
         

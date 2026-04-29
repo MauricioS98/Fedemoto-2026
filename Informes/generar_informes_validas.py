@@ -53,6 +53,17 @@ REPORT_CONFIGS = [
         ),
     },
     {
+        "output_html": os.path.join(SCRIPT_DIR, "Motocross", "Primer semestre", "informe_valida_iii_mx_tocancipa.html"),
+        "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Motocross", "Primer semestre", "FILES EXPORTED-tocancipa"),
+        "title": "Informe III Válida MX - Tocancipá, Cundinamarca | FEDEMOTO",
+        "heading": "Informe III Válida Nacional de Motocross",
+        "subtitle": "Tocancipá, Cundinamarca — Estadísticas de la válida",
+        "intro": (
+            "A continuación se presentan las estadísticas generadas a partir de los resultados "
+            "de la III Válida Nacional de Motocross, realizada en Tocancipá, Cundinamarca."
+        ),
+    },
+    {
         "output_html": os.path.join(SCRIPT_DIR, "Velocidad", "informe_valida_i_velocidad_zarzal.html"),
         "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Velocidad", "FILES EXPORTED_ZARZAL"),
         "session_priority": ["final", "carrera", "clasificatoria", "otros"],

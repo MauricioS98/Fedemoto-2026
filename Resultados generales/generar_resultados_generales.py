@@ -48,6 +48,10 @@ CHAMPIONSHIPS = [
                 "label": "II Válida MX - Barranquilla",
                 "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Motocross", "Primer semestre", "FILES EXPORTED-barranquilla"),
             },
+            {
+                "label": "III Válida MX - Tocancipá",
+                "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Motocross", "Primer semestre", "FILES EXPORTED-tocancipa"),
+            },
         ],
         "output_html": os.path.join(SCRIPT_DIR, "Motocross", "Primer semestre", "resultado_general_mx_primer_semestre.html"),
     },
@@ -159,6 +163,99 @@ def choose_main_file(files):
     return sorted(files, key=lambda x: (priority(x[0]), x[0]))[0]
 
 
+def is_mx_inicio(categoria, modalidad):
+    return modalidad == "Motocross" and normalize_key(categoria) == "inicio"
+
+
+def parse_points_int(value):
+    s = str(value or "").strip()
+    m = re.search(r"-?\d+", s)
+    return int(m.group(0)) if m else 0
+
+
+def aggregate_mx_inicio_from_sessions(files):
+    """
+    Construye puntos de INICIO por válida sumando Clasificatoria + Carrera 1 + Carrera 2.
+    """
+    sessions = {"q": None, "r1": None, "r2": None}
+    for tipo, path in files:
+        t = normalize_key(tipo)
+        if "clasific" in t:
+            sessions["q"] = path
+        elif "1carrera" in t:
+            sessions["r1"] = path
+        elif "2carrera" in t:
+            sessions["r2"] = path
+
+    riders = {}
+
+    def load_one(path, key):
+        if not path:
+            return
+        with open(path, "r", encoding="utf-8-sig", newline="") as f:
+            raw = f.read()
+        lines = raw.splitlines()
+        if not lines:
+            return
+        delim = csv_delimiter_from_first_line(lines[0])
+        rows = list(csv.reader(lines, delimiter=delim))
+        if not rows:
+            return
+        headers = rows[0]
+        body = rows[1:]
+        idx = find_indexes(headers)
+        if idx["numero"] is None or idx["puntos"] is None:
+            return
+        required = [idx["numero"], idx["puntos"]]
+        max_ix = max(required)
+        for r in body:
+            if len(r) <= max_ix:
+                continue
+            numero = str(r[idx["numero"]]).strip()
+            if not numero:
+                continue
+            pts = parse_points_int(r[idx["puntos"]])
+            if numero not in riders:
+                riders[numero] = {
+                    "numero": numero,
+                    "nombre": "",
+                    "liga": "",
+                    "club": "",
+                    "moto": "",
+                    "clase": "",
+                    "q": 0,
+                    "r1": 0,
+                    "r2": 0,
+                }
+            rr = riders[numero]
+            rr[key] = pts
+            if idx["nombre"] is not None and idx["nombre"] < len(r) and str(r[idx["nombre"]]).strip():
+                rr["nombre"] = str(r[idx["nombre"]]).strip()
+            if idx["liga"] is not None and idx["liga"] < len(r) and str(r[idx["liga"]]).strip():
+                rr["liga"] = str(r[idx["liga"]]).strip()
+            if idx["club"] is not None and idx["club"] < len(r) and str(r[idx["club"]]).strip():
+                rr["club"] = str(r[idx["club"]]).strip()
+            if idx["moto"] is not None and idx["moto"] < len(r) and str(r[idx["moto"]]).strip():
+                rr["moto"] = str(r[idx["moto"]]).strip()
+
+    load_one(sessions["q"], "q")
+    load_one(sessions["r1"], "r1")
+    load_one(sessions["r2"], "r2")
+
+    out = []
+    for rr in riders.values():
+        out.append({
+            "numero": rr["numero"],
+            "nombre": rr["nombre"],
+            "liga": rr["liga"],
+            "club": rr["club"],
+            "moto": rr["moto"],
+            "clase": rr["clase"],
+            "puntos": float(rr["q"] + rr["r1"] + rr["r2"]),
+        })
+    return out
+
+
 def find_indexes(headers):
     idx = {
         "numero": None,
@@ -242,6 +339,10 @@ def load_valida_category_rows(files_dir, modalidad=None):
 
     out = {}
     for categoria, files in by_cat_files.items():
+        if is_mx_inicio(categoria, modalidad):
+            inicio_rows = aggregate_mx_inicio_from_sessions(files)
+            out[categoria] = inicio_rows
+            continue
         _tipo, main_path = choose_main_file(files)
         with open(main_path, "r", encoding="utf-8-sig", newline="") as f:
             raw = f.read()
