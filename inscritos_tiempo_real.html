@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscritos en tiempo real | FEDEMOTO</title>
+    <link rel="icon" type="image/png" href="fedemoto-logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto+Condensed:wght@300;400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f5f5f5; color: #000; line-height: 1.6; padding: 20px; padding-top: 120px; min-height: 100vh; }
+        .container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; margin-bottom: 40px; }
+        .container > header { background: linear-gradient(135deg, #123E92 0%, #0f3377 100%); color: white; padding: 40px; text-align: center; }
+        .container > header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 2.2em; margin-bottom: 10px; letter-spacing: 2px; }
+        .container > header p { font-family: 'Roboto Condensed', sans-serif; font-size: 1.2em; opacity: 0.95; }
+        .toolbar { padding: 25px 40px; background: #f8f9fa; border-bottom: 1px solid #C0C0C0; }
+        .toolbar .status-text { font-family: 'Inter', sans-serif; font-size: 1em; color: #666; margin: 0; }
+        .content-section { padding: 40px; }
+        .table-wrapper { overflow-x: auto; margin-bottom: 20px; border-radius: 8px; border: 1px solid #d1d5db; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e0e0e0; }
+        th { background: #123E92; color: white; font-family: 'Roboto Condensed', sans-serif; font-weight: 700; }
+        tr:hover { background: #f8f9fa; }
+        .empty { text-align: center; color: #666; padding: 18px; font-family: 'Inter', sans-serif; }
+        footer { background: #f8f9fa; padding: 30px 40px; text-align: center; border-top: 1px solid #C0C0C0; color: #000; font-family: 'Inter', sans-serif; font-size: 0.9em; font-weight: 400; line-height: 1.8; }
+        footer .developer { font-family: 'Roboto Condensed', sans-serif; font-weight: 700; color: #123E92; }
+        @media print {
+            body { padding: 0 !important; padding-top: 0 !important; background: white !important; }
+            #menu-container, .fixed-header { display: none !important; }
+            .container { box-shadow: none !important; max-width: 100% !important; }
+            th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+    <div id="menu-container"></div>
+    <div class="container">
+        <header>
+            <h1>Inscritos en tiempo real</h1>
+            <p id="eventSubtitle">Cargando información del evento…</p>
+        </header>
+        <div class="toolbar">
+            <p class="status-text" id="statusText">Esperando primera carga…</p>
+        </div>
+        <div class="content-section">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Licencia</th>
+                            <th>Piloto</th>
+                            <th>Liga</th>
+                            <th>Categoría</th>
+                            <th>Motocicleta</th>
+                        </tr>
+                    </thead>
+                    <tbody id="participantsBody">
+                        <tr>
+                            <td class="empty" colspan="6">Sin datos aún.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <footer>
+            <p><span class="developer">Developed by Mauricio Sánchez Aguilar - Fedemoto</span></p>
+            <p>Este proyecto es de uso interno de FEDEMOTO.</p>
+        </footer>
+    </div>
+
+    <script src="load-menu.js"></script>
+    <script>
+        (function () {
+            'use strict';
+
+            /**
+             * Cambia esta URL cuando cambie el evento o el token de consulta pública.
+             * Ejemplo: http://localhost:3000/api/public/events/EVENT…/participants/TOKEN…
+             */
+            var PARTICIPANTS_API_URL = 'https://sistema-administrativo-deportivo-fe.vercel.app/api/public/events/EVENT1777582868353/participants/3af004417015f278e107979929faf8968a35b3f0ac0e31f83851ced16375cb5b';
+
+            var REFRESH_MS = 5000;
+
+            var participantsBody = document.getElementById('participantsBody');
+            var eventSubtitle = document.getElementById('eventSubtitle');
+            var statusText = document.getElementById('statusText');
+
+            function escapeHtml(value) {
+                if (value == null) return '';
+                return String(value)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;');
+            }
+
+            function setStatus(message) {
+                statusText.textContent = message;
+            }
+
+            function renderParticipants(participants) {
+                if (!Array.isArray(participants) || participants.length === 0) {
+                    participantsBody.innerHTML =
+                        '<tr><td class="empty" colspan="6">No hay inscritos registrados.</td></tr>';
+                    return;
+                }
+
+                var rows = [];
+                var rowIndex = 1;
+
+                participants.forEach(function (participant) {
+                    var categories = Array.isArray(participant.categories) && participant.categories.length
+                        ? participant.categories
+                        : [{ category: '-', motorcycle: '-' }];
+
+                    var totalCategories = categories.length;
+
+                    categories.forEach(function (cat, catIndex) {
+                        if (catIndex === 0) {
+                            rows.push(
+                                '<tr>' +
+                                    '<td rowspan="' + totalCategories + '">' + rowIndex++ + '</td>' +
+                                    '<td rowspan="' + totalCategories + '">' + escapeHtml(participant.license_number || '-') + '</td>' +
+                                    '<td rowspan="' + totalCategories + '">' + escapeHtml(participant.pilot_name || '-') + '</td>' +
+                                    '<td rowspan="' + totalCategories + '">' + escapeHtml(participant.league || '-') + '</td>' +
+                                    '<td>' + escapeHtml(cat.category || '-') + '</td>' +
+                                    '<td>' + escapeHtml(cat.motorcycle || '-') + '</td>' +
+                                '</tr>'
+                            );
+                        } else {
+                            rows.push(
+                                '<tr>' +
+                                    '<td>' + escapeHtml(cat.category || '-') + '</td>' +
+                                    '<td>' + escapeHtml(cat.motorcycle || '-') + '</td>' +
+                                '</tr>'
+                            );
+                        }
+                    });
+                });
+
+                participantsBody.innerHTML = rows.join('');
+            }
+
+            function fetchParticipants() {
+                setStatus('Consultando API…');
+
+                fetch(PARTICIPANTS_API_URL, { cache: 'no-store' })
+                    .then(function (response) {
+                        if (!response.ok) {
+                            throw new Error('HTTP ' + response.status);
+                        }
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        var champ = data.championship_name || 'Campeonato';
+                        var evName = data.event_name || 'Evento';
+                        var evId = data.event_id || '-';
+                        eventSubtitle.textContent = champ + ' · ' + evName + ' (ID: ' + evId + ')';
+                        renderParticipants(data.participants || []);
+                        setStatus('Última actualización: ' + new Date().toLocaleTimeString());
+                    })
+                    .catch(function (error) {
+                        var hint = '';
+                        if (window.location.protocol === 'file:') {
+                            hint = ' Si abriste el archivo con file://, usa un servidor local y revisa CORS en el backend.';
+                        }
+                        setStatus('Error al consultar API: ' + error.message + '.' + hint);
+                    });
+            }
+
+            fetchParticipants();
+            setInterval(fetchParticipants, REFRESH_MS);
+        })();
+    </script>
+</body>
+</html>
