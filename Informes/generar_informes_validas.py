@@ -109,6 +109,17 @@ REPORT_CONFIGS = [
             "de la II Válida Nacional Velotierra, realizada en Barcelona, Quindío."
         ),
     },
+    {
+        "output_html": os.path.join(SCRIPT_DIR, "Velotierra", "Primer semestre", "informe_valida_iii_vt_ibague.html"),
+        "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Velotierra", "Primer semestre", "FILES EXPORTED_ibague"),
+        "title": "Informe III Válida VT - Ibagué, Tolima | FEDEMOTO",
+        "heading": "Informe III Válida Nacional Velotierra",
+        "subtitle": "Ibagué, Tolima — Estadísticas de la válida",
+        "intro": (
+            "A continuación se presentan las estadísticas generadas a partir de los resultados "
+            "de la III Válida Nacional Velotierra, realizada en Ibagué, Tolima."
+        ),
+    },
 ]
 
 

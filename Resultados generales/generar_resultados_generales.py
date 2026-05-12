@@ -84,6 +84,10 @@ CHAMPIONSHIPS = [
                 "label": "II Válida VT - Barcelona",
                 "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Velotierra", "Primer semestre", "FILES EXPORTED_barcelona"),
             },
+            {
+                "label": "III Válida VT - Ibagué",
+                "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Velotierra", "Primer semestre", "FILES EXPORTED_ibague"),
+            },
         ],
         "output_html": os.path.join(SCRIPT_DIR, "Velotierra", "Primer semestre", "resultado_general_vt_primer_semestre.html"),
     },
