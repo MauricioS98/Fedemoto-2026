@@ -182,7 +182,7 @@ def categoria_sort_key(modalidad, categoria):
             "x-bikes a": 32,
             "x-bikes b": 33,
             "yamaha r15": 34,
-            "suzuki gsc r s 150": 35,
+            "suzuki gsx r/s 150": 35,
             "street race 250": 40,
             "crs expertos": 50,
             "crs novatos": 51,

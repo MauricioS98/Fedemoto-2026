@@ -162,7 +162,10 @@ def normalize_chart_label(raw):
         else:
             word = word[0].upper() + word[1:].lower()
         words.append(word)
-    return " ".join(words)
+    out = " ".join(words)
+    out = re.sub(r"(?i)\bGsc\s+R\s+S\b", "GSX R/S", out)
+    out = re.sub(r"(?i)\bGsx\s+R/s\b", "GSX R/S", out)
+    return out
 
 
 def normalize_club(raw):

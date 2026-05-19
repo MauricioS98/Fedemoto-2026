@@ -123,13 +123,15 @@ def format_categoria_name(name):
                 result.append(p.lower())
             elif re.match(r"^\d+t$", p, re.I):
                 result.append(p.upper())
-            elif p.upper() in ("CRS", "TVS", "GSC", "A", "B", "Y"):
+            elif p.upper() in ("CRS", "TVS", "A", "B", "Y"):
                 result.append(p.upper())
             elif p.upper() == "METZELER":
                 result.append("Metzeler")
             else:
                 result.append(p[0].upper() + p[1:].lower() if len(p) > 1 else p.upper())
-    return " ".join(result)
+    out = " ".join(result)
+    out = re.sub(r"(?i)\bGsc\s+R\s+S\b", "GSX R/S", out)
+    return out
 
 
 def get_category_sort_key(categoria):
@@ -149,7 +151,7 @@ def get_category_sort_key(categoria):
         "x-bikes a": 32,
         "x-bikes b": 33,
         "yamaha r15": 34,
-        "suzuki gsc r s 150": 35,
+        "suzuki gsx r/s 150": 35,
         "street race 250": 40,
         "crs expertos": 50,
         "crs novatos": 51,
