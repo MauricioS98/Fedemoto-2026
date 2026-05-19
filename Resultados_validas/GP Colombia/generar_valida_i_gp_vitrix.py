@@ -11,6 +11,7 @@ import html
 import re
 import sys
 import unicodedata
+from collections import defaultdict
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 FILES_DIR = os.path.join(SCRIPT_DIR, "FILES EXPORTED_Gran Premio Vitrix")
@@ -662,7 +663,7 @@ def generate_html():
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>I Válida GP Colombia - Gran Premio Vitrix | FEDEMOTO</title>
-    <link rel="icon" type="image/png" href="../../../fedemoto-logo.png">
+    <link rel="icon" type="image/png" href="../../fedemoto-logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto+Condensed:wght@300;400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -935,7 +936,7 @@ def generate_html():
             </div>
         </div>
     </div>
-    <script src="../../../load-menu.js"></script>
+    <script src="../../load-menu.js"></script>
     <script>
         document.getElementById('descargarPDF').addEventListener('click', function() {
             document.querySelectorAll('.search-no-results').forEach(function(el){ el.classList.remove('search-no-results'); });
@@ -1080,17 +1081,28 @@ def _session_pick_rank(tipo):
 
 
 def _pick_main_session_items(items):
-    sorted_items = sorted(items, key=lambda x: (_session_pick_rank(x[0]), x[1]))
-    for tipo, _, headers, rows, _ in sorted_items:
-        idx = _find_stats_indexes(headers)
-        if idx["puntos"] is not None and idx["numero"] is not None:
-            return headers, rows, "puntos"
-        if canonical_session_tipo(tipo) == "Clasificación final" and idx["pos"] is not None and idx["numero"] is not None:
-            return headers, rows, "position"
-    for _, _, headers, rows, _ in sorted_items:
-        idx = _find_stats_indexes(headers)
-        if idx["puntos"] is not None and idx["numero"] is not None:
-            return headers, rows, "puntos"
+    """
+    Sesión para resultado general / informes:
+    - Dos carreras (Carrera 1 + Carrera 2): tabla Final (no clasificación general).
+    - Una sola carrera: tabla Carrera (no clasificatoria ni clasificación final).
+    """
+    tipos = {canonical_session_tipo(x[0]) for x in items}
+    has_two_races = "Carrera 1" in tipos and "Carrera 2" in tipos
+    priority = ["Final"] if has_two_races else ["Carrera"]
+
+    by_tipo = defaultdict(list)
+    for item in items:
+        by_tipo[canonical_session_tipo(item[0])].append(item)
+
+    for tipo in priority:
+        for _, _, headers, rows, _ in by_tipo.get(tipo, []):
+            idx = _find_stats_indexes(headers)
+            if idx["numero"] is None:
+                continue
+            if idx["puntos"] is not None:
+                return headers, rows, "puntos"
+            if idx["pos"] is not None:
+                return headers, rows, "position"
     return None, None, None
 
 
