@@ -8,6 +8,7 @@ import html
 import json
 import os
 import re
+import sys
 import unicodedata
 from datetime import datetime
 from collections import defaultdict
@@ -91,6 +92,24 @@ CHAMPIONSHIPS = [
         ],
         "output_html": os.path.join(SCRIPT_DIR, "Velotierra", "Primer semestre", "resultado_general_vt_primer_semestre.html"),
     },
+    {
+        "id": "gp_colombia_2026",
+        "modalidad": "GP Colombia",
+        "campeonato": "Campeonato 2026",
+        "gp_colombia": True,
+        "validas": [
+            {
+                "label": "I Válida GP Colombia - Gran Premio Vitrix",
+                "files_dir": os.path.join(
+                    ROOT_DIR,
+                    "Resultados_validas",
+                    "GP Colombia",
+                    "FILES EXPORTED_Gran Premio Vitrix",
+                ),
+            },
+        ],
+        "output_html": os.path.join(SCRIPT_DIR, "GP Colombia", "resultado_general_gp_colombia_2026.html"),
+    },
 ]
 
 
@@ -147,7 +166,48 @@ def categoria_sort_key(modalidad, categoria):
             "femenino": 9, "enduro 1": 10, "enduro 2": 11, "enduro 3": 12, "master a": 13, "master b": 14
         }
         return (order.get(c, 99), categoria)
+    if modalidad == "GP Colombia":
+        order = {
+            "115cc elite": 0,
+            "115cc infantil": 1,
+            "115cc inicio": 2,
+            "115cc master": 3,
+            "150cc": 10,
+            "150cc inicio": 11,
+            "150cc master": 12,
+            "200cc 2t": 20,
+            "220cc 4t": 21,
+            "minibike 190": 30,
+            "minimotard": 31,
+            "x-bikes a": 32,
+            "x-bikes b": 33,
+            "yamaha r15": 34,
+            "suzuki gsc r s 150": 35,
+            "street race 250": 40,
+            "crs expertos": 50,
+            "crs novatos": 51,
+            "femenina": 59,
+            "femenina expertas": 60,
+            "femenina novatas": 61,
+            "cuatrimotard": 70,
+            "super bike": 80,
+            "super sport": 81,
+            "super stock 600": 82,
+            "super stock 1000": 83,
+            "supermoto expertos - metzeler": 90,
+            "supermoto novatos - metzeler": 91,
+        }
+        return (order.get(c, 99), categoria)
     return (99, categoria)
+
+
+def load_gp_valida_category_rows(files_dir):
+    gp_dir = os.path.join(ROOT_DIR, "Resultados_validas", "GP Colombia")
+    if gp_dir not in sys.path:
+        sys.path.insert(0, gp_dir)
+    import generar_valida_i_gp_vitrix as gp
+
+    return gp.export_valida_general_rows(files_dir)
 
 
 def choose_main_file(files):
@@ -408,7 +468,10 @@ def build_general_table(champ):
     modalidad = champ.get("modalidad")
     data_by_valida = []
     for v in validas:
-        data_by_valida.append(load_valida_category_rows(v["files_dir"], modalidad=modalidad))
+        if champ.get("gp_colombia"):
+            data_by_valida.append(load_gp_valida_category_rows(v["files_dir"]))
+        else:
+            data_by_valida.append(load_valida_category_rows(v["files_dir"], modalidad=modalidad))
 
     categorias = set()
     for d in data_by_valida:

@@ -120,11 +120,49 @@ REPORT_CONFIGS = [
             "de la III Válida Nacional Velotierra, realizada en Ibagué, Tolima."
         ),
     },
+    {
+        "output_html": os.path.join(SCRIPT_DIR, "GP Colombia", "informe_valida_i_gp_colombia_vitrix.html"),
+        "files_dir": os.path.join(
+            ROOT_DIR,
+            "Resultados_validas",
+            "GP Colombia",
+            "FILES EXPORTED_Gran Premio Vitrix",
+        ),
+        "gp_colombia": True,
+        "title": "Informe I Válida GP Colombia - Gran Premio Vitrix | FEDEMOTO",
+        "heading": "Informe I Válida GP Colombia",
+        "subtitle": "Gran Premio Vitrix — Estadísticas de la válida",
+        "intro": (
+            "A continuación se presentan las estadísticas generadas a partir de los resultados "
+            "de la I Válida GP Colombia 2026, Gran Premio Vitrix."
+        ),
+    },
 ]
 
 
 def normalize_text(raw):
     return " ".join(str(raw).strip().split()) if raw is not None else ""
+
+
+def normalize_chart_label(raw):
+    """Primera letra en mayúscula y el resto en minúsculas (por palabra)."""
+    s = normalize_text(raw)
+    if not s:
+        return ""
+
+    words = []
+    for word in s.split():
+        if not word:
+            continue
+        if "." in word:
+            word = ".".join(
+                (seg[0].upper() + seg[1:].lower()) if seg else ""
+                for seg in word.split(".")
+            )
+        else:
+            word = word[0].upper() + word[1:].lower()
+        words.append(word)
+    return " ".join(words)
 
 
 def normalize_club(raw):
@@ -243,24 +281,67 @@ def collect_rows_by_category(files_dir, session_priority=None):
     return by_categoria
 
 
-def analyze(files_dir, session_priority=None):
-    by_categoria = collect_rows_by_category(files_dir, session_priority=session_priority)
+def analyze_gp_colombia(files_dir):
+    gp_dir = os.path.join(ROOT_DIR, "Resultados_validas", "GP Colombia")
+    if gp_dir not in sys.path:
+        sys.path.insert(0, gp_dir)
+    import generar_valida_i_gp_vitrix as gp
+
+    by_categoria = defaultdict(list)
+    rows_by_cat = gp.export_valida_general_rows(files_dir)
+    for categoria, rows in rows_by_cat.items():
+        for row in rows:
+            by_categoria[categoria].append(
+                (
+                    row["numero"],
+                    row["nombre"],
+                    normalize_liga(row["liga"]),
+                    normalize_club(row["club"]),
+                    normalize_marca(row["moto"]),
+                )
+            )
+    return _analyze_from_by_categoria(by_categoria)
+
+
+def _chart_key_liga(raw):
+    return normalize_chart_label(normalize_liga(raw))
+
+
+def _chart_key_club(raw):
+    return normalize_chart_label(normalize_club(raw))
+
+
+def _chart_key_marca(raw):
+    return normalize_chart_label(normalize_marca(raw))
+
+
+def _chart_key_categoria(raw):
+    return normalize_chart_label(raw)
+
+
+def _analyze_from_by_categoria(by_categoria):
     total_participaciones = 0
     pilotos_unicos = set()
     por_liga = defaultdict(set)
     por_club = defaultdict(set)
     por_marca = defaultdict(set)
+    por_categoria = defaultdict(int)
 
     for categoria, rows in by_categoria.items():
+        cat_key = _chart_key_categoria(categoria)
+        por_categoria[cat_key] += len(rows)
         total_participaciones += len(rows)
         for numero, _nombre, liga, club, moto in rows:
             pilotos_unicos.add(numero)
-            if liga:
-                por_liga[liga].add(numero)
-            if club:
-                por_club[club].add(numero)
-            if moto:
-                por_marca[moto].add(numero)
+            liga_key = _chart_key_liga(liga)
+            if liga_key:
+                por_liga[liga_key].add(numero)
+            club_key = _chart_key_club(club)
+            if club_key:
+                por_club[club_key].add(numero)
+            marca_key = _chart_key_marca(moto)
+            if marca_key:
+                por_marca[marca_key].add(numero)
 
     return {
         "participaciones_totales": total_participaciones,
@@ -268,8 +349,13 @@ def analyze(files_dir, session_priority=None):
         "pilotos_por_liga": {k: len(v) for k, v in sorted(por_liga.items())},
         "pilotos_por_club": {k: len(v) for k, v in sorted(por_club.items())},
         "inscripciones_por_marca": {k: len(v) for k, v in sorted(por_marca.items())},
-        "participaciones_por_categoria": {k: len(v) for k, v in sorted(by_categoria.items())},
+        "participaciones_por_categoria": dict(sorted(por_categoria.items())),
     }
+
+
+def analyze(files_dir, session_priority=None):
+    by_categoria = collect_rows_by_category(files_dir, session_priority=session_priority)
+    return _analyze_from_by_categoria(by_categoria)
 
 
 def build_html(datos, title, heading, subtitle, intro, root_rel_prefix):
@@ -450,7 +536,10 @@ def generate_report(config):
     if not os.path.isdir(files_dir):
         raise FileNotFoundError(f"No existe carpeta de entrada: {files_dir}")
     os.makedirs(os.path.dirname(output_html), exist_ok=True)
-    datos = analyze(files_dir, session_priority=config.get("session_priority"))
+    if config.get("gp_colombia"):
+        datos = analyze_gp_colombia(files_dir)
+    else:
+        datos = analyze(files_dir, session_priority=config.get("session_priority"))
 
     output_dir = os.path.dirname(output_html)
     root_rel_prefix = os.path.relpath(ROOT_DIR, output_dir).replace("\\", "/") + "/"
