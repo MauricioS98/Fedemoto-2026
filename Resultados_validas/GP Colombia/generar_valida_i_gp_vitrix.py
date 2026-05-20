@@ -1082,9 +1082,25 @@ def _session_pick_rank(tipo):
     return SESSION_SORT_KEY.get(canonical_session_tipo(tipo), 9)
 
 
+def _pick_main_session_items_informe(items):
+    """Sesión para informes estadísticos (prioridad histórica por puntos / clasificación final)."""
+    sorted_items = sorted(items, key=lambda x: (_session_pick_rank(x[0]), x[1]))
+    for tipo, _, headers, rows, _ in sorted_items:
+        idx = _find_stats_indexes(headers)
+        if idx["puntos"] is not None and idx["numero"] is not None:
+            return headers, rows, "puntos"
+        if canonical_session_tipo(tipo) == "Clasificación final" and idx["pos"] is not None and idx["numero"] is not None:
+            return headers, rows, "position"
+    for _, _, headers, rows, _ in sorted_items:
+        idx = _find_stats_indexes(headers)
+        if idx["puntos"] is not None and idx["numero"] is not None:
+            return headers, rows, "puntos"
+    return None, None, None
+
+
 def _pick_main_session_items(items):
     """
-    Sesión para resultado general / informes:
+    Sesión para resultado general:
     - Dos carreras (Carrera 1 + Carrera 2): tabla Final (no clasificación general).
     - Una sola carrera: tabla Carrera (no clasificatoria ni clasificación final).
     """
@@ -1135,8 +1151,7 @@ def _parse_puntos_cell(val):
     return float(m.group(0)) if m else 0.0
 
 
-def export_valida_general_rows(files_dir=None):
-    """Filas por categoría (display) para informes y resultados generales."""
+def _export_valida_rows(files_dir, pick_session_fn):
     global FILES_DIR
     prev = FILES_DIR
     if files_dir:
@@ -1148,7 +1163,7 @@ def export_valida_general_rows(files_dir=None):
 
     out = {}
     for categoria, items in categorias.items():
-        headers, rows, mode = _pick_main_session_items(items)
+        headers, rows, mode = pick_session_fn(items)
         if not headers:
             continue
         idx = _find_stats_indexes(headers)
@@ -1196,6 +1211,16 @@ def export_valida_general_rows(files_dir=None):
         if cat_rows:
             out[categoria] = cat_rows
     return out
+
+
+def export_valida_general_rows(files_dir=None):
+    """Filas por categoría para resultado general (Final o Carrera según formato)."""
+    return _export_valida_rows(files_dir, _pick_main_session_items)
+
+
+def export_valida_informe_rows(files_dir=None):
+    """Filas por categoría para informe estadístico (misma lógica que el informe Vitrix)."""
+    return _export_valida_rows(files_dir, _pick_main_session_items_informe)
 
 
 if __name__ == '__main__':

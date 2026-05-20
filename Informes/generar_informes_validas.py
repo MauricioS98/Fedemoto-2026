@@ -291,7 +291,7 @@ def analyze_gp_colombia(files_dir):
     import generar_valida_i_gp_vitrix as gp
 
     by_categoria = defaultdict(list)
-    rows_by_cat = gp.export_valida_general_rows(files_dir)
+    rows_by_cat = gp.export_valida_informe_rows(files_dir)
     for categoria, rows in rows_by_cat.items():
         for row in rows:
             by_categoria[categoria].append(
