@@ -269,6 +269,15 @@
 
         // Función para cargar los estilos CSS del menú
         function loadMenuStyles() {
+            // Cargar tema institucional global
+            if (!document.getElementById('fedemoto-theme')) {
+                const themeLink = document.createElement('link');
+                themeLink.id = 'fedemoto-theme';
+                themeLink.rel = 'stylesheet';
+                themeLink.href = normalizedBasePath + 'fedemoto-theme.css';
+                document.head.appendChild(themeLink);
+            }
+
             // Verificar si los estilos ya están cargados
             if (document.getElementById('menu-styles')) {
                 return;
@@ -392,7 +401,7 @@
                         left: -100% !important;
                         width: 280px !important;
                         height: 100vh !important;
-                        background: #123E92 !important;
+                        background: rgba(17, 17, 17, 0.97) !important;
                         overflow-y: auto !important;
                         transition: left 0.3s ease-out !important;
                         box-shadow: 2px 0 10px rgba(0,0,0,0.3) !important;
