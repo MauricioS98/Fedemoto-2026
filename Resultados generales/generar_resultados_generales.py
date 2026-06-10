@@ -69,7 +69,12 @@ CHAMPIONSHIPS = [
                 "label": "II Válida Velocidad - Chachagüi",
                 "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Velocidad", "FILES EXPORTED_CHACHAGUI"),
             },
+            {
+                "label": "III Válida Velocidad - Popayán",
+                "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Velocidad", "FILES EXPORTED_POPAYAN"),
+            },
         ],
+        "final_valida_bonus": 8,
         "output_html": os.path.join(SCRIPT_DIR, "Velocidad", "resultado_general_velocidad_2026.html"),
     },
     {
@@ -90,6 +95,7 @@ CHAMPIONSHIPS = [
                 "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Velotierra", "Primer semestre", "FILES EXPORTED_ibague"),
             },
         ],
+        "final_valida_bonus": 8,
         "output_html": os.path.join(SCRIPT_DIR, "Velotierra", "Primer semestre", "resultado_general_vt_primer_semestre.html"),
     },
     {
@@ -118,6 +124,10 @@ def normalize_key(text):
     s = "".join(c for c in unicodedata.normalize("NFD", s) if unicodedata.category(c) != "Mn")
     s = re.sub(r"[^a-z0-9]+", "", s)
     return s
+
+
+def normalize_rider_name(nombre):
+    return normalize_key(nombre)
 
 
 def pretty_categoria(name):
@@ -463,6 +473,183 @@ def load_valida_category_rows(files_dir, modalidad=None):
     return out
 
 
+def read_numeros_from_csv(path):
+    numeros = set()
+    with open(path, "r", encoding="utf-8-sig", newline="") as f:
+        raw = f.read()
+    lines = raw.splitlines()
+    if not lines:
+        return numeros
+    delim = csv_delimiter_from_first_line(lines[0])
+    rows = list(csv.reader(lines, delimiter=delim))
+    if not rows:
+        return numeros
+    idx = find_indexes(rows[0])
+    if idx["numero"] is None:
+        return numeros
+    for r in rows[1:]:
+        if len(r) <= idx["numero"]:
+            continue
+        numero = str(r[idx["numero"]]).strip()
+        if numero:
+            numeros.add(numero)
+    return numeros
+
+
+def load_valida_attendees(files_dir, modalidad=None):
+    by_cat_files = defaultdict(list)
+    for filename in os.listdir(files_dir):
+        if not filename.lower().endswith(".csv"):
+            continue
+        path = os.path.join(files_dir, filename)
+        if not os.path.isfile(path):
+            continue
+        categoria, tipo = parse_filename(filename)
+        if modalidad == "Enduro":
+            categoria = canonical_enduro_categoria(categoria)
+        by_cat_files[categoria].append((tipo, path))
+
+    attendees = {}
+    for categoria, files in by_cat_files.items():
+        nums = set()
+        if is_mx_inicio(categoria, modalidad):
+            for tipo, path in files:
+                t = normalize_key(tipo)
+                if "clasific" in t or "1carrera" in t or "2carrera" in t:
+                    nums.update(read_numeros_from_csv(path))
+        else:
+            _tipo, main_path = choose_main_file(files)
+            nums.update(read_numeros_from_csv(main_path))
+        attendees[categoria] = nums
+    return attendees
+
+
+def apply_final_valida_bonus(champ, result, data_by_valida):
+    bonus = champ.get("final_valida_bonus", 0)
+    if not bonus:
+        return result
+
+    validas = champ["validas"]
+    last_idx = len(validas) - 1
+    modalidad = champ.get("modalidad")
+    attendees = load_valida_attendees(validas[last_idx]["files_dir"], modalidad=modalidad)
+    last_data = data_by_valida[last_idx] if data_by_valida else {}
+
+    categorias = set(result.keys())
+    categorias.update(attendees.keys())
+    categorias.update(last_data.keys())
+
+    updated = {}
+    for categoria in categorias:
+        att = attendees.get(categoria, set())
+        by_num = {r["numero"]: dict(r) for r in result.get(categoria, [])}
+
+        for row in last_data.get(categoria, []):
+            key = row["numero"]
+            if key not in by_num:
+                by_num[key] = {
+                    "numero": key,
+                    "nombre": row["nombre"],
+                    "liga": row["liga"],
+                    "club": row["club"],
+                    "moto": row["moto"],
+                    "clase": row.get("clase", ""),
+                    "por_valida": [None] * len(validas),
+                }
+                by_num[key]["por_valida"][last_idx] = row["puntos"]
+
+        for numero in att:
+            if numero not in by_num:
+                continue
+            by_num[numero]["bonificacion_asistencia"] = float(bonus)
+
+        rows = []
+        for rider in by_num.values():
+            bonif = rider.get("bonificacion_asistencia")
+            total = sum_valida_points(rider["por_valida"]) + (bonif if bonif is not None else 0.0)
+            rows.append({
+                **rider,
+                "bonificacion_asistencia": bonif,
+                "total": total,
+                "latest_points": latest_valida_points(rider["por_valida"]),
+            })
+        rows.sort(key=lambda r: (-r["total"], -r["latest_points"], r["nombre"].lower()))
+        updated[categoria] = rows
+    return updated
+
+
+def merge_por_valida_lists(por_valida_lists):
+    if not por_valida_lists:
+        return []
+    n = len(por_valida_lists[0])
+    merged = []
+    for i in range(n):
+        vals = [pv[i] for pv in por_valida_lists if i < len(pv) and pv[i] is not None]
+        if not vals:
+            merged.append(None)
+        elif len(vals) == 1:
+            merged.append(vals[0])
+        else:
+            merged.append(max(vals))
+    return merged
+
+
+def rider_at_latest_valida(group, merged_por_valida):
+    for i in range(len(merged_por_valida) - 1, -1, -1):
+        if merged_por_valida[i] is None:
+            continue
+        for rider in group:
+            if rider["por_valida"][i] is not None:
+                return rider
+    return group[-1]
+
+
+def merge_riders_by_name(rows):
+    groups = defaultdict(list)
+    for rider in rows:
+        name_key = normalize_rider_name(rider.get("nombre", ""))
+        if not name_key:
+            name_key = f"__num_{rider.get('numero', '')}"
+        groups[name_key].append(rider)
+
+    merged_rows = []
+    for group in groups.values():
+        if len(group) == 1:
+            merged_rows.append(group[0])
+            continue
+
+        merged_pv = merge_por_valida_lists([r["por_valida"] for r in group])
+        latest = rider_at_latest_valida(group, merged_pv)
+
+        bonif = None
+        for rider in group:
+            b = rider.get("bonificacion_asistencia")
+            if b is not None:
+                bonif = b
+                break
+
+        total = sum_valida_points(merged_pv) + (bonif if bonif is not None else 0.0)
+        merged_rows.append({
+            "numero": latest["numero"],
+            "nombre": latest["nombre"],
+            "liga": latest["liga"],
+            "club": latest["club"],
+            "moto": latest["moto"],
+            "clase": latest.get("clase", ""),
+            "por_valida": merged_pv,
+            "bonificacion_asistencia": bonif,
+            "total": total,
+            "latest_points": latest_valida_points(merged_pv),
+        })
+
+    merged_rows.sort(key=lambda r: (-r["total"], -r["latest_points"], r["nombre"].lower()))
+    return merged_rows
+
+
+def merge_result_by_rider_name(result):
+    return {categoria: merge_riders_by_name(rows) for categoria, rows in result.items()}
+
+
 def build_general_table(champ):
     validas = champ["validas"]
     modalidad = champ.get("modalidad")
@@ -491,7 +678,7 @@ def build_general_table(champ):
                         "club": row["club"],
                         "moto": row["moto"],
                         "clase": row.get("clase", ""),
-                        "por_valida": [0.0] * len(validas),
+                        "por_valida": [None] * len(validas),
                     }
                 riders[key]["por_valida"][i] = row["puntos"]
                 # Prefer latest valida values for profile fields when present
@@ -501,15 +688,16 @@ def build_general_table(champ):
 
         rows = []
         for rider in riders.values():
-            total = sum(rider["por_valida"])
+            total = sum_valida_points(rider["por_valida"])
             rows.append({
                 **rider,
                 "total": total,
-                "latest_points": rider["por_valida"][-1] if rider["por_valida"] else 0.0,
+                "latest_points": latest_valida_points(rider["por_valida"]),
             })
         rows.sort(key=lambda r: (-r["total"], -r["latest_points"], r["nombre"].lower()))
         result[categoria] = rows
-    return result
+    result = apply_final_valida_bonus(champ, result, data_by_valida)
+    return merge_result_by_rider_name(result)
 
 
 def esc(t):
@@ -520,6 +708,23 @@ def fmt_points(v):
     if abs(v - int(v)) < 1e-9:
         return str(int(v))
     return f"{v:.1f}"
+
+
+def sum_valida_points(por_valida):
+    return sum(p if p is not None else 0.0 for p in por_valida)
+
+
+def latest_valida_points(por_valida):
+    for p in reversed(por_valida):
+        if p is not None:
+            return p
+    return 0.0
+
+
+def fmt_valida_cell(v):
+    if v is None:
+        return "-"
+    return fmt_points(v)
 
 
 def render_html(champ, table_by_categoria):
@@ -717,6 +922,8 @@ def render_html(champ, table_by_categoria):
         html_parts.append("<th>Moto</th>")
         for i, _v in enumerate(validas):
             html_parts.append(f"<th>{esc(valida_col_label(i))}</th>")
+        if champ.get("final_valida_bonus"):
+            html_parts.append("<th>Bono final</th>")
         html_parts.append("<th>Total</th></tr></thead><tbody>")
         for i, r in enumerate(rows, start=1):
             pos_class = ""
@@ -734,7 +941,9 @@ def render_html(champ, table_by_categoria):
                 html_parts.append(f"<td>{esc(r['club'])}</td>")
             html_parts.append(f"<td>{esc(r['moto'])}</td>")
             for p in r["por_valida"]:
-                html_parts.append(f"<td>{fmt_points(p)}</td>")
+                html_parts.append(f"<td>{fmt_valida_cell(p)}</td>")
+            if champ.get("final_valida_bonus"):
+                html_parts.append(f"<td>{fmt_valida_cell(r.get('bonificacion_asistencia'))}</td>")
             html_parts.append(f'<td class="col-total">{fmt_points(r["total"])}</td></tr>')
         html_parts.append("</tbody></table></div></div>\n")
 
