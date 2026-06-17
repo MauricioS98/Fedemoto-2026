@@ -53,7 +53,12 @@ CHAMPIONSHIPS = [
                 "label": "III Válida MX - Tocancipá",
                 "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Motocross", "Primer semestre", "FILES EXPORTED-tocancipa"),
             },
+            {
+                "label": "IV Válida MX - Manizales",
+                "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Motocross", "Primer semestre", "FILES EXPORTED-manizales"),
+            },
         ],
+        "final_valida_bonus": 8,
         "output_html": os.path.join(SCRIPT_DIR, "Motocross", "Primer semestre", "resultado_general_mx_primer_semestre.html"),
     },
     {
@@ -340,6 +345,9 @@ def find_indexes(headers):
         "puntos": None,
         "pos": None,
         "clase": None,
+        "q": None,
+        "r1": None,
+        "r2": None,
     }
     for i, h in enumerate(headers):
         hk = normalize_key(h)
@@ -360,7 +368,26 @@ def find_indexes(headers):
         elif hk in ("totalpuntos", "puntostotales", "puntos"):
             if idx["puntos"] is None or hk == "totalpuntos":
                 idx["puntos"] = i
+        elif hk == "q":
+            idx["q"] = i
+        elif hk == "r1":
+            idx["r1"] = i
+        elif hk == "r2":
+            idx["r2"] = i
     return idx
+
+
+def row_points_from_indexes(row, idx):
+    if idx["puntos"] is not None and idx["puntos"] < len(row):
+        return parse_points(row[idx["puntos"]])
+    session_keys = ("q", "r1", "r2")
+    if all(idx[k] is not None for k in session_keys):
+        total = 0.0
+        for k in session_keys:
+            if idx[k] < len(row):
+                total += parse_points(row[idx[k]])
+        return total
+    return None
 
 
 def parse_points(value):
@@ -439,9 +466,17 @@ def load_valida_category_rows(files_dir, modalidad=None):
                 need.append(idx["clase"])
             max_ix = max(need)
         else:
-            if idx["numero"] is None or idx["nombre"] is None or idx["puntos"] is None:
+            if idx["numero"] is None or idx["nombre"] is None:
                 continue
-            max_ix = max(idx["numero"], idx["nombre"], idx["puntos"])
+            if idx["puntos"] is None and not all(idx[k] is not None for k in ("q", "r1", "r2")):
+                continue
+            needed = [idx["numero"], idx["nombre"]]
+            if idx["puntos"] is not None:
+                needed.append(idx["puntos"])
+            for k in ("q", "r1", "r2"):
+                if idx[k] is not None:
+                    needed.append(idx[k])
+            max_ix = max(needed)
         cat_rows = []
         for r in body:
             if len(r) <= max_ix:
@@ -458,7 +493,9 @@ def load_valida_category_rows(files_dir, modalidad=None):
                     else ""
                 )
             else:
-                pts = parse_points(r[idx["puntos"]])
+                pts = row_points_from_indexes(r, idx)
+                if pts is None:
+                    continue
                 clase_v = ""
             cat_rows.append({
                 "numero": numero,
@@ -571,9 +608,8 @@ def apply_final_valida_bonus(champ, result, data_by_valida):
                 **rider,
                 "bonificacion_asistencia": bonif,
                 "total": total,
-                "latest_points": latest_valida_points(rider["por_valida"]),
             })
-        rows.sort(key=lambda r: (-r["total"], -r["latest_points"], r["nombre"].lower()))
+        rows.sort(key=standings_sort_key)
         updated[categoria] = rows
     return updated
 
@@ -639,10 +675,9 @@ def merge_riders_by_name(rows):
             "por_valida": merged_pv,
             "bonificacion_asistencia": bonif,
             "total": total,
-            "latest_points": latest_valida_points(merged_pv),
         })
 
-    merged_rows.sort(key=lambda r: (-r["total"], -r["latest_points"], r["nombre"].lower()))
+    merged_rows.sort(key=standings_sort_key)
     return merged_rows
 
 
@@ -692,9 +727,8 @@ def build_general_table(champ):
             rows.append({
                 **rider,
                 "total": total,
-                "latest_points": latest_valida_points(rider["por_valida"]),
             })
-        rows.sort(key=lambda r: (-r["total"], -r["latest_points"], r["nombre"].lower()))
+        rows.sort(key=standings_sort_key)
         result[categoria] = rows
     result = apply_final_valida_bonus(champ, result, data_by_valida)
     return merge_result_by_rider_name(result)
@@ -719,6 +753,19 @@ def latest_valida_points(por_valida):
         if p is not None:
             return p
     return 0.0
+
+
+def standings_sort_key(rider):
+    """Desempate: total, luego por válida más reciente (puntos y asistencia)."""
+    por_valida = rider.get("por_valida") or []
+    tiebreak = []
+    for i in range(len(por_valida) - 1, -1, -1):
+        p = por_valida[i]
+        if p is None:
+            tiebreak.append((1, 0))
+        else:
+            tiebreak.append((0, -float(p)))
+    return (-float(rider.get("total", 0)), tuple(tiebreak), rider.get("nombre", "").lower())
 
 
 def fmt_valida_cell(v):

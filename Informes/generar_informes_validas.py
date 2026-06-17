@@ -64,6 +64,18 @@ REPORT_CONFIGS = [
         ),
     },
     {
+        "output_html": os.path.join(SCRIPT_DIR, "Motocross", "Primer semestre", "informe_valida_iv_mx_manizales.html"),
+        "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Motocross", "Primer semestre", "FILES EXPORTED-manizales"),
+        "session_priority": ["final", "carrera", "clasificatoria", "otros"],
+        "title": "Informe IV Válida MX - Manizales, Caldas | FEDEMOTO",
+        "heading": "Informe IV Válida Nacional de Motocross",
+        "subtitle": "Manizales, Caldas — Estadísticas de la válida",
+        "intro": (
+            "A continuación se presentan las estadísticas generadas a partir de los resultados "
+            "de la IV Válida Nacional de Motocross, realizada en Manizales, Caldas."
+        ),
+    },
+    {
         "output_html": os.path.join(SCRIPT_DIR, "Velocidad", "informe_valida_i_velocidad_zarzal.html"),
         "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Velocidad", "FILES EXPORTED_ZARZAL"),
         "session_priority": ["final", "carrera", "clasificatoria", "otros"],
