@@ -33,6 +33,10 @@ CHAMPIONSHIPS = [
                 "label": "II Válida Enduro - Pasca",
                 "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Enduro", "Segunda valida", "FILES EXPORTED"),
             },
+            {
+                "label": "III Válida Enduro - San Jerónimo",
+                "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Enduro", "Tercera valida", "FILES EXPORTED"),
+            },
         ],
         "output_html": os.path.join(SCRIPT_DIR, "Enduro", "resultado_general_enduro_2026.html"),
     },

@@ -42,6 +42,17 @@ REPORT_CONFIGS = [
         ),
     },
     {
+        "output_html": os.path.join(SCRIPT_DIR, "Enduro", "Tercera valida", "informe_valida_iii_enduro_san_jeronimo.html"),
+        "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Enduro", "Tercera valida", "FILES EXPORTED"),
+        "title": "Informe III Válida Enduro - San Jerónimo, Antioquia | FEDEMOTO",
+        "heading": "Informe III Válida Nacional de Enduro",
+        "subtitle": "San Jerónimo, Antioquia — Estadísticas de la válida",
+        "intro": (
+            "A continuación se presentan las estadísticas generadas a partir de los resultados "
+            "registrados para la III Válida Nacional de Enduro 2026, realizada en San Jerónimo, Antioquia."
+        ),
+    },
+    {
         "output_html": os.path.join(SCRIPT_DIR, "Motocross", "Primer semestre", "informe_valida_ii_mx_barranquilla.html"),
         "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Motocross", "Primer semestre", "FILES EXPORTED-barranquilla"),
         "title": "Informe II Válida MX - Barranquilla, Atlántico | FEDEMOTO",

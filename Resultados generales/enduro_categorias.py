@@ -13,6 +13,7 @@ _BY_NORM = {
     "enduro2": "Enduro 2",
     "enduro3": "Enduro 3",
     "fem": "Femenino",
+    "femenina": "Femenino",
     "femenino": "Femenino",
     "infe1": "Infantil Enduro 1",
     "infe2": "Infantil Enduro 2",
