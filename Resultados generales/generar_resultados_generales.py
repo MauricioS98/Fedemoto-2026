@@ -108,6 +108,27 @@ CHAMPIONSHIPS = [
         "output_html": os.path.join(SCRIPT_DIR, "Velotierra", "Primer semestre", "resultado_general_vt_primer_semestre.html"),
     },
     {
+        "id": "velotierra_2s",
+        "modalidad": "Velotierra",
+        "campeonato": "Segundo semestre",
+        "validas": [
+            {
+                "label": "I Válida VT - Villa Garzón",
+                "files_dir": os.path.join(
+                    ROOT_DIR,
+                    "Resultados_validas",
+                    "Velotierra",
+                    "Segundo semestre",
+                    "FILES EXPORTED_Villa garzón",
+                ),
+            },
+        ],
+        "final_valida_bonus": 8,
+        "output_html": os.path.join(
+            SCRIPT_DIR, "Velotierra", "Segundo semestre", "resultado_general_vt_segundo_semestre.html"
+        ),
+    },
+    {
         "id": "gp_colombia_2026",
         "modalidad": "GP Colombia",
         "campeonato": "Campeonato 2026",

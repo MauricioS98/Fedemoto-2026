@@ -156,6 +156,25 @@ REPORT_CONFIGS = [
         ),
     },
     {
+        "output_html": os.path.join(
+            SCRIPT_DIR, "Velotierra", "Segundo semestre", "informe_valida_i_vt_villa_garzon.html"
+        ),
+        "files_dir": os.path.join(
+            ROOT_DIR,
+            "Resultados_validas",
+            "Velotierra",
+            "Segundo semestre",
+            "FILES EXPORTED_Villa garzón",
+        ),
+        "title": "Informe I Válida VT - Villa Garzón, Putumayo | FEDEMOTO",
+        "heading": "Informe I Válida Nacional Velotierra — Segundo semestre",
+        "subtitle": "Villa Garzón, Putumayo — Estadísticas de la válida",
+        "intro": (
+            "A continuación se presentan las estadísticas generadas a partir de los resultados "
+            "de la I Válida Nacional Velotierra del segundo semestre, realizada en Villa Garzón, Putumayo."
+        ),
+    },
+    {
         "output_html": os.path.join(SCRIPT_DIR, "GP Colombia", "informe_valida_i_gp_colombia_vitrix.html"),
         "files_dir": os.path.join(
             ROOT_DIR,

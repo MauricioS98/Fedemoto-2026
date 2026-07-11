@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados generales - Velotierra - Segundo semestre | FEDEMOTO</title>
+    <link rel="icon" type="image/png" href="../../../fedemoto-logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto+Condensed:wght@300;400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f5f5f5; color: #000; line-height: 1.6; padding: 20px; padding-top: 120px; min-height: 100vh; }
+        .container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.18); overflow: hidden; margin-bottom: 40px; }
+        .container > header { background: linear-gradient(135deg, #123E92 0%, #0f3377 100%); color: white; padding: 40px; text-align: center; }
+        .container > header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 2.2em; margin-bottom: 10px; letter-spacing: 2px; }
+        .container > header p { font-family: 'Roboto Condensed', sans-serif; font-size: 1.2em; opacity: 0.95; }
+        .toolbar { padding: 25px 40px; background: #f8f9fa; border-bottom: 1px solid #c0c0c0; }
+        .search-box { width: 100%; padding: 12px 20px; font-family: 'Inter', sans-serif; font-size: 1em; border: 2px solid #d1d5db; border-radius: 8px; }
+        .search-box:focus { outline: none; border-color: #123E92; box-shadow: 0 0 0 3px rgba(18, 62, 146, 0.2); }
+        .intro-message { padding: 22px 40px; background: #f0f4fc; border-left: 5px solid #123E92; color: #1f2937; border-bottom: 1px solid #c0c0c0; }
+        .index-cards { display: flex; flex-wrap: wrap; gap: 12px; padding: 25px 40px; background: #f8f9fa; border-bottom: 1px solid #c0c0c0; }
+        .index-card { display: inline-block; padding: 10px 20px; background: white; color: #123E92; border: 2px solid #123E92; border-radius: 8px; font-family: 'Roboto Condensed', sans-serif; font-weight: 700; text-decoration: none; }
+        .index-card.search-match { background: #F7C31D; color: #123E92; border-color: #F7C31D; }
+        .index-card.search-no-results { display: none !important; }
+        .content-section { padding: 40px; }
+        .categoria-section { margin-bottom: 38px; border: 2px solid #e0e0e0; border-radius: 12px; overflow: hidden; scroll-margin-top: 115px; }
+        .categoria-section.search-match { border-color: #F7C31D; box-shadow: 0 0 0 3px rgba(247, 195, 29, 0.4); }
+        .categoria-section.search-no-results { display: none !important; }
+        .categoria-header { background: linear-gradient(135deg, #123E92 0%, #0f3377 100%); color: white; padding: 20px 26px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .categoria-header h2 { font-family: 'Bebas Neue', sans-serif; font-size: 1.9em; letter-spacing: 1px; }
+        .btn-top { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; background: rgba(255,255,255,0.2); color: white; border: 2px solid rgba(255,255,255,0.6); border-radius: 8px; cursor: pointer; transition: all 0.2s ease; flex-shrink: 0; }
+        .btn-top:hover { background: #F7C31D; color: #123E92; border-color: #F7C31D; }
+        .btn-top svg { width: 16px; height: 16px; }
+        .table-wrapper { overflow-x: auto; margin: 0; border-top: 1px solid #d1d5db; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.92em; }
+        th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #e0e0e0; white-space: nowrap; }
+        th { background: #123E92; color: white; font-family: 'Roboto Condensed', sans-serif; font-weight: 700; position: sticky; top: 0; }
+        tr:nth-child(odd) { background: #fafafa; }
+        tr:hover { background: #f0f4fc; }
+        tr.pos-1 { background: rgba(247, 195, 29, 0.15) !important; }
+        tr.pos-2 { background: rgba(192, 192, 192, 0.20) !important; }
+        tr.pos-3 { background: rgba(184, 115, 51, 0.16) !important; }
+        tr.search-hidden { display: none !important; }
+        .col-total { font-weight: 700; color: #123E92; }
+        .liga-summary { padding: 22px 40px; background: #f8f9fa; border-bottom: 1px solid #c0c0c0; }
+        .liga-summary h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.6em; color: #123E92; letter-spacing: 1px; margin-bottom: 10px; }
+        .liga-summary table { width: 100%; border-collapse: collapse; font-size: 0.92em; }
+        .liga-summary th, .liga-summary td { padding: 8px 10px; border-bottom: 1px solid #e5e7eb; text-align: left; }
+        .liga-summary th { background: #123E92; color: white; font-family: 'Roboto Condensed', sans-serif; }
+        .liga-summary .num { font-family: 'Bebas Neue', sans-serif; font-size: 1.2em; color: #123E92; }
+        .liga-summary tr.pos-1 { background: rgba(247, 195, 29, 0.15); }
+        .liga-summary tr.pos-2 { background: rgba(192, 192, 192, 0.20); }
+        .liga-summary tr.pos-3 { background: rgba(184, 115, 51, 0.16); }
+        .info-btn { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; margin-left: 6px; border: 1px solid #123E92; border-radius: 999px; background: #e8eef8; color: #123E92; font-size: 12px; font-weight: 700; cursor: pointer; }
+        .info-btn:hover { background: #123E92; color: #fff; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 10020; align-items: center; justify-content: center; }
+        .modal-overlay.open { display: flex; }
+        .modal-box { background: #fff; border-radius: 12px; padding: 24px; max-width: 680px; width: 92%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .modal-box h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.6em; color: #123E92; margin-bottom: 14px; }
+        .modal-box ul { margin-left: 18px; }
+        .modal-box li { margin-bottom: 6px; }
+        .modal-close { margin-top: 14px; padding: 10px 16px; border: 0; border-radius: 8px; background: #123E92; color: #fff; font-family: 'Roboto Condensed', sans-serif; cursor: pointer; }
+        footer { background: #f8f9fa; padding: 30px 40px; text-align: center; border-top: 1px solid #c0c0c0; color: #000; font-family: 'Inter', sans-serif; font-size: 0.9em; }
+        footer .developer { font-family: 'Roboto Condensed', sans-serif; font-weight: 700; color: #123E92; }
+    </style>
+</head>
+<body>
+    <div id="menu-container"></div>
+    <div class="container">
+        <header>
+            <h1>Resultados generales Velotierra</h1>
+            <p>Segundo semestre</p>
+        </header>
+        <div class="intro-message">
+            <p>Los resultados generales presentados en esta página están actualizados hasta la fecha <strong>10/07/2026</strong>.</p>
+        </div>
+        <div class="toolbar">
+            <input type="text" id="buscador" class="search-box" placeholder="Buscar por nombre o N° del piloto..." />
+        </div>
+        <div class="index-cards">
+            <a href="#125cc" class="index-card">125cc</a>
+            <a href="#infantilmini" class="index-card">Infantil Mini</a>
+            <a href="#infantil" class="index-card">Infantil</a>
+            <a href="#juvenil" class="index-card">Juvenil</a>
+            <a href="#novatos" class="index-card">Novatos</a>
+            <a href="#expertos" class="index-card">Expertos</a>
+            <a href="#femenina" class="index-card">Femenina</a>
+            <a href="#librenovatos" class="index-card">Libre Novatos</a>
+            <a href="#librepro" class="index-card">Libre Pro</a>
+            <a href="#master" class="index-card">Master</a>
+        </div>
+        <div class="liga-summary">
+            <h3>Resumen de ligas (podios)</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead><tr><th>Liga</th><th>1ros</th><th>2dos</th><th>3ros</th></tr></thead>
+                    <tbody>
+<tr class="pos-1"><td>Putumayo</td><td class="num">6<button type="button" class="info-btn" data-title="1ros puestos - Putumayo" data-details="[{&quot;categoria&quot;: &quot;125cc&quot;, &quot;piloto&quot;: &quot;JHOAN ANDRES BARRAGAN ALVAREZ&quot;, &quot;puntos&quot;: 41.0}, {&quot;categoria&quot;: &quot;Master&quot;, &quot;piloto&quot;: &quot;JOSE LUIS IBARRA VALLEJO&quot;, &quot;puntos&quot;: 41.0}, {&quot;categoria&quot;: &quot;Libre Novatos&quot;, &quot;piloto&quot;: &quot;DAVID ALEJANDRO IBARRA ECHEVERRY&quot;, &quot;puntos&quot;: 41.0}, {&quot;categoria&quot;: &quot;Expertos&quot;, &quot;piloto&quot;: &quot;JHOAN ANDRES BARRAGAN ALVAREZ&quot;, &quot;puntos&quot;: 41.0}, {&quot;categoria&quot;: &quot;Libre Pro&quot;, &quot;piloto&quot;: &quot;JHOAN ANDRES BARRAGAN ALVAREZ&quot;, &quot;puntos&quot;: 41.0}, {&quot;categoria&quot;: &quot;Juvenil&quot;, &quot;piloto&quot;: &quot;Jhon Sebastián agredo&quot;, &quot;puntos&quot;: 39.0}]">i</button></td><td class="num">4<button type="button" class="info-btn" data-title="2dos puestos - Putumayo" data-details="[{&quot;categoria&quot;: &quot;125cc&quot;, &quot;piloto&quot;: &quot;Jhon Sebastián agredo&quot;, &quot;puntos&quot;: 35.0}, {&quot;categoria&quot;: &quot;Master&quot;, &quot;piloto&quot;: &quot;Richard Alexander ALARCON ALVAREZ&quot;, &quot;puntos&quot;: 36.0}, {&quot;categoria&quot;: &quot;Infantil&quot;, &quot;piloto&quot;: &quot;Neymar Stiven Penagos&quot;, &quot;puntos&quot;: 32.0}, {&quot;categoria&quot;: &quot;Libre Pro&quot;, &quot;piloto&quot;: &quot;David Fernando BURBANO GOMEZ&quot;, &quot;puntos&quot;: 33.0}]">i</button></td><td class="num">3<button type="button" class="info-btn" data-title="3ros puestos - Putumayo" data-details="[{&quot;categoria&quot;: &quot;Master&quot;, &quot;piloto&quot;: &quot;Mauricio BARRIOS REYES&quot;, &quot;puntos&quot;: 31.0}, {&quot;categoria&quot;: &quot;Libre Pro&quot;, &quot;piloto&quot;: &quot;willian daniel rodriguez rosero&quot;, &quot;puntos&quot;: 33.0}, {&quot;categoria&quot;: &quot;Juvenil&quot;, &quot;piloto&quot;: &quot;Frank Stiven ZAMBRANO ABELLO&quot;, &quot;puntos&quot;: 31.0}]">i</button></td></tr><tr class="pos-2"><td>Cauca</td><td class="num">2<button type="button" class="info-btn" data-title="1ros puestos - Cauca" data-details="[{&quot;categoria&quot;: &quot;Femenina&quot;, &quot;piloto&quot;: &quot;Valery Fernanda ARIAS ARCOS&quot;, &quot;puntos&quot;: 41.0}, {&quot;categoria&quot;: &quot;Novatos&quot;, &quot;piloto&quot;: &quot;Santiago Garcés Jiménez&quot;, &quot;puntos&quot;: 39.0}]">i</button></td><td class="num">3<button type="button" class="info-btn" data-title="2dos puestos - Cauca" data-details="[{&quot;categoria&quot;: &quot;Libre Novatos&quot;, &quot;piloto&quot;: &quot;Faber Andres Giraldo&quot;, &quot;puntos&quot;: 33.0}, {&quot;categoria&quot;: &quot;Novatos&quot;, &quot;piloto&quot;: &quot;CARLOS ALBERTO LUCERO&quot;, &quot;puntos&quot;: 37.0}, {&quot;categoria&quot;: &quot;Expertos&quot;, &quot;piloto&quot;: &quot;Jhon Jader Valero Palencia&quot;, &quot;puntos&quot;: 35.0}]">i</button></td><td class="num">2<button type="button" class="info-btn" data-title="3ros puestos - Cauca" data-details="[{&quot;categoria&quot;: &quot;Infantil&quot;, &quot;piloto&quot;: &quot;Maximiliano TEJADA GONZALEZ&quot;, &quot;puntos&quot;: 23.0}, {&quot;categoria&quot;: &quot;Libre Novatos&quot;, &quot;piloto&quot;: &quot;Santiago Garcés Jiménez&quot;, &quot;puntos&quot;: 33.0}]">i</button></td></tr><tr class="pos-3"><td>Valle del Cauca</td><td class="num">1<button type="button" class="info-btn" data-title="1ros puestos - Valle del Cauca" data-details="[{&quot;categoria&quot;: &quot;Infantil&quot;, &quot;piloto&quot;: &quot;Samuel MAYA SANCHEZ&quot;, &quot;puntos&quot;: 41.0}]">i</button></td><td class="num">0</td><td class="num">1<button type="button" class="info-btn" data-title="3ros puestos - Valle del Cauca" data-details="[{&quot;categoria&quot;: &quot;Expertos&quot;, &quot;piloto&quot;: &quot;Oscar Andres Correa Gomez&quot;, &quot;puntos&quot;: 31.0}]">i</button></td></tr><tr><td>RISARALDA</td><td class="num">1<button type="button" class="info-btn" data-title="1ros puestos - RISARALDA" data-details="[{&quot;categoria&quot;: &quot;Infantil Mini&quot;, &quot;piloto&quot;: &quot;JUAN JOSE LEYTON&quot;, &quot;puntos&quot;: 39.0}]">i</button></td><td class="num">0</td><td class="num">0</td></tr><tr><td>Meta</td><td class="num">0</td><td class="num">2<button type="button" class="info-btn" data-title="2dos puestos - Meta" data-details="[{&quot;categoria&quot;: &quot;Femenina&quot;, &quot;piloto&quot;: &quot;Laura Sofia BALCAZAR&quot;, &quot;puntos&quot;: 33.0}, {&quot;categoria&quot;: &quot;Juvenil&quot;, &quot;piloto&quot;: &quot;Juan David MENDOZA DUARTE&quot;, &quot;puntos&quot;: 34.0}]">i</button></td><td class="num">1<button type="button" class="info-btn" data-title="3ros puestos - Meta" data-details="[{&quot;categoria&quot;: &quot;125cc&quot;, &quot;piloto&quot;: &quot;Juan David MENDOZA DUARTE&quot;, &quot;puntos&quot;: 32.0}]">i</button></td></tr><tr><td>Tolima</td><td class="num">0</td><td class="num">1<button type="button" class="info-btn" data-title="2dos puestos - Tolima" data-details="[{&quot;categoria&quot;: &quot;Infantil Mini&quot;, &quot;piloto&quot;: &quot;Samuel BELTRÁN PRIETO&quot;, &quot;puntos&quot;: 38.0}]">i</button></td><td class="num">0</td></tr><tr><td>CAUCA</td><td class="num">0</td><td class="num">0</td><td class="num">1<button type="button" class="info-btn" data-title="3ros puestos - CAUCA" data-details="[{&quot;categoria&quot;: &quot;Infantil Mini&quot;, &quot;piloto&quot;: &quot;EMILIANO GIRALDO GOMEZ&quot;, &quot;puntos&quot;: 31.0}]">i</button></td></tr><tr><td>Nariño</td><td class="num">0</td><td class="num">0</td><td class="num">1<button type="button" class="info-btn" data-title="3ros puestos - Nariño" data-details="[{&quot;categoria&quot;: &quot;Femenina&quot;, &quot;piloto&quot;: &quot;Kimberly Juliana GUERRERO GARCIA&quot;, &quot;puntos&quot;: 23.0}]">i</button></td></tr><tr><td>Quindío</td><td class="num">0</td><td class="num">0</td><td class="num">1<button type="button" class="info-btn" data-title="3ros puestos - Quindío" data-details="[{&quot;categoria&quot;: &quot;Novatos&quot;, &quot;piloto&quot;: &quot;Rene Alberto ACOSTA CRIOLLO&quot;, &quot;puntos&quot;: 31.0}]">i</button></td></tr>                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="content-section">
+            <div class="categoria-section" id="125cc" data-categoria-id="125cc">
+                <div class="categoria-header"><h2>125cc</h2><button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg></button></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Liga</th><th>Club</th><th>Moto</th><th>I</th><th>Bono final</th><th>Total</th></tr></thead><tbody><tr class="pos-1" data-numero="837" data-nombre="JHOAN ANDRES BARRAGAN ALVAREZ"><td>1</td><td>837</td><td>JHOAN ANDRES BARRAGAN ALVAREZ</td><td>Putumayo</td><td>TEAM RACING MOCOA</td><td>KTM</td><td>33</td><td>8</td><td class="col-total">41</td></tr><tr class="pos-2" data-numero="610-E" data-nombre="Jhon Sebastián agredo"><td>2</td><td>610-E</td><td>Jhon Sebastián agredo</td><td>Putumayo</td><td>CLUB EXTREME RACING</td><td>Yamaha</td><td>27</td><td>8</td><td class="col-total">35</td></tr><tr class="pos-3" data-numero="710" data-nombre="Juan David MENDOZA DUARTE"><td>3</td><td>710</td><td>Juan David MENDOZA DUARTE</td><td>Meta</td><td>VILLAVICENCIO RACING CLUB</td><td>Yamaha</td><td>24</td><td>8</td><td class="col-total">32</td></tr><tr class="" data-numero="146" data-nombre="Gabriel Alejandro MESA ARROYO"><td>4</td><td>146</td><td>Gabriel Alejandro MESA ARROYO</td><td>Nariño</td><td>CLUB DEPORTIVO BUFALO XTREM</td><td>Yamaha</td><td>21</td><td>8</td><td class="col-total">29</td></tr><tr class="" data-numero="386" data-nombre="Frank Stiven ZAMBRANO ABELLO"><td>5</td><td>386</td><td>Frank Stiven ZAMBRANO ABELLO</td><td>Putumayo</td><td>TEAM RACING MOCOA</td><td>Husqvarna</td><td>1</td><td>8</td><td class="col-total">9</td></tr></tbody></table></div></div>
+            <div class="categoria-section" id="infantilmini" data-categoria-id="infantilmini">
+                <div class="categoria-header"><h2>Infantil Mini</h2><button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg></button></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Liga</th><th>Club</th><th>Moto</th><th>I</th><th>Bono final</th><th>Total</th></tr></thead><tbody><tr class="pos-1" data-numero="255" data-nombre="JUAN JOSE LEYTON"><td>1</td><td>255</td><td>JUAN JOSE LEYTON</td><td>RISARALDA</td><td></td><td></td><td>31</td><td>8</td><td class="col-total">39</td></tr><tr class="pos-2" data-numero="319" data-nombre="Samuel BELTRÁN PRIETO"><td>2</td><td>319</td><td>Samuel BELTRÁN PRIETO</td><td>Tolima</td><td>GR 522 RACING</td><td>KTM</td><td>30</td><td>8</td><td class="col-total">38</td></tr><tr class="pos-3" data-numero="444" data-nombre="EMILIANO GIRALDO GOMEZ"><td>3</td><td>444</td><td>EMILIANO GIRALDO GOMEZ</td><td>CAUCA</td><td></td><td></td><td>23</td><td>8</td><td class="col-total">31</td></tr><tr class="" data-numero="795" data-nombre="SARA AHILEN MUÑOZ PORTILLA"><td>4</td><td>795</td><td>SARA AHILEN MUÑOZ PORTILLA</td><td>Putumayo</td><td>CLUB EXTREME RACING</td><td>Husqvarna</td><td>0</td><td>8</td><td class="col-total">8</td></tr></tbody></table></div></div>
+            <div class="categoria-section" id="infantil" data-categoria-id="infantil">
+                <div class="categoria-header"><h2>Infantil</h2><button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg></button></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Liga</th><th>Club</th><th>Moto</th><th>I</th><th>Bono final</th><th>Total</th></tr></thead><tbody><tr class="pos-1" data-numero="801" data-nombre="Samuel MAYA SANCHEZ"><td>1</td><td>801</td><td>Samuel MAYA SANCHEZ</td><td>Valle del Cauca</td><td>Carasucias</td><td>Yamaha</td><td>33</td><td>8</td><td class="col-total">41</td></tr><tr class="pos-2" data-numero="53-E" data-nombre="Neymar Stiven Penagos"><td>2</td><td>53-E</td><td>Neymar Stiven Penagos</td><td>Putumayo</td><td>TEAM RACING MOCOA</td><td>KTM</td><td>24</td><td>8</td><td class="col-total">32</td></tr><tr class="pos-3" data-numero="272" data-nombre="Maximiliano TEJADA GONZALEZ"><td>3</td><td>272</td><td>Maximiliano TEJADA GONZALEZ</td><td>Cauca</td><td>CLUB CORONA</td><td>GasGas</td><td>15</td><td>8</td><td class="col-total">23</td></tr><tr class="" data-numero="127" data-nombre="Jeronimo SANTANDER MONTENEGRO"><td>4</td><td>127</td><td>Jeronimo SANTANDER MONTENEGRO</td><td>Putumayo</td><td>CLUB EXTREME RACING</td><td>KTM</td><td>11</td><td>8</td><td class="col-total">19</td></tr><tr class="" data-numero="528" data-nombre="DANIEL ALEXIS CUARAN ANGULO"><td>5</td><td>528</td><td>DANIEL ALEXIS CUARAN ANGULO</td><td>PUTUMAYO</td><td></td><td></td><td>9</td><td>8</td><td class="col-total">17</td></tr><tr class="" data-numero="215" data-nombre="Sebastian LOPEZ CORTES"><td>6</td><td>215</td><td>Sebastian LOPEZ CORTES</td><td>Nariño</td><td>CLUB DEPORTIVO BUFALO XTREM</td><td>KTM</td><td>9</td><td>8</td><td class="col-total">17</td></tr><tr class="" data-numero="319" data-nombre="Samuel BELTRÁN PRIETO"><td>7</td><td>319</td><td>Samuel BELTRÁN PRIETO</td><td>Tolima</td><td>GR 522 RACING</td><td>KTM</td><td>1</td><td>8</td><td class="col-total">9</td></tr><tr class="" data-numero="255" data-nombre="Juan Jose LEYTON ERASO"><td>8</td><td>255</td><td>Juan Jose LEYTON ERASO</td><td>Risaralda</td><td>CLUB LOS GUEPARDOS</td><td>Cobra</td><td>0</td><td>8</td><td class="col-total">8</td></tr></tbody></table></div></div>
+            <div class="categoria-section" id="juvenil" data-categoria-id="juvenil">
+                <div class="categoria-header"><h2>Juvenil</h2><button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg></button></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Liga</th><th>Club</th><th>Moto</th><th>I</th><th>Bono final</th><th>Total</th></tr></thead><tbody><tr class="pos-1" data-numero="610-E" data-nombre="Jhon Sebastián agredo"><td>1</td><td>610-E</td><td>Jhon Sebastián agredo</td><td>Putumayo</td><td>CLUB EXTREME RACING</td><td>Husqvarna</td><td>31</td><td>8</td><td class="col-total">39</td></tr><tr class="pos-2" data-numero="710" data-nombre="Juan David MENDOZA DUARTE"><td>2</td><td>710</td><td>Juan David MENDOZA DUARTE</td><td>Meta</td><td>VILLAVICENCIO RACING CLUB</td><td>Yamaha</td><td>26</td><td>8</td><td class="col-total">34</td></tr><tr class="pos-3" data-numero="386" data-nombre="Frank Stiven ZAMBRANO ABELLO"><td>3</td><td>386</td><td>Frank Stiven ZAMBRANO ABELLO</td><td>Putumayo</td><td>TEAM RACING MOCOA</td><td>Husqvarna</td><td>23</td><td>8</td><td class="col-total">31</td></tr><tr class="" data-numero="626" data-nombre="Juan Antonio PIEDRAHITA VARELA"><td>4</td><td>626</td><td>Juan Antonio PIEDRAHITA VARELA</td><td>Risaralda</td><td>CLUB LOS GUEPARDOS</td><td>GasGas</td><td>23</td><td>8</td><td class="col-total">31</td></tr><tr class="" data-numero="420" data-nombre="Esteban ARCILA ACEVEDO"><td>5</td><td>420</td><td>Esteban ARCILA ACEVEDO</td><td>Risaralda</td><td>CLUB LOS GUEPARDOS</td><td>GasGas</td><td>19</td><td>8</td><td class="col-total">27</td></tr><tr class="" data-numero="122" data-nombre="Santiago Alejandro SANTANDER MONTENEGRO"><td>6</td><td>122</td><td>Santiago Alejandro SANTANDER MONTENEGRO</td><td>Putumayo</td><td>CLUB EXTREME RACING</td><td>Husqvarna</td><td>18</td><td>8</td><td class="col-total">26</td></tr><tr class="" data-numero="777" data-nombre="Dominique Samuel Díaz Maca"><td>7</td><td>777</td><td>Dominique Samuel Díaz Maca</td><td>Putumayo</td><td>CLUB EXTREME RACING</td><td>KTM</td><td>15</td><td>8</td><td class="col-total">23</td></tr><tr class="" data-numero="146" data-nombre="Gabriel Alejandro Mesa Arrollo"><td>8</td><td>146</td><td>Gabriel Alejandro Mesa Arrollo</td><td>Nariño</td><td></td><td>Yamaha</td><td>0</td><td>8</td><td class="col-total">8</td></tr><tr class="" data-numero="224" data-nombre="Kimberly Juliana GUERRERO GARCIA"><td>9</td><td>224</td><td>Kimberly Juliana GUERRERO GARCIA</td><td>Nariño</td><td>MOTOCLUB IPIALES</td><td>KTM</td><td>0</td><td>8</td><td class="col-total">8</td></tr><tr class="" data-numero="57" data-nombre="Raphael ANGULO TEJADA"><td>10</td><td>57</td><td>Raphael ANGULO TEJADA</td><td>Nariño</td><td>MOTOCLUB IPIALES</td><td>KTM</td><td>0</td><td>8</td><td class="col-total">8</td></tr></tbody></table></div></div>
+            <div class="categoria-section" id="novatos" data-categoria-id="novatos">
+                <div class="categoria-header"><h2>Novatos</h2><button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg></button></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Liga</th><th>Club</th><th>Moto</th><th>I</th><th>Bono final</th><th>Total</th></tr></thead><tbody><tr class="pos-1" data-numero="81" data-nombre="Santiago Garcés Jiménez"><td>1</td><td>81</td><td>Santiago Garcés Jiménez</td><td>Cauca</td><td>CLUB CORONA CLUB XTREME PARK</td><td>Yamaha</td><td>31</td><td>8</td><td class="col-total">39</td></tr><tr class="pos-2" data-numero="227" data-nombre="CARLOS ALBERTO LUCERO"><td>2</td><td>227</td><td>CARLOS ALBERTO LUCERO</td><td>Cauca</td><td>CLUB CORONA CLUB XTREME PARK</td><td>Yamaha</td><td>29</td><td>8</td><td class="col-total">37</td></tr><tr class="pos-3" data-numero="26" data-nombre="Rene Alberto ACOSTA CRIOLLO"><td>3</td><td>26</td><td>Rene Alberto ACOSTA CRIOLLO</td><td>Quindío</td><td>CLUB RUTEROS DEL QUINDIO</td><td>Honda</td><td>23</td><td>8</td><td class="col-total">31</td></tr><tr class="" data-numero="111" data-nombre="Víctor Sebastian Termal Hernández"><td>4</td><td>111</td><td>Víctor Sebastian Termal Hernández</td><td>Nariño</td><td>CLUB MOTEROS RIDERS LA UNION</td><td>Yamaha</td><td>2</td><td>8</td><td class="col-total">10</td></tr><tr class="" data-numero="264" data-nombre="Gelber eduardo acosta lopez"><td>5</td><td>264</td><td>Gelber eduardo acosta lopez</td><td>Putumayo</td><td>CLUB EXTREME RACING</td><td>Yamaha</td><td>0</td><td>8</td><td class="col-total">8</td></tr><tr class="" data-numero="175-E" data-nombre="JHONIER ALEJANDRO CRUZ JUAJIBIOY"><td>6</td><td>175-E</td><td>JHONIER ALEJANDRO CRUZ JUAJIBIOY</td><td>Putumayo</td><td>CLUB EXTREME RACING</td><td>Yamaha</td><td>0</td><td>8</td><td class="col-total">8</td></tr><tr class="" data-numero="300-E" data-nombre="JUAN CAMILO FAJARDO ARTEGA"><td>7</td><td>300-E</td><td>JUAN CAMILO FAJARDO ARTEGA</td><td>Putumayo</td><td>CLUB EXTREME RACING</td><td>Honda</td><td>0</td><td>8</td><td class="col-total">8</td></tr></tbody></table></div></div>
+            <div class="categoria-section" id="expertos" data-categoria-id="expertos">
+                <div class="categoria-header"><h2>Expertos</h2><button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg></button></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Liga</th><th>Club</th><th>Moto</th><th>I</th><th>Bono final</th><th>Total</th></tr></thead><tbody><tr class="pos-1" data-numero="837" data-nombre="JHOAN ANDRES BARRAGAN ALVAREZ"><td>1</td><td>837</td><td>JHOAN ANDRES BARRAGAN ALVAREZ</td><td>Putumayo</td><td>TEAM RACING MOCOA</td><td>Honda</td><td>33</td><td>8</td><td class="col-total">41</td></tr><tr class="pos-2" data-numero="563" data-nombre="Jhon Jader Valero Palencia"><td>2</td><td>563</td><td>Jhon Jader Valero Palencia</td><td>Cauca</td><td>CLUB CORONA CLUB XTREME PARK</td><td>Honda</td><td>27</td><td>8</td><td class="col-total">35</td></tr><tr class="pos-3" data-numero="76-E" data-nombre="Oscar Andres Correa Gomez"><td>3</td><td>76-E</td><td>Oscar Andres Correa Gomez</td><td>Valle del Cauca</td><td>Dos Ruedas Racing Team</td><td>Yamaha</td><td>23</td><td>8</td><td class="col-total">31</td></tr><tr class="" data-numero="386" data-nombre="Frank Stiven ZAMBRANO ABELLO"><td>4</td><td>386</td><td>Frank Stiven ZAMBRANO ABELLO</td><td>Putumayo</td><td>TEAM RACING MOCOA</td><td>Yamaha</td><td>2</td><td>8</td><td class="col-total">10</td></tr><tr class="" data-numero="479" data-nombre="Cristian Felipe CHAVARRO RODRIGUEZ"><td>5</td><td>479</td><td>Cristian Felipe CHAVARRO RODRIGUEZ</td><td>Nariño</td><td>MOTOCLUB IPIALES</td><td>Yamaha</td><td>0</td><td>8</td><td class="col-total">8</td></tr><tr class="" data-numero="243" data-nombre="David Fernando BURBANO GOMEZ"><td>6</td><td>243</td><td>David Fernando BURBANO GOMEZ</td><td>Putumayo</td><td>TEAM RACING MOCOA</td><td>Honda</td><td>0</td><td>8</td><td class="col-total">8</td></tr></tbody></table></div></div>
+            <div class="categoria-section" id="femenina" data-categoria-id="femenina">
+                <div class="categoria-header"><h2>Femenina</h2><button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg></button></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Liga</th><th>Club</th><th>Moto</th><th>I</th><th>Bono final</th><th>Total</th></tr></thead><tbody><tr class="pos-1" data-numero="834" data-nombre="Valery Fernanda ARIAS ARCOS"><td>1</td><td>834</td><td>Valery Fernanda ARIAS ARCOS</td><td>Cauca</td><td>CLUB CORONA CLUB XTREME PARK</td><td>Yamaha</td><td>33</td><td>8</td><td class="col-total">41</td></tr><tr class="pos-2" data-numero="516" data-nombre="Laura Sofia BALCAZAR"><td>2</td><td>516</td><td>Laura Sofia BALCAZAR</td><td>Meta</td><td>VILLAVICENCIO RACING CLUB</td><td>Yamaha</td><td>25</td><td>8</td><td class="col-total">33</td></tr><tr class="pos-3" data-numero="224" data-nombre="Kimberly Juliana GUERRERO GARCIA"><td>3</td><td>224</td><td>Kimberly Juliana GUERRERO GARCIA</td><td>Nariño</td><td>MOTOCLUB IPIALES</td><td>KTM</td><td>15</td><td>8</td><td class="col-total">23</td></tr></tbody></table></div></div>
+            <div class="categoria-section" id="librenovatos" data-categoria-id="librenovatos">
+                <div class="categoria-header"><h2>Libre Novatos</h2><button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg></button></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Liga</th><th>Club</th><th>Moto</th><th>I</th><th>Bono final</th><th>Total</th></tr></thead><tbody><tr class="pos-1" data-numero="336" data-nombre="DAVID ALEJANDRO IBARRA ECHEVERRY"><td>1</td><td>336</td><td>DAVID ALEJANDRO IBARRA ECHEVERRY</td><td>Putumayo</td><td>CLUB EXTREME RACING</td><td>Kymco</td><td>33</td><td>8</td><td class="col-total">41</td></tr><tr class="pos-2" data-numero="444" data-nombre="Faber Andres Giraldo"><td>2</td><td>444</td><td>Faber Andres Giraldo</td><td>Cauca</td><td></td><td></td><td>25</td><td>8</td><td class="col-total">33</td></tr><tr class="pos-3" data-numero="81" data-nombre="Santiago Garcés Jiménez"><td>3</td><td>81</td><td>Santiago Garcés Jiménez</td><td>Cauca</td><td>CLUB CORONA CLUB XTREME PARK</td><td>Yamaha</td><td>25</td><td>8</td><td class="col-total">33</td></tr><tr class="" data-numero="122" data-nombre=""><td>4</td><td>122</td><td></td><td>Putumayo</td><td></td><td>Husqvarna</td><td>19</td><td>8</td><td class="col-total">27</td></tr><tr class="" data-numero="61" data-nombre="Luis Fernando LOPEZ"><td>5</td><td>61</td><td>Luis Fernando LOPEZ</td><td>Putumayo</td><td>CLUB EXTREME RACING</td><td>Husqvarna</td><td>18</td><td>8</td><td class="col-total">26</td></tr><tr class="" data-numero="264" data-nombre="Gelber eduardo acosta lopez"><td>6</td><td>264</td><td>Gelber eduardo acosta lopez</td><td>Putumayo</td><td>CLUB EXTREME RACING</td><td>KTM</td><td>16</td><td>8</td><td class="col-total">24</td></tr><tr class="" data-numero="139" data-nombre=""><td>7</td><td>139</td><td></td><td></td><td></td><td></td><td>14</td><td>8</td><td class="col-total">22</td></tr><tr class="" data-numero="175-E" data-nombre="JHONIER ALEJANDRO CRUZ JUAJIBIOY"><td>8</td><td>175-E</td><td>JHONIER ALEJANDRO CRUZ JUAJIBIOY</td><td>Putumayo</td><td>CLUB EXTREME RACING</td><td>Yamaha</td><td>14</td><td>8</td><td class="col-total">22</td></tr><tr class="" data-numero="58" data-nombre="Diego Ignacio ROJAS ROSERO"><td>9</td><td>58</td><td>Diego Ignacio ROJAS ROSERO</td><td>Nariño</td><td></td><td></td><td>12</td><td>8</td><td class="col-total">20</td></tr><tr class="" data-numero="317" data-nombre="Andrés Parmenio MORENO ZARATE"><td>10</td><td>317</td><td>Andrés Parmenio MORENO ZARATE</td><td>Putumayo</td><td>CLUB EXTREME RACING</td><td>Husqvarna</td><td>8</td><td>8</td><td class="col-total">16</td></tr><tr class="" data-numero="832" data-nombre="Roberto Carlos Campaña Cuellar"><td>11</td><td>832</td><td>Roberto Carlos Campaña Cuellar</td><td>Putumayo</td><td></td><td></td><td>7</td><td>8</td><td class="col-total">15</td></tr><tr class="" data-numero="610-E" data-nombre="Jhon Sebastián agredo"><td>12</td><td>610-E</td><td>Jhon Sebastián agredo</td><td>Putumayo</td><td>CLUB EXTREME RACING</td><td>KTM</td><td>0</td><td>8</td><td class="col-total">8</td></tr><tr class="" data-numero="111" data-nombre="Víctor Sebastian Termal Hernández"><td>13</td><td>111</td><td>Víctor Sebastian Termal Hernández</td><td>Nariño</td><td>CLUB MOTEROS RIDERS LA UNION</td><td>Yamaha</td><td>0</td><td>8</td><td class="col-total">8</td></tr></tbody></table></div></div>
+            <div class="categoria-section" id="librepro" data-categoria-id="librepro">
+                <div class="categoria-header"><h2>Libre Pro</h2><button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg></button></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Liga</th><th>Club</th><th>Moto</th><th>I</th><th>Bono final</th><th>Total</th></tr></thead><tbody><tr class="pos-1" data-numero="837" data-nombre="JHOAN ANDRES BARRAGAN ALVAREZ"><td>1</td><td>837</td><td>JHOAN ANDRES BARRAGAN ALVAREZ</td><td>Putumayo</td><td>TEAM RACING MOCOA</td><td>GasGas</td><td>33</td><td>8</td><td class="col-total">41</td></tr><tr class="pos-2" data-numero="243" data-nombre="David Fernando BURBANO GOMEZ"><td>2</td><td>243</td><td>David Fernando BURBANO GOMEZ</td><td>Putumayo</td><td>TEAM RACING MOCOA</td><td>GasGas</td><td>25</td><td>8</td><td class="col-total">33</td></tr><tr class="pos-3" data-numero="696-E" data-nombre="willian daniel rodriguez rosero"><td>3</td><td>696-E</td><td>willian daniel rodriguez rosero</td><td>Putumayo</td><td>CLUB EXTREME RACING</td><td>KTM</td><td>25</td><td>8</td><td class="col-total">33</td></tr><tr class="" data-numero="563" data-nombre="Jhon Jader Valero Palencia"><td>4</td><td>563</td><td>Jhon Jader Valero Palencia</td><td>Cauca</td><td>CLUB CORONA CLUB XTREME PARK</td><td>Honda</td><td>22</td><td>8</td><td class="col-total">30</td></tr><tr class="" data-numero="710" data-nombre="Juan David MENDOZA DUARTE"><td>5</td><td>710</td><td>Juan David MENDOZA DUARTE</td><td>Meta</td><td>VILLAVICENCIO RACING CLUB</td><td>Yamaha</td><td>17</td><td>8</td><td class="col-total">25</td></tr><tr class="" data-numero="610-E" data-nombre="Jhon Sebastián agredo"><td>6</td><td>610-E</td><td>Jhon Sebastián agredo</td><td>Putumayo</td><td>CLUB EXTREME RACING</td><td>KTM</td><td>16</td><td>8</td><td class="col-total">24</td></tr><tr class="" data-numero="511" data-nombre="Victor Manuel MORA"><td>7</td><td>511</td><td>Victor Manuel MORA</td><td>Nariño</td><td>MOTOCLUB IPIALES</td><td>Yamaha</td><td>14</td><td>8</td><td class="col-total">22</td></tr><tr class="" data-numero="386" data-nombre="Frank Stiven ZAMBRANO ABELLO"><td>8</td><td>386</td><td>Frank Stiven ZAMBRANO ABELLO</td><td>Putumayo</td><td>TEAM RACING MOCOA</td><td>Husqvarna</td><td>9</td><td>8</td><td class="col-total">17</td></tr><tr class="" data-numero="479" data-nombre="Cristian Felipe CHAVARRO RODRIGUEZ"><td>9</td><td>479</td><td>Cristian Felipe CHAVARRO RODRIGUEZ</td><td>Nariño</td><td>MOTOCLUB IPIALES</td><td>Suzuki</td><td>7</td><td>8</td><td class="col-total">15</td></tr><tr class="" data-numero="110" data-nombre="Jesus Ivan PASTAS PERENGUEZ"><td>10</td><td>110</td><td>Jesus Ivan PASTAS PERENGUEZ</td><td>Nariño</td><td>MOTOCLUB IPIALES</td><td>Yamaha</td><td>1</td><td>8</td><td class="col-total">9</td></tr><tr class="" data-numero="76-E" data-nombre="Oscar Andres Correa Gomez"><td>11</td><td>76-E</td><td>Oscar Andres Correa Gomez</td><td>Valle del Cauca</td><td>Dos Ruedas Racing Team</td><td>Yamaha</td><td>1</td><td>8</td><td class="col-total">9</td></tr></tbody></table></div></div>
+            <div class="categoria-section" id="master" data-categoria-id="master">
+                <div class="categoria-header"><h2>Master</h2><button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg></button></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Liga</th><th>Club</th><th>Moto</th><th>I</th><th>Bono final</th><th>Total</th></tr></thead><tbody><tr class="pos-1" data-numero="335" data-nombre="JOSE LUIS IBARRA VALLEJO"><td>1</td><td>335</td><td>JOSE LUIS IBARRA VALLEJO</td><td>Putumayo</td><td>CLUB EXTREME RACING</td><td>Kymco</td><td>33</td><td>8</td><td class="col-total">41</td></tr><tr class="pos-2" data-numero="523" data-nombre="Richard Alexander ALARCON ALVAREZ"><td>2</td><td>523</td><td>Richard Alexander ALARCON ALVAREZ</td><td>Putumayo</td><td>CLUB EXTREME RACING</td><td>Yamaha</td><td>28</td><td>8</td><td class="col-total">36</td></tr><tr class="pos-3" data-numero="331" data-nombre="Mauricio BARRIOS REYES"><td>3</td><td>331</td><td>Mauricio BARRIOS REYES</td><td>Putumayo</td><td>CLUB EXTREME RACING</td><td>Honda</td><td>23</td><td>8</td><td class="col-total">31</td></tr><tr class="" data-numero="227" data-nombre="CARLOS ALBERTO LUCERO"><td>4</td><td>227</td><td>CARLOS ALBERTO LUCERO</td><td>Cauca</td><td>CLUB CORONA CLUB XTREME PARK</td><td>Yamaha</td><td>21</td><td>8</td><td class="col-total">29</td></tr><tr class="" data-numero="311" data-nombre="Henry MORENO BENAVIDES"><td>5</td><td>311</td><td>Henry MORENO BENAVIDES</td><td>Nariño</td><td>CLUB MOTEROS RIDERS LA UNION</td><td>Yamaha</td><td>18</td><td>8</td><td class="col-total">26</td></tr><tr class="" data-numero="202" data-nombre="Ivan Dario BENAVIDES FAJARDO"><td>6</td><td>202</td><td>Ivan Dario BENAVIDES FAJARDO</td><td>Nariño</td><td>CLUB DEPORTIVO BUFALO XTREM</td><td>Yamaha</td><td>17</td><td>8</td><td class="col-total">25</td></tr><tr class="" data-numero="317" data-nombre="Andrés Parmenio MORENO ZARATE"><td>7</td><td>317</td><td>Andrés Parmenio MORENO ZARATE</td><td>Putumayo</td><td>CLUB EXTREME RACING</td><td>Husqvarna</td><td>16</td><td>8</td><td class="col-total">24</td></tr><tr class="" data-numero="123" data-nombre="MILLER SAUL MARIN QUINTERO"><td>8</td><td>123</td><td>MILLER SAUL MARIN QUINTERO</td><td>Putumayo</td><td>CLUB EXTREME RACING</td><td>Husqvarna</td><td>6</td><td>8</td><td class="col-total">14</td></tr></tbody></table></div></div>
+        </div>
+        <footer>
+            <p><span class="developer">Developed by Mauricio Sánchez Aguilar - Fedemoto</span></p>
+            <p>Este proyecto es de uso interno de FEDEMOTO.</p>
+        </footer>
+    </div>
+    <div id="modalLigaDetalle" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="modalLigaDetalleTitle">Detalle</h3>
+            <div id="modalLigaDetalleBody"></div>
+            <button type="button" id="modalLigaDetalleClose" class="modal-close">Cerrar</button>
+        </div>
+    </div>
+    <script src="../../../load-menu.js"></script>
+    <script>
+        function escapeHtml(t) {
+            return (t + '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+        function renderLigaDetails(raw) {
+            var list = [];
+            try { list = JSON.parse(raw); } catch (e) { list = []; }
+            if (!Array.isArray(list) || list.length === 0) return '<p>Sin detalles disponibles.</p>';
+            var html = '<ul>';
+            list.forEach(function(item) {
+                var cat = (item.categoria || '');
+                var pil = (item.piloto || '');
+                var pts = (item.puntos || 0);
+                html += '<li><strong>' + escapeHtml(cat) + '</strong> — ' + escapeHtml(pil) + ' (' + pts + ' pts)</li>';
+            });
+            html += '</ul>';
+            return html;
+        }
+        var modal = document.getElementById('modalLigaDetalle');
+        var modalTitle = document.getElementById('modalLigaDetalleTitle');
+        var modalBody = document.getElementById('modalLigaDetalleBody');
+        document.querySelectorAll('.info-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                modalTitle.textContent = this.getAttribute('data-title') || 'Detalle';
+                modalBody.innerHTML = renderLigaDetails(this.getAttribute('data-details') || '[]');
+                modal.classList.add('open');
+            });
+        });
+        document.getElementById('modalLigaDetalleClose').addEventListener('click', function() {
+            modal.classList.remove('open');
+        });
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) this.classList.remove('open');
+        });
+        document.querySelectorAll('.btn-top').forEach(function(btn) {
+            btn.addEventListener('click', function() { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+        });
+        var buscador = document.getElementById('buscador');
+        buscador.addEventListener('input', function() {
+            var q = this.value.trim().toLowerCase();
+            var sections = document.querySelectorAll('.categoria-section');
+            var cards = document.querySelectorAll('.index-card');
+            cards.forEach(function(c){ c.classList.remove('search-match', 'search-no-results'); });
+            sections.forEach(function(s){ s.classList.remove('search-match', 'search-no-results'); });
+            if (!q) {
+                document.querySelectorAll('.search-hidden').forEach(function(tr){ tr.classList.remove('search-hidden'); });
+                return;
+            }
+            sections.forEach(function(section) {
+                var rows = section.querySelectorAll('tbody tr[data-numero], tbody tr[data-nombre]');
+                var visible = 0;
+                rows.forEach(function(tr) {
+                    var num = (tr.getAttribute('data-numero') || '').toLowerCase();
+                    var nom = (tr.getAttribute('data-nombre') || '').toLowerCase();
+                    var match = num.indexOf(q) >= 0 || nom.indexOf(q) >= 0;
+                    tr.classList.toggle('search-hidden', !match);
+                    if (match) visible++;
+                });
+                var id = section.getAttribute('data-categoria-id');
+                var card = document.querySelector('.index-card[href="#' + id + '"]');
+                if (visible > 0) {
+                    section.classList.add('search-match');
+                    if (card) card.classList.add('search-match');
+                } else {
+                    section.classList.add('search-no-results');
+                    if (card) card.classList.add('search-no-results');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
