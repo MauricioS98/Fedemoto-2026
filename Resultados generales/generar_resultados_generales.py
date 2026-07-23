@@ -66,25 +66,50 @@ CHAMPIONSHIPS = [
         "output_html": os.path.join(SCRIPT_DIR, "Motocross", "Primer semestre", "resultado_general_mx_primer_semestre.html"),
     },
     {
-        "id": "velocidad_2026",
+        "id": "velocidad_1s",
         "modalidad": "Velocidad",
-        "campeonato": "Campeonato 2026",
+        "campeonato": "Primer semestre",
         "validas": [
             {
                 "label": "I Válida Velocidad - Zarzal",
-                "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Velocidad", "FILES EXPORTED_ZARZAL"),
+                "files_dir": os.path.join(
+                    ROOT_DIR, "Resultados_validas", "Velocidad", "Primer semestre", "FILES EXPORTED_ZARZAL"
+                ),
             },
             {
                 "label": "II Válida Velocidad - Chachagüi",
-                "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Velocidad", "FILES EXPORTED_CHACHAGUI"),
+                "files_dir": os.path.join(
+                    ROOT_DIR, "Resultados_validas", "Velocidad", "Primer semestre", "FILES EXPORTED_CHACHAGUI"
+                ),
             },
             {
                 "label": "III Válida Velocidad - Popayán",
-                "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Velocidad", "FILES EXPORTED_POPAYAN"),
+                "files_dir": os.path.join(
+                    ROOT_DIR, "Resultados_validas", "Velocidad", "Primer semestre", "FILES EXPORTED_POPAYAN"
+                ),
             },
         ],
         "final_valida_bonus": 8,
-        "output_html": os.path.join(SCRIPT_DIR, "Velocidad", "resultado_general_velocidad_2026.html"),
+        "output_html": os.path.join(
+            SCRIPT_DIR, "Velocidad", "Primer semestre", "resultado_general_velocidad_primer_semestre.html"
+        ),
+    },
+    {
+        "id": "velocidad_2s",
+        "modalidad": "Velocidad",
+        "campeonato": "Segundo semestre",
+        "validas": [
+            {
+                "label": "I Válida Velocidad - Manizales",
+                "files_dir": os.path.join(
+                    ROOT_DIR, "Resultados_validas", "Velocidad", "Segundo semestre", "FILES EXPORTED_MANIZALES"
+                ),
+            },
+        ],
+        "final_valida_bonus": 8,
+        "output_html": os.path.join(
+            SCRIPT_DIR, "Velocidad", "Segundo semestre", "resultado_general_velocidad_segundo_semestre.html"
+        ),
     },
     {
         "id": "velotierra_1s",

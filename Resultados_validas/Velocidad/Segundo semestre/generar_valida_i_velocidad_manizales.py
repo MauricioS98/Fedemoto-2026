@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
-"""Regenera valida_i_velocidad_zarzal.html desde FILES EXPORTED_ZARZAL."""
+"""Genera valida_i_velocidad_manizales.html desde FILES EXPORTED_MANIZALES."""
 
 import csv
 import html
 import re
 import unicodedata
 from pathlib import Path
+from urllib.parse import quote
 
 ROOT = Path(__file__).resolve().parent
-CSV_DIR = ROOT / "FILES EXPORTED_ZARZAL"
-OUT = ROOT / "valida_i_velocidad_zarzal.html"
+CSV_DIR = ROOT / "FILES EXPORTED_MANIZALES"
+OUT = ROOT / "valida_i_velocidad_manizales.html"
 
 ORDER = [
     ("50-cc", "50 CC", "50 CC"),
-    ("ax-100-inicio", "Ax 100 Inicio", "AX 100 INICIO"),
     ("115-cc-infantil", "115 CC Infantil", "115 CC INFANTIL"),
     ("115-cc-inicio", "115 CC Inicio", "115 CC INICIO"),
     ("115-elite", "115 Elite", "115 ELITE"),
@@ -25,12 +25,9 @@ ORDER = [
     ("infantil", "Infantil", "INFANTIL"),
     ("pit-bike-infantil", "Pit Bike Infantil", "PIT BIKE INFANTIL"),
     ("pit-bike", "Pit Bike", "PIT BIKE"),
+    ("escuela-fedemoto", "Escuela Fedemoto", "ESCUELA FEDEMOTO"),
     ("supermoto", "Supermoto", "SUPERMOTO"),
 ]
-
-
-def esc(s):
-    return html.escape(str(s or ""), quote=True)
 
 
 def normalize_text(value):
@@ -38,6 +35,23 @@ def normalize_text(value):
     s = "".join(c for c in unicodedata.normalize("NFD", s) if unicodedata.category(c) != "Mn")
     s = re.sub(r"\s+", " ", s)
     return s.upper()
+
+
+def detect_delimiter(first_line):
+    if not first_line:
+        return ","
+    return ";" if first_line.count(";") > first_line.count(",") else ","
+
+
+def read_csv(path):
+    raw = path.read_text(encoding="utf-8-sig")
+    lines = raw.splitlines()
+    delim = detect_delimiter(lines[0] if lines else "")
+    reader = csv.DictReader(lines, delimiter=delim)
+    out = []
+    for row in reader:
+        out.append({(k or "").strip(): (v or "").strip() for k, v in row.items()})
+    return out
 
 
 def normalize_header(h):
@@ -53,18 +67,54 @@ def value_by_aliases(row, aliases):
     return ""
 
 
-def detect_delimiter(first_line):
-    if not first_line:
-        return ","
-    return ";" if first_line.count(";") > first_line.count(",") else ","
+def parse_time_to_seconds(value):
+    s = str(value or "").strip().replace(",", ".")
+    if not s:
+        return None
+    if ":" in s:
+        parts = s.split(":")
+        try:
+            if len(parts) == 2:
+                return int(parts[0]) * 60 + float(parts[1])
+            if len(parts) == 3:
+                return int(parts[0]) * 3600 + int(parts[1]) * 60 + float(parts[2])
+        except ValueError:
+            return None
+    try:
+        return float(s)
+    except ValueError:
+        return None
 
 
-def read_csv(path):
-    raw = path.read_text(encoding="utf-8-sig")
-    lines = raw.splitlines()
-    delim = detect_delimiter(lines[0] if lines else "")
-    reader = csv.DictReader(lines, delimiter=delim)
-    return [{(k or "").strip(): (v or "").strip() for k, v in row.items()} for row in reader]
+def format_time(value):
+    s = str(value or "").strip()
+    if not s:
+        return ""
+    if ":" in s:
+        return s.replace(",", ".")
+    secs = parse_time_to_seconds(s)
+    if secs is None:
+        return s
+    minutes = int(secs // 60)
+    rem = secs - minutes * 60
+    if minutes == 0:
+        return f"{rem:0.3f}"
+    return f"{minutes}:{rem:06.3f}"
+
+
+def pos_class(pos):
+    p = str(pos or "").strip()
+    if p == "1":
+        return "pos-1"
+    if p == "2":
+        return "pos-2"
+    if p == "3":
+        return "pos-3"
+    return ""
+
+
+def esc(s):
+    return html.escape(str(s or ""), quote=True)
 
 
 def parse_filename(filename):
@@ -90,42 +140,106 @@ def parse_filename(filename):
     return categoria, tipo
 
 
-def parse_time_to_seconds(value):
-    s = str(value or "").strip().replace(",", ".")
-    if not s:
-        return None
-    if ":" in s:
-        parts = s.split(":")
-        try:
-            if len(parts) == 2:
-                return int(parts[0]) * 60 + float(parts[1])
-            if len(parts) == 3:
-                return int(parts[0]) * 3600 + int(parts[1]) * 60 + float(parts[2])
-        except ValueError:
-            return None
-    try:
-        return float(s)
-    except ValueError:
-        return None
-
-
-def pos_class(pos):
-    p = str(pos or "").strip()
-    if p == "1":
-        return "pos-1"
-    if p == "2":
-        return "pos-2"
-    if p == "3":
-        return "pos-3"
-    return ""
+def parse_pdf_filename(filename):
+    stem = re.sub(r"\.pdf$", "", filename, flags=re.I).strip()
+    stem = re.sub(r"\s*-\s*Laptimes(?:Reduced)?\s*$", "", stem, flags=re.I).strip()
+    parts = [p.strip() for p in re.split(r"\s+-\s+", stem) if p.strip()]
+    if len(parts) < 2:
+        return None, None
+    categoria = normalize_text(" - ".join(parts[:-1]))
+    last = normalize_text(parts[-1])
+    if "CLASIFIC" in last:
+        tipo = "Clasificatoria"
+    elif "CARRERA 1" in last:
+        tipo = "Carrera 1"
+    elif "CARRERA 2" in last:
+        tipo = "Carrera 2"
+    elif "CARRERA" in last:
+        tipo = "Carrera"
+    elif "FINAL" in last:
+        tipo = "Final"
+    else:
+        tipo = parts[-1].strip()
+    return categoria, tipo
 
 
 def build_data():
     data = {}
+    source_files = {}
     for path in sorted(CSV_DIR.glob("*.csv")):
         categoria, tipo = parse_filename(path.name)
-        data.setdefault(categoria, {})[tipo] = read_csv(path)
-    return data
+        if categoria not in data:
+            data[categoria] = {}
+        data[categoria][tipo] = read_csv(path)
+        source_files[(categoria, tipo)] = path.name
+    return data, source_files
+
+
+def detect_vuelta_folder():
+    for p in ROOT.iterdir():
+        if not p.is_dir():
+            continue
+        name = normalize_text(p.name)
+        if name.startswith("VUELTA A VUELTA") and "MANIZALES" in name:
+            return p
+    return None
+
+
+def build_vuelta_map(vuelta_folder):
+    mapping = {}
+    if not vuelta_folder or not vuelta_folder.exists():
+        return mapping
+    for pdf in sorted(vuelta_folder.glob("*.pdf")):
+        categoria, tipo = parse_pdf_filename(pdf.name)
+        if categoria and tipo:
+            mapping[(categoria, tipo)] = pdf.name
+    return mapping
+
+
+def expected_pdf_filenames(categoria_key, session_name):
+    suffix_map = {
+        "Carrera": "CARRERA",
+        "Carrera 1": "CARRERA 1",
+        "Carrera 2": "CARRERA 2",
+        "Final": "FINAL",
+        "Clasificatoria": "CLASIFICACIÓN",
+    }
+    mid = suffix_map.get(session_name)
+    if not mid:
+        return []
+    return [
+        f"{categoria_key} - {mid} - Laptimes.pdf",
+        f"{categoria_key} - {mid} - LaptimesReduced.pdf",
+    ]
+
+
+
+def session_title_block(categoria_key, session_name, vuelta_map, vuelta_folder, source_files, allow_link):
+    btn = ""
+    if allow_link and vuelta_folder:
+        fn = vuelta_map.get((categoria_key, session_name))
+        if fn and not (vuelta_folder / fn).exists():
+            fn = None
+        if not fn:
+            for candidate in expected_pdf_filenames(categoria_key, session_name):
+                if (vuelta_folder / candidate).exists():
+                    fn = candidate
+                    break
+        if not fn:
+            csv_name = source_files.get((categoria_key, session_name))
+            if csv_name and "CLASIFIC" not in normalize_text(csv_name):
+                for suffix in (" - Laptimes.pdf", " - LaptimesReduced.pdf"):
+                    candidate = re.sub(r"(?i)\s*-\s*resultados\.csv$", suffix, csv_name).strip()
+                    if (vuelta_folder / candidate).exists():
+                        fn = candidate
+                        break
+        if fn:
+            href = quote(vuelta_folder.name, safe="") + "/" + quote(fn, safe="")
+            btn = (
+                f'<a class="btn-vuelta-a-vuelta" href="{esc(href)}" '
+                f'target="_blank" rel="noopener noreferrer">Ver vuelta a vuelta</a>'
+            )
+    return f'<div class="session-title-row"><h3>{esc(session_name)}</h3>{btn}</div>'
 
 
 def table_clasificatoria(rows):
@@ -139,15 +253,23 @@ def table_clasificatoria(rows):
         pos = value_by_aliases(r, ["POS."])
         num = value_by_aliases(r, ["N°", "Nº", "N"])
         nom = value_by_aliases(r, ["NOMBRE"])
-        mej = value_by_aliases(r, ["MEJORTM"])
+        mej = format_time(value_by_aliases(r, ["MEJORTM"]))
         env = value_by_aliases(r, ["ENVUELTA"])
         d1 = value_by_aliases(r, ["DIF.RESP.1°", "DIF.RESP.1º"])
         da = value_by_aliases(r, ["DIF.RESP.ANTERIOR"])
+        com = value_by_aliases(r, ["COMENTARIO"])
         cls = pos_class(pos)
         tr_open = f'<tr class="{cls}" data-numero="{esc(num)}" data-nombre="{esc(nom)}">' if cls else f'<tr data-numero="{esc(num)}" data-nombre="{esc(nom)}">'
+        pos_td = f"<td>{esc(pos)}</td>"
+        if com:
+            pos_td = (
+                f'<td><span class="pos-cell">{esc(pos)}</span>'
+                f'<button type="button" class="comentario-btn" data-comentario="{esc(com)}" aria-label="Ver comentario">i</button></td>'
+            )
         body_rows.append(
             tr_open
-            + f"<td>{esc(pos)}</td><td>{esc(num)}</td><td>{esc(nom)}</td><td>{esc(mej)}</td><td>{esc(env)}</td><td>{esc(d1)}</td><td>{esc(da)}</td></tr>"
+            + pos_td
+            + f"<td>{esc(num)}</td><td>{esc(nom)}</td><td>{esc(mej)}</td><td>{esc(env)}</td><td>{esc(d1)}</td><td>{esc(da)}</td></tr>"
         )
     return "<table>" + head + "<tbody>" + "".join(body_rows) + "</tbody></table>"
 
@@ -165,16 +287,24 @@ def table_carrera(rows):
         nom = value_by_aliases(r, ["NOMBRE"])
         pts = value_by_aliases(r, ["PUNTOS"])
         d1 = value_by_aliases(r, ["DIF.RESP.1°", "DIF.RESP.1º"])
-        mej = value_by_aliases(r, ["MEJORTM"])
+        mej = format_time(value_by_aliases(r, ["MEJORTM"]))
         moto = value_by_aliases(r, ["MOTO"])
         liga = value_by_aliases(r, ["LIGA"])
         club = value_by_aliases(r, ["CLUB"])
         vu = value_by_aliases(r, ["VUELTAS"])
+        com = value_by_aliases(r, ["COMENTARIO"])
         cls = pos_class(pos)
         tr_open = f'<tr class="{cls}" data-numero="{esc(num)}" data-nombre="{esc(nom)}">' if cls else f'<tr data-numero="{esc(num)}" data-nombre="{esc(nom)}">'
+        pos_td = f"<td>{esc(pos)}</td>"
+        if com:
+            pos_td = (
+                f'<td><span class="pos-cell">{esc(pos)}</span>'
+                f'<button type="button" class="comentario-btn" data-comentario="{esc(com)}" aria-label="Ver comentario">i</button></td>'
+            )
         body_rows.append(
             tr_open
-            + f"<td>{esc(pos)}</td><td>{esc(num)}</td><td>{esc(nom)}</td><td>{esc(pts)}</td><td>{esc(d1)}</td><td>{esc(mej)}</td>"
+            + pos_td
+            + f"<td>{esc(num)}</td><td>{esc(nom)}</td><td>{esc(pts)}</td><td>{esc(d1)}</td><td>{esc(mej)}</td>"
             + f"<td>{esc(moto)}</td><td>{esc(liga)}</td><td>{esc(club)}</td><td>{esc(vu)}</td></tr>"
         )
     return "<table>" + head + "<tbody>" + "".join(body_rows) + "</tbody></table>"
@@ -218,7 +348,7 @@ def find_best_lap(rows):
         if best is None or t < best["time"]:
             best = {
                 "time": t,
-                "time_txt": t_raw,
+                "time_txt": format_time(t_raw),
                 "numero": value_by_aliases(r, ["N°", "Nº", "N"]),
                 "nombre": value_by_aliases(r, ["NOMBRE"]),
             }
@@ -232,7 +362,9 @@ def times_summary(category_sessions):
         best = find_best_lap(category_sessions.get(label, []))
         if best:
             carrera_candidates.append((label, best))
-    carrera_best = sorted(carrera_candidates, key=lambda it: it[1]["time"])[0] if carrera_candidates else None
+    carrera_best = None
+    if carrera_candidates:
+        carrera_best = sorted(carrera_candidates, key=lambda it: it[1]["time"])[0]
 
     lines = []
     if clasif_best:
@@ -246,36 +378,36 @@ def times_summary(category_sessions):
             "<p><strong>Mejor tiempo Carrera:</strong> "
             f"{esc(best['time_txt'])} ({esc(label)}) - N° {esc(best['numero'])} {esc(best['nombre'])}</p>"
         )
+    if not lines:
+        return ""
     return (
         '<div class="times-summary"><h4>Mejores tiempos - Clasificatoria y carreras</h4>'
         f'<div class="times-summary-items">{"".join(lines)}</div></div>'
-        if lines
-        else ""
     )
 
 
-def section_html(section_id, title, cat_key, all_data):
+def section_html(section_id, title, cat_key, all_data, vuelta_map, vuelta_folder, source_files):
     sessions = all_data.get(cat_key, {})
     content = [times_summary(sessions)]
 
-    def add_session_block(label, builder):
+    def add_session_block(label, builder, allow_link=False):
         rows = sessions.get(label, [])
         if not rows:
             return
         content.append('<div class="final-block">')
-        content.append(f"<h3>{esc(label)}</h3>")
+        content.append(session_title_block(cat_key, label, vuelta_map, vuelta_folder, source_files, allow_link))
         content.append('<div class="table-wrapper">')
         content.append(builder(rows))
         content.append("</div></div>")
 
     if cat_key == "SUPERMOTO":
-        add_session_block("Clasificatoria", table_clasificatoria)
-        add_session_block("Final", table_supermoto_final)
-        add_session_block("Carrera 1", table_carrera)
-        add_session_block("Carrera 2", table_carrera)
+        add_session_block("Clasificatoria", table_clasificatoria, allow_link=False)
+        add_session_block("Final", table_supermoto_final, allow_link=False)
+        add_session_block("Carrera 1", table_carrera, allow_link=True)
+        add_session_block("Carrera 2", table_carrera, allow_link=True)
     else:
-        add_session_block("Clasificatoria", table_clasificatoria)
-        add_session_block("Carrera", table_carrera)
+        add_session_block("Clasificatoria", table_clasificatoria, allow_link=False)
+        add_session_block("Carrera", table_carrera, allow_link=True)
 
     return f"""            <div class="categoria-section" id="{section_id}" data-categoria-id="{section_id}">
                 <div class="categoria-header">
@@ -290,35 +422,44 @@ def section_html(section_id, title, cat_key, all_data):
 
 
 def index_cards_html():
-    return "\n".join(
-        f'            <a href="#{section_id}" class="index-card" data-categoria-id="{section_id}">{esc(title)}</a>'
-        for section_id, title, _cat in ORDER
-    )
+    lines = []
+    for section_id, title, _cat in ORDER:
+        lines.append(
+            f'            <a href="#{section_id}" class="index-card" data-categoria-id="{section_id}">{esc(title)}</a>'
+        )
+    return "\n".join(lines)
 
 
 def modal_labels_html():
-    return "\n".join(
-        f'                <label class="modal-cat-item"><input type="checkbox" value="{section_id}" checked> {esc(title)}</label>'
-        for section_id, title, _cat in ORDER
-    )
+    lines = []
+    for section_id, title, _cat in ORDER:
+        lines.append(
+            f'                <label class="modal-cat-item"><input type="checkbox" value="{section_id}" checked> {esc(title)}</label>'
+        )
+    return "\n".join(lines)
 
 
 def main():
-    all_data = build_data()
-    sections_html = "\n".join(
-        section_html(section_id, title, cat, all_data) for section_id, title, cat in ORDER
-    )
+    all_data, source_files = build_data()
+    vuelta_folder = detect_vuelta_folder()
+    vuelta_map = build_vuelta_map(vuelta_folder)
+
+    sections = []
+    for section_id, title, cat in ORDER:
+        sections.append(section_html(section_id, title, cat, all_data, vuelta_map, vuelta_folder, source_files))
+    sections_html = "\n".join(sections)
 
     page = f"""<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>I Válida Nacional de Velocidad - Zarzal, Valle del Cauca | FEDEMOTO</title>
-    <link rel="icon" type="image/png" href="../../fedemoto-logo.png">
+    <title>I Válida Nacional de Velocidad - Manizales, Caldas | FEDEMOTO</title>
+    <link rel="icon" type="image/png" href="../../../fedemoto-logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto+Condensed:wght@300;400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Source+Sans+3:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../../fedemoto-theme.css">
     <style>
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
         body {{ font-family: 'Inter', sans-serif; background: #f5f5f5; color: #000; line-height: 1.6; padding: 20px; padding-top: 120px; min-height: 100vh; }}
@@ -348,8 +489,11 @@ def main():
         .times-summary h4 {{ font-family: 'Roboto Condensed', sans-serif; color: #123E92; margin-bottom: 15px; font-size: 1.1em; }}
         .times-summary-items p {{ margin-bottom: 10px; font-size: 1em; }}
         .times-summary-items p:last-child {{ margin-bottom: 0; }}
+        .session-title-row {{ display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin: 20px 0 12px; padding-bottom: 8px; border-bottom: 3px solid #F7C31D; }}
+        .session-title-row h3 {{ margin: 0; padding: 0; border: none; font-family: 'Bebas Neue', sans-serif; font-size: 1.8em; color: #123E92; letter-spacing: 1px; }}
+        .btn-vuelta-a-vuelta {{ display: inline-block; padding: 8px 16px; background: #123E92; color: white; text-decoration: none; border-radius: 8px; font-family: 'Roboto Condensed', sans-serif; font-weight: 700; font-size: 0.9em; white-space: nowrap; transition: all 0.2s ease; }}
+        .btn-vuelta-a-vuelta:hover {{ background: #0f3377; color: white; }}
         .final-block {{ padding: 0 30px 30px; }}
-        .final-block h3 {{ font-family: 'Bebas Neue', sans-serif; font-size: 1.8em; color: #123E92; margin: 25px 0 15px; padding-bottom: 8px; border-bottom: 3px solid #F7C31D; letter-spacing: 1px; }}
         .table-wrapper {{ overflow-x: auto; margin-bottom: 20px; border-radius: 8px; border: 1px solid #d1d5db; }}
         table {{ width: 100%; border-collapse: collapse; font-size: 0.9em; }}
         th, td {{ padding: 12px 15px; text-align: left; border-bottom: 1px solid #e0e0e0; }}
@@ -359,6 +503,9 @@ def main():
         .pos-1 {{ background: rgba(247, 195, 29, 0.15) !important; }}
         .pos-2 {{ background: rgba(192, 192, 192, 0.2) !important; }}
         .pos-3 {{ background: rgba(139, 90, 43, 0.1) !important; }}
+        .pos-cell {{ display: inline-block; margin-right: 4px; }}
+        .comentario-btn {{ display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; margin-left: 6px; border: 1px solid #123E92; border-radius: 999px; background: #e8eef8; color: #123E92; font-size: 14px; font-weight: 700; cursor: pointer; vertical-align: middle; }}
+        .comentario-btn:hover, .comentario-btn:focus {{ background: #123E92; color: white; outline: none; }}
         .pdf-section {{ text-align: center; padding: 40px 20px; border-top: 1px solid #C0C0C0; background: #f8f9fa; }}
         .btn-pdf {{ display: inline-block; padding: 14px 32px; background: #123E92; color: white; border: none; border-radius: 8px; font-family: 'Roboto Condensed', sans-serif; font-size: 1.1em; font-weight: 700; cursor: pointer; transition: all 0.2s ease; }}
         .btn-pdf:hover {{ background: #0f3377; transform: translateY(-2px); }}
@@ -381,6 +528,17 @@ def main():
         .categoria-section.pdf-exclude {{ display: none !important; }}
         footer {{ background: #f8f9fa; padding: 30px 40px; text-align: center; border-top: 1px solid #C0C0C0; color: #000; font-family: 'Inter', sans-serif; font-size: 0.9em; font-weight: 400; line-height: 1.8; }}
         footer .developer {{ font-family: 'Roboto Condensed', sans-serif; font-weight: 700; color: #123E92; }}
+        @media print {{
+            @page {{ size: A4 landscape; margin: 15mm; }}
+            body {{ padding: 0 !important; padding-top: 0 !important; background: white !important; }}
+            #menu-container, .pdf-section, .toolbar, .index-cards, .btn-top, footer {{ display: none !important; }}
+            .container {{ box-shadow: none !important; max-width: 100% !important; }}
+            .categoria-section {{ break-before: page; page-break-before: always; }}
+            .categoria-section:first-child {{ break-before: auto; page-break-before: auto; }}
+            .modal-overlay {{ display: none !important; }}
+            .container > header, .categoria-header, th {{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }}
+            table {{ font-size: 0.75em; }}
+        }}
     </style>
 </head>
 <body>
@@ -388,7 +546,7 @@ def main():
     <div id="contenido-exportar" class="container">
         <header>
             <h1>I Válida Nacional de Velocidad</h1>
-            <p>Zarzal, Valle del Cauca - Resultados por categoría</p>
+            <p>Manizales, Caldas - Resultados por categoría</p>
         </header>
         <div class="toolbar">
             <input type="text" id="buscador" class="search-box" placeholder="Buscar por nombre o N° del piloto..." />
@@ -397,6 +555,7 @@ def main():
 {index_cards_html()}
         </div>
         <div class="content-section">
+
 {sections_html}
         </div>
         <div class="pdf-section">
@@ -425,7 +584,16 @@ def main():
             </div>
         </div>
     </div>
-    <script src="../../load-menu.js"></script>
+    <div id="modalComentario" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Comentario</h3>
+            <p id="modalComentarioTexto" style="margin-bottom: 20px; font-size: 1em; color: #111827; white-space: pre-wrap;"></p>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn-primary" id="modalComentarioCerrar">Cerrar</button>
+            </div>
+        </div>
+    </div>
+    <script src="../../../load-menu.js"></script>
     <script>
         document.getElementById('descargarPDF').addEventListener('click', function() {{
             document.querySelectorAll('.search-no-results').forEach(function(el){{ el.classList.remove('search-no-results'); }});
@@ -436,6 +604,20 @@ def main():
         document.getElementById('modalDeselectAll').addEventListener('click', function() {{ document.querySelectorAll('#modalCategorias input').forEach(function(cb){{ cb.checked = false; }}); }});
         document.getElementById('modalCancelar').addEventListener('click', function() {{ document.getElementById('modalExportar').classList.remove('open'); }});
         document.getElementById('modalExportar').addEventListener('click', function(e) {{ if (e.target === this) this.classList.remove('open'); }});
+        var modalComentario = document.getElementById('modalComentario');
+        var modalComentarioTexto = document.getElementById('modalComentarioTexto');
+        document.addEventListener('click', function(e) {{
+            var btn = e.target.closest('.comentario-btn');
+            if (!btn) return;
+            modalComentarioTexto.textContent = btn.getAttribute('data-comentario') || '';
+            modalComentario.classList.add('open');
+        }});
+        document.getElementById('modalComentarioCerrar').addEventListener('click', function() {{
+            modalComentario.classList.remove('open');
+        }});
+        modalComentario.addEventListener('click', function(e) {{
+            if (e.target === this) this.classList.remove('open');
+        }});
         document.getElementById('modalExportarBtn').addEventListener('click', function() {{
             var selected = [];
             document.querySelectorAll('#modalCategorias input[type="checkbox"]').forEach(function(cb) {{ if (cb.checked) selected.push(cb.value); }});

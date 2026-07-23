@@ -87,8 +87,12 @@ REPORT_CONFIGS = [
         ),
     },
     {
-        "output_html": os.path.join(SCRIPT_DIR, "Velocidad", "informe_valida_i_velocidad_zarzal.html"),
-        "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Velocidad", "FILES EXPORTED_ZARZAL"),
+        "output_html": os.path.join(
+            SCRIPT_DIR, "Velocidad", "Primer semestre", "informe_valida_i_velocidad_zarzal.html"
+        ),
+        "files_dir": os.path.join(
+            ROOT_DIR, "Resultados_validas", "Velocidad", "Primer semestre", "FILES EXPORTED_ZARZAL"
+        ),
         "session_priority": ["final", "carrera", "clasificatoria", "otros"],
         "title": "Informe I Válida Velocidad - Zarzal, Valle del Cauca | FEDEMOTO",
         "heading": "Informe I Válida Nacional de Velocidad",
@@ -99,8 +103,12 @@ REPORT_CONFIGS = [
         ),
     },
     {
-        "output_html": os.path.join(SCRIPT_DIR, "Velocidad", "informe_valida_ii_velocidad_chachagui.html"),
-        "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Velocidad", "FILES EXPORTED_CHACHAGUI"),
+        "output_html": os.path.join(
+            SCRIPT_DIR, "Velocidad", "Primer semestre", "informe_valida_ii_velocidad_chachagui.html"
+        ),
+        "files_dir": os.path.join(
+            ROOT_DIR, "Resultados_validas", "Velocidad", "Primer semestre", "FILES EXPORTED_CHACHAGUI"
+        ),
         "session_priority": ["final", "carrera", "clasificatoria", "otros"],
         "title": "Informe II Válida Velocidad - Chachagüi, Nariño | FEDEMOTO",
         "heading": "Informe II Válida Nacional de Velocidad",
@@ -111,8 +119,12 @@ REPORT_CONFIGS = [
         ),
     },
     {
-        "output_html": os.path.join(SCRIPT_DIR, "Velocidad", "informe_valida_iii_velocidad_popayan.html"),
-        "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Velocidad", "FILES EXPORTED_POPAYAN"),
+        "output_html": os.path.join(
+            SCRIPT_DIR, "Velocidad", "Primer semestre", "informe_valida_iii_velocidad_popayan.html"
+        ),
+        "files_dir": os.path.join(
+            ROOT_DIR, "Resultados_validas", "Velocidad", "Primer semestre", "FILES EXPORTED_POPAYAN"
+        ),
         "session_priority": ["final", "carrera", "clasificatoria", "otros"],
         "title": "Informe III Válida Velocidad - Popayán, Cauca | FEDEMOTO",
         "heading": "Informe III Válida Nacional de Velocidad",
@@ -120,6 +132,22 @@ REPORT_CONFIGS = [
         "intro": (
             "A continuación se presentan las estadísticas generadas a partir de los resultados "
             "de la III Válida Nacional de Velocidad, realizada en Popayán, Cauca."
+        ),
+    },
+    {
+        "output_html": os.path.join(
+            SCRIPT_DIR, "Velocidad", "Segundo semestre", "informe_valida_i_velocidad_manizales.html"
+        ),
+        "files_dir": os.path.join(
+            ROOT_DIR, "Resultados_validas", "Velocidad", "Segundo semestre", "FILES EXPORTED_MANIZALES"
+        ),
+        "session_priority": ["final", "carrera", "clasificatoria", "otros"],
+        "title": "Informe I Válida Velocidad - Manizales, Caldas | FEDEMOTO",
+        "heading": "Informe I Válida Nacional de Velocidad — Segundo semestre",
+        "subtitle": "Manizales, Caldas — Estadísticas de la válida",
+        "intro": (
+            "A continuación se presentan las estadísticas generadas a partir de los resultados "
+            "de la I Válida Nacional de Velocidad del segundo semestre, realizada en Manizales, Caldas."
         ),
     },
     {

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Genera valida_ii_velocidad_chachagui.html desde FILES EXPORTED_CHACHAGUI."""
+"""Genera valida_iii_velocidad_popayan.html desde FILES EXPORTED_POPAYAN."""
 
 import csv
 import html
@@ -9,8 +9,8 @@ from pathlib import Path
 from urllib.parse import quote
 
 ROOT = Path(__file__).resolve().parent
-CSV_DIR = ROOT / "FILES EXPORTED_CHACHAGUI"
-OUT = ROOT / "valida_ii_velocidad_chachagui.html"
+CSV_DIR = ROOT / "FILES EXPORTED_POPAYAN"
+OUT = ROOT / "valida_iii_velocidad_popayan.html"
 
 ORDER = [
     ("50-cc", "50 CC", "50 CC"),
@@ -177,7 +177,10 @@ def build_data():
 
 def detect_vuelta_folder():
     for p in ROOT.iterdir():
-        if p.is_dir() and normalize_text(p.name).startswith("VUELTA A VUELTA_CHACHAG"):
+        if not p.is_dir():
+            continue
+        name = normalize_text(p.name)
+        if name.startswith("VUELTA A VUELTA") and "POPAYAN" in name:
             return p
     return None
 
@@ -440,8 +443,8 @@ def main():
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>II Válida Nacional de Velocidad - Chachagüi, Nariño | FEDEMOTO</title>
-    <link rel="icon" type="image/png" href="../../fedemoto-logo.png">
+    <title>III Válida Nacional de Velocidad - Popayán, Cauca | FEDEMOTO</title>
+    <link rel="icon" type="image/png" href="../../../fedemoto-logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto+Condensed:wght@300;400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -530,8 +533,8 @@ def main():
     <div id="menu-container"></div>
     <div id="contenido-exportar" class="container">
         <header>
-            <h1>II Válida Nacional de Velocidad</h1>
-            <p>Chachagüi, Nariño - Resultados por categoría</p>
+            <h1>III Válida Nacional de Velocidad</h1>
+            <p>Popayán, Cauca - Resultados por categoría</p>
         </header>
         <div class="toolbar">
             <input type="text" id="buscador" class="search-box" placeholder="Buscar por nombre o N° del piloto..." />
@@ -578,7 +581,7 @@ def main():
             </div>
         </div>
     </div>
-    <script src="../../load-menu.js"></script>
+    <script src="../../../load-menu.js"></script>
     <script>
         document.getElementById('descargarPDF').addEventListener('click', function() {{
             document.querySelectorAll('.search-no-results').forEach(function(el){{ el.classList.remove('search-no-results'); }});
