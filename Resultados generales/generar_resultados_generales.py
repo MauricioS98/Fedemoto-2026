@@ -66,6 +66,23 @@ CHAMPIONSHIPS = [
         "output_html": os.path.join(SCRIPT_DIR, "Motocross", "Primer semestre", "resultado_general_mx_primer_semestre.html"),
     },
     {
+        "id": "motocross_2s",
+        "modalidad": "Motocross",
+        "campeonato": "Segundo semestre",
+        "validas": [
+            {
+                "label": "I Válida MX - Girardota",
+                "files_dir": os.path.join(
+                    ROOT_DIR, "Resultados_validas", "Motocross", "Segundo semestre", "FILES EXPORTED_GIRARDOTA"
+                ),
+            },
+        ],
+        "final_valida_bonus": 8,
+        "output_html": os.path.join(
+            SCRIPT_DIR, "Motocross", "Segundo semestre", "resultado_general_mx_segundo_semestre.html"
+        ),
+    },
+    {
         "id": "velocidad_1s",
         "modalidad": "Velocidad",
         "campeonato": "Primer semestre",

@@ -88,6 +88,22 @@ REPORT_CONFIGS = [
     },
     {
         "output_html": os.path.join(
+            SCRIPT_DIR, "Motocross", "Segundo semestre", "informe_valida_i_mx_girardota.html"
+        ),
+        "files_dir": os.path.join(
+            ROOT_DIR, "Resultados_validas", "Motocross", "Segundo semestre", "FILES EXPORTED_GIRARDOTA"
+        ),
+        "session_priority": ["final", "carrera", "clasificatoria", "otros"],
+        "title": "Informe I Válida MX - Girardota, Antioquia | FEDEMOTO",
+        "heading": "Informe I Válida Nacional de Motocross — Segundo semestre",
+        "subtitle": "Girardota, Antioquia — Estadísticas de la válida",
+        "intro": (
+            "A continuación se presentan las estadísticas generadas a partir de los resultados "
+            "de la I Válida Nacional de Motocross del segundo semestre, realizada en Girardota, Antioquia."
+        ),
+    },
+    {
+        "output_html": os.path.join(
             SCRIPT_DIR, "Velocidad", "Primer semestre", "informe_valida_i_velocidad_zarzal.html"
         ),
         "files_dir": os.path.join(

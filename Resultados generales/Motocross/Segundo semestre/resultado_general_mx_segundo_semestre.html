@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados generales - Motocross - Segundo semestre | FEDEMOTO</title>
+    <link rel="icon" type="image/png" href="../../../fedemoto-logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto+Condensed:wght@300;400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f5f5f5; color: #000; line-height: 1.6; padding: 20px; padding-top: 120px; min-height: 100vh; }
+        .container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.18); overflow: hidden; margin-bottom: 40px; }
+        .container > header { background: linear-gradient(135deg, #123E92 0%, #0f3377 100%); color: white; padding: 40px; text-align: center; }
+        .container > header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 2.2em; margin-bottom: 10px; letter-spacing: 2px; }
+        .container > header p { font-family: 'Roboto Condensed', sans-serif; font-size: 1.2em; opacity: 0.95; }
+        .toolbar { padding: 25px 40px; background: #f8f9fa; border-bottom: 1px solid #c0c0c0; }
+        .search-box { width: 100%; padding: 12px 20px; font-family: 'Inter', sans-serif; font-size: 1em; border: 2px solid #d1d5db; border-radius: 8px; }
+        .search-box:focus { outline: none; border-color: #123E92; box-shadow: 0 0 0 3px rgba(18, 62, 146, 0.2); }
+        .intro-message { padding: 22px 40px; background: #f0f4fc; border-left: 5px solid #123E92; color: #1f2937; border-bottom: 1px solid #c0c0c0; }
+        .index-cards { display: flex; flex-wrap: wrap; gap: 12px; padding: 25px 40px; background: #f8f9fa; border-bottom: 1px solid #c0c0c0; }
+        .index-card { display: inline-block; padding: 10px 20px; background: white; color: #123E92; border: 2px solid #123E92; border-radius: 8px; font-family: 'Roboto Condensed', sans-serif; font-weight: 700; text-decoration: none; }
+        .index-card.search-match { background: #F7C31D; color: #123E92; border-color: #F7C31D; }
+        .index-card.search-no-results { display: none !important; }
+        .content-section { padding: 40px; }
+        .categoria-section { margin-bottom: 38px; border: 2px solid #e0e0e0; border-radius: 12px; overflow: hidden; scroll-margin-top: 115px; }
+        .categoria-section.search-match { border-color: #F7C31D; box-shadow: 0 0 0 3px rgba(247, 195, 29, 0.4); }
+        .categoria-section.search-no-results { display: none !important; }
+        .categoria-header { background: linear-gradient(135deg, #123E92 0%, #0f3377 100%); color: white; padding: 20px 26px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .categoria-header h2 { font-family: 'Bebas Neue', sans-serif; font-size: 1.9em; letter-spacing: 1px; }
+        .btn-top { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; background: rgba(255,255,255,0.2); color: white; border: 2px solid rgba(255,255,255,0.6); border-radius: 8px; cursor: pointer; transition: all 0.2s ease; flex-shrink: 0; }
+        .btn-top:hover { background: #F7C31D; color: #123E92; border-color: #F7C31D; }
+        .btn-top svg { width: 16px; height: 16px; }
+        .table-wrapper { overflow-x: auto; margin: 0; border-top: 1px solid #d1d5db; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.92em; }
+        th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #e0e0e0; white-space: nowrap; }
+        th { background: #123E92; color: white; font-family: 'Roboto Condensed', sans-serif; font-weight: 700; position: sticky; top: 0; }
+        tr:nth-child(odd) { background: #fafafa; }
+        tr:hover { background: #f0f4fc; }
+        tr.pos-1 { background: rgba(247, 195, 29, 0.15) !important; }
+        tr.pos-2 { background: rgba(192, 192, 192, 0.20) !important; }
+        tr.pos-3 { background: rgba(184, 115, 51, 0.16) !important; }
+        tr.search-hidden { display: none !important; }
+        .col-total { font-weight: 700; color: #123E92; }
+        .liga-summary { padding: 22px 40px; background: #f8f9fa; border-bottom: 1px solid #c0c0c0; }
+        .liga-summary h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.6em; color: #123E92; letter-spacing: 1px; margin-bottom: 10px; }
+        .liga-summary table { width: 100%; border-collapse: collapse; font-size: 0.92em; }
+        .liga-summary th, .liga-summary td { padding: 8px 10px; border-bottom: 1px solid #e5e7eb; text-align: left; }
+        .liga-summary th { background: #123E92; color: white; font-family: 'Roboto Condensed', sans-serif; }
+        .liga-summary .num { font-family: 'Bebas Neue', sans-serif; font-size: 1.2em; color: #123E92; }
+        .liga-summary tr.pos-1 { background: rgba(247, 195, 29, 0.15); }
+        .liga-summary tr.pos-2 { background: rgba(192, 192, 192, 0.20); }
+        .liga-summary tr.pos-3 { background: rgba(184, 115, 51, 0.16); }
+        .info-btn { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; margin-left: 6px; border: 1px solid #123E92; border-radius: 999px; background: #e8eef8; color: #123E92; font-size: 12px; font-weight: 700; cursor: pointer; }
+        .info-btn:hover { background: #123E92; color: #fff; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 10020; align-items: center; justify-content: center; }
+        .modal-overlay.open { display: flex; }
+        .modal-box { background: #fff; border-radius: 12px; padding: 24px; max-width: 680px; width: 92%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .modal-box h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.6em; color: #123E92; margin-bottom: 14px; }
+        .modal-box ul { margin-left: 18px; }
+        .modal-box li { margin-bottom: 6px; }
+        .modal-close { margin-top: 14px; padding: 10px 16px; border: 0; border-radius: 8px; background: #123E92; color: #fff; font-family: 'Roboto Condensed', sans-serif; cursor: pointer; }
+        footer { background: #f8f9fa; padding: 30px 40px; text-align: center; border-top: 1px solid #c0c0c0; color: #000; font-family: 'Inter', sans-serif; font-size: 0.9em; }
+        footer .developer { font-family: 'Roboto Condensed', sans-serif; font-weight: 700; color: #123E92; }
+    </style>
+</head>
+<body>
+    <div id="menu-container"></div>
+    <div class="container">
+        <header>
+            <h1>Resultados generales Motocross</h1>
+            <p>Segundo semestre</p>
+        </header>
+        <div class="intro-message">
+            <p>Los resultados generales presentados en esta página están actualizados hasta la fecha <strong>28/07/2026</strong>.</p>
+        </div>
+        <div class="toolbar">
+            <input type="text" id="buscador" class="search-box" placeholder="Buscar por nombre o N° del piloto..." />
+        </div>
+        <div class="index-cards">
+            <a href="#50cc" class="index-card">50cc</a>
+            <a href="#65cc" class="index-card">65cc</a>
+            <a href="#85ccmini" class="index-card">85cc Mini</a>
+            <a href="#85ccjunior" class="index-card">85cc Junior</a>
+            <a href="#125cc" class="index-card">125cc</a>
+            <a href="#femeninaa" class="index-card">Femenina A</a>
+            <a href="#femeninab" class="index-card">Femenina B</a>
+            <a href="#inicio" class="index-card">Inicio</a>
+            <a href="#mxmaster" class="index-card">MX Master</a>
+            <a href="#mxpreexpertos" class="index-card">MX Preexpertos</a>
+            <a href="#mxpro" class="index-card">MX Pro</a>
+            <a href="#mx2" class="index-card">MX2</a>
+        </div>
+        <div class="liga-summary">
+            <h3>Resumen de ligas (podios)</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead><tr><th>Liga</th><th>1ros</th><th>2dos</th><th>3ros</th></tr></thead>
+                    <tbody>
+<tr class="pos-1"><td>Antioquia</td><td class="num">1<button type="button" class="info-btn" data-title="1ros puestos - Antioquia" data-details="[{&quot;categoria&quot;: &quot;Inicio&quot;, &quot;piloto&quot;: &quot;Juan Pablo Cardona Carvajal&quot;, &quot;puntos&quot;: 38.0}]">i</button></td><td class="num">1<button type="button" class="info-btn" data-title="2dos puestos - Antioquia" data-details="[{&quot;categoria&quot;: &quot;85cc Mini&quot;, &quot;piloto&quot;: &quot;Valentino ZULETA CARDONA&quot;, &quot;puntos&quot;: 10.0}]">i</button></td><td class="num">1<button type="button" class="info-btn" data-title="3ros puestos - Antioquia" data-details="[{&quot;categoria&quot;: &quot;Inicio&quot;, &quot;piloto&quot;: &quot;JOSE ANDRES SILVA SIMANCA&quot;, &quot;puntos&quot;: 30.0}]">i</button></td></tr><tr class="pos-2"><td>Bogotá D.C.</td><td class="num">1<button type="button" class="info-btn" data-title="1ros puestos - Bogotá D.C." data-details="[{&quot;categoria&quot;: &quot;85cc Mini&quot;, &quot;piloto&quot;: &quot;Martin OSPINA CUELLO&quot;, &quot;puntos&quot;: 11.0}]">i</button></td><td class="num">0</td><td class="num">0</td></tr><tr class="pos-3"><td>CALDAS</td><td class="num">0</td><td class="num">1<button type="button" class="info-btn" data-title="2dos puestos - CALDAS" data-details="[{&quot;categoria&quot;: &quot;Inicio&quot;, &quot;piloto&quot;: &quot;John Fredy Hernández Osorio&quot;, &quot;puntos&quot;: 35.0}]">i</button></td><td class="num">0</td></tr><tr><td>Risaralda</td><td class="num">0</td><td class="num">0</td><td class="num">1<button type="button" class="info-btn" data-title="3ros puestos - Risaralda" data-details="[{&quot;categoria&quot;: &quot;85cc Mini&quot;, &quot;piloto&quot;: &quot;Esteban ARCILA ACEVEDO&quot;, &quot;puntos&quot;: 9.0}]">i</button></td></tr>                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="content-section">
+            <div class="categoria-section" id="50cc" data-categoria-id="50cc">
+                <div class="categoria-header"><h2>50cc</h2><button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg></button></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Liga</th><th>Club</th><th>Moto</th><th>I</th><th>Bono final</th><th>Total</th></tr></thead><tbody><tr class="pos-1" data-numero="206" data-nombre="Juan Martin HOYOS VASQUEZ"><td>1</td><td>206</td><td>Juan Martin HOYOS VASQUEZ</td><td></td><td></td><td></td><td>33</td><td>8</td><td class="col-total">41</td></tr><tr class="pos-2" data-numero="716" data-nombre="Thomas Andres MAHECHA CARRILLO"><td>2</td><td>716</td><td>Thomas Andres MAHECHA CARRILLO</td><td></td><td></td><td></td><td>28</td><td>8</td><td class="col-total">36</td></tr><tr class="pos-3" data-numero="133" data-nombre="Jorge Mario OCAMPO MEJIA"><td>3</td><td>133</td><td>Jorge Mario OCAMPO MEJIA</td><td></td><td></td><td></td><td>24</td><td>8</td><td class="col-total">32</td></tr><tr class="" data-numero="910" data-nombre="Sebastian LOPEZ MUÑOZ"><td>4</td><td>910</td><td>Sebastian LOPEZ MUÑOZ</td><td></td><td></td><td></td><td>21</td><td>8</td><td class="col-total">29</td></tr><tr class="" data-numero="317" data-nombre="Elias YEPES ZAMORANO"><td>5</td><td>317</td><td>Elias YEPES ZAMORANO</td><td></td><td></td><td></td><td>19</td><td>8</td><td class="col-total">27</td></tr><tr class="" data-numero="13" data-nombre="Valery DIAZ VELASQUEZ"><td>6</td><td>13</td><td>Valery DIAZ VELASQUEZ</td><td></td><td></td><td></td><td>17</td><td>8</td><td class="col-total">25</td></tr></tbody></table></div></div>
+            <div class="categoria-section" id="65cc" data-categoria-id="65cc">
+                <div class="categoria-header"><h2>65cc</h2><button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg></button></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Liga</th><th>Club</th><th>Moto</th><th>I</th><th>Bono final</th><th>Total</th></tr></thead><tbody><tr class="pos-1" data-numero="888" data-nombre="Maximiliano YEPES ZAMORANO"><td>1</td><td>888</td><td>Maximiliano YEPES ZAMORANO</td><td></td><td></td><td></td><td>31</td><td>8</td><td class="col-total">39</td></tr><tr class="pos-2" data-numero="139" data-nombre="Valentino ZULETA CARDONA"><td>2</td><td>139</td><td>Valentino ZULETA CARDONA</td><td></td><td></td><td></td><td>30</td><td>8</td><td class="col-total">38</td></tr><tr class="pos-3" data-numero="35" data-nombre="Juan Angel MORALES GALLEGO"><td>3</td><td>35</td><td>Juan Angel MORALES GALLEGO</td><td></td><td></td><td></td><td>23</td><td>8</td><td class="col-total">31</td></tr><tr class="" data-numero="716" data-nombre="Thomas Andres MAHECHA CARRILLO"><td>4</td><td>716</td><td>Thomas Andres MAHECHA CARRILLO</td><td></td><td></td><td></td><td>20</td><td>8</td><td class="col-total">28</td></tr><tr class="" data-numero="999" data-nombre="Jeronimo pulgarin cardona"><td>5</td><td>999</td><td>Jeronimo pulgarin cardona</td><td></td><td></td><td></td><td>18</td><td>8</td><td class="col-total">26</td></tr><tr class="" data-numero="215" data-nombre="Sebastian LOPEZ CORTES"><td>6</td><td>215</td><td>Sebastian LOPEZ CORTES</td><td></td><td></td><td></td><td>18</td><td>8</td><td class="col-total">26</td></tr></tbody></table></div></div>
+            <div class="categoria-section" id="85ccmini" data-categoria-id="85ccmini">
+                <div class="categoria-header"><h2>85cc Mini</h2><button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg></button></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Liga</th><th>Club</th><th>Moto</th><th>I</th><th>Bono final</th><th>Total</th></tr></thead><tbody><tr class="pos-1" data-numero="111" data-nombre="Martin OSPINA CUELLO"><td>1</td><td>111</td><td>Martin OSPINA CUELLO</td><td>Bogotá D.C.</td><td>Xspeed Racing</td><td>Yamaha</td><td>3</td><td>8</td><td class="col-total">11</td></tr><tr class="pos-2" data-numero="139" data-nombre="Valentino ZULETA CARDONA"><td>2</td><td>139</td><td>Valentino ZULETA CARDONA</td><td>Antioquia</td><td>CLUB ANTIOQUIA 2 RUEDAS RACER</td><td>KTM</td><td>2</td><td>8</td><td class="col-total">10</td></tr><tr class="pos-3" data-numero="420" data-nombre="Esteban ARCILA ACEVEDO"><td>3</td><td>420</td><td>Esteban ARCILA ACEVEDO</td><td>Risaralda</td><td>CLUB LOS GUEPARDOS</td><td>GasGas</td><td>1</td><td>8</td><td class="col-total">9</td></tr><tr class="" data-numero="35" data-nombre="Juan Angel MORALES GALLEGO"><td>4</td><td>35</td><td>Juan Angel MORALES GALLEGO</td><td>Antioquia</td><td>CLUB GRILLOS RACING</td><td>Yamaha</td><td>1</td><td>8</td><td class="col-total">9</td></tr><tr class="" data-numero="626" data-nombre="Juan Antonio PIEDRAHITA VARELA"><td>5</td><td>626</td><td>Juan Antonio PIEDRAHITA VARELA</td><td>Risaralda</td><td>CLUB LOS GUEPARDOS</td><td>Husqvarna</td><td>1</td><td>8</td><td class="col-total">9</td></tr><tr class="" data-numero="120" data-nombre="Matias GOMEZ ORJUELA"><td>6</td><td>120</td><td>Matias GOMEZ ORJUELA</td><td>Bogotá D.C.</td><td>Todo terreno track</td><td>KTM</td><td>1</td><td>8</td><td class="col-total">9</td></tr><tr class="" data-numero="888" data-nombre="Maximiliano YEPES ZAMORANO"><td>7</td><td>888</td><td>Maximiliano YEPES ZAMORANO</td><td>Antioquia</td><td>CLUB GRILLOS RACING</td><td>Yamaha</td><td>1</td><td>8</td><td class="col-total">9</td></tr><tr class="" data-numero="280" data-nombre="Samuel Andres DELGADO RAMIREZ"><td>8</td><td>280</td><td>Samuel Andres DELGADO RAMIREZ</td><td>Nariño</td><td>CLUB DEPORTIVO BUFALO XTREM</td><td>GasGas</td><td>1</td><td>8</td><td class="col-total">9</td></tr><tr class="" data-numero="413" data-nombre="Samuel Emilio CAMACHO PAEZ"><td>9</td><td>413</td><td>Samuel Emilio CAMACHO PAEZ</td><td>Bogotá D.C.</td><td>Xspeed Racing</td><td>GasGas</td><td>1</td><td>8</td><td class="col-total">9</td></tr></tbody></table></div></div>
+            <div class="categoria-section" id="85ccjunior" data-categoria-id="85ccjunior">
+                <div class="categoria-header"><h2>85cc Junior</h2><button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg></button></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Liga</th><th>Club</th><th>Moto</th><th>I</th><th>Bono final</th><th>Total</th></tr></thead><tbody><tr class="pos-1" data-numero="111" data-nombre="Martin OSPINA CUELLO"><td>1</td><td>111</td><td>Martin OSPINA CUELLO</td><td></td><td></td><td></td><td>33</td><td>8</td><td class="col-total">41</td></tr><tr class="pos-2" data-numero="222" data-nombre="Maximiliano RAMIREZ RESTREPO"><td>2</td><td>222</td><td>Maximiliano RAMIREZ RESTREPO</td><td></td><td></td><td></td><td>26</td><td>8</td><td class="col-total">34</td></tr><tr class="pos-3" data-numero="139" data-nombre="Valentino ZULETA CARDONA"><td>3</td><td>139</td><td>Valentino ZULETA CARDONA</td><td></td><td></td><td></td><td>25</td><td>8</td><td class="col-total">33</td></tr><tr class="" data-numero="626" data-nombre="Juan Antonio PIEDRAHITA VARELA"><td>4</td><td>626</td><td>Juan Antonio PIEDRAHITA VARELA</td><td></td><td></td><td></td><td>21</td><td>8</td><td class="col-total">29</td></tr><tr class="" data-numero="420" data-nombre="Esteban ARCILA ACEVEDO"><td>5</td><td>420</td><td>Esteban ARCILA ACEVEDO</td><td></td><td></td><td></td><td>17</td><td>8</td><td class="col-total">25</td></tr><tr class="" data-numero="120" data-nombre="Matias GOMEZ ORJUELA"><td>6</td><td>120</td><td>Matias GOMEZ ORJUELA</td><td></td><td></td><td></td><td>10</td><td>8</td><td class="col-total">18</td></tr><tr class="" data-numero="413" data-nombre="Samuel Emilio CAMACHO PAEZ"><td>7</td><td>413</td><td>Samuel Emilio CAMACHO PAEZ</td><td></td><td></td><td></td><td>10</td><td>8</td><td class="col-total">18</td></tr><tr class="" data-numero="762" data-nombre="Oscar Alejandro VALBUENA ECHEVERRI"><td>8</td><td>762</td><td>Oscar Alejandro VALBUENA ECHEVERRI</td><td></td><td></td><td></td><td>8</td><td>8</td><td class="col-total">16</td></tr></tbody></table></div></div>
+            <div class="categoria-section" id="125cc" data-categoria-id="125cc">
+                <div class="categoria-header"><h2>125cc</h2><button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg></button></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Liga</th><th>Club</th><th>Moto</th><th>I</th><th>Bono final</th><th>Total</th></tr></thead><tbody><tr class="pos-1" data-numero="837" data-nombre="JHOAN ANDRES BARRAGAN ALVAREZ"><td>1</td><td>837</td><td>JHOAN ANDRES BARRAGAN ALVAREZ</td><td></td><td></td><td></td><td>33</td><td>8</td><td class="col-total">41</td></tr><tr class="pos-2" data-numero="114" data-nombre="Miguel Angel LOPEZ MARTINEZ"><td>2</td><td>114</td><td>Miguel Angel LOPEZ MARTINEZ</td><td></td><td></td><td></td><td>28</td><td>8</td><td class="col-total">36</td></tr><tr class="pos-3" data-numero="700" data-nombre="Maximiliano GUERRA ALVAREZ"><td>3</td><td>700</td><td>Maximiliano GUERRA ALVAREZ</td><td></td><td></td><td></td><td>20</td><td>8</td><td class="col-total">28</td></tr><tr class="" data-numero="222" data-nombre="Maximiliano RAMIREZ RESTREPO"><td>4</td><td>222</td><td>Maximiliano RAMIREZ RESTREPO</td><td></td><td></td><td></td><td>20</td><td>8</td><td class="col-total">28</td></tr><tr class="" data-numero="630" data-nombre="Samuel Andres PINTO DUARTE"><td>5</td><td>630</td><td>Samuel Andres PINTO DUARTE</td><td></td><td></td><td></td><td>20</td><td>8</td><td class="col-total">28</td></tr><tr class="" data-numero="247" data-nombre="Martin Estrada Zapata"><td>6</td><td>247</td><td>Martin Estrada Zapata</td><td></td><td></td><td></td><td>15</td><td>8</td><td class="col-total">23</td></tr><tr class="" data-numero="36-2" data-nombre="Thomas PINEDA GONZALEZ"><td>7</td><td>36-2</td><td>Thomas PINEDA GONZALEZ</td><td></td><td></td><td></td><td>15</td><td>8</td><td class="col-total">23</td></tr><tr class="" data-numero="244" data-nombre="Alejandro ANGEL ISAZA"><td>8</td><td>244</td><td>Alejandro ANGEL ISAZA</td><td></td><td></td><td></td><td>13</td><td>8</td><td class="col-total">21</td></tr><tr class="" data-numero="464-E" data-nombre="MATHIAS URREA MORENO"><td>9</td><td>464-E</td><td>MATHIAS URREA MORENO</td><td></td><td></td><td></td><td>10</td><td>8</td><td class="col-total">18</td></tr><tr class="" data-numero="220-E" data-nombre="SEBASTIAN RIOS CONGOTE"><td>10</td><td>220-E</td><td>SEBASTIAN RIOS CONGOTE</td><td></td><td></td><td></td><td>10</td><td>8</td><td class="col-total">18</td></tr><tr class="" data-numero="710" data-nombre="Juan David MENDOZA DUARTE"><td>11</td><td>710</td><td>Juan David MENDOZA DUARTE</td><td></td><td></td><td></td><td>8</td><td>8</td><td class="col-total">16</td></tr><tr class="" data-numero="328" data-nombre="Michelle Lacharme"><td>12</td><td>328</td><td>Michelle Lacharme</td><td></td><td></td><td></td><td>7</td><td>8</td><td class="col-total">15</td></tr></tbody></table></div></div>
+            <div class="categoria-section" id="femeninaa" data-categoria-id="femeninaa">
+                <div class="categoria-header"><h2>Femenina A</h2><button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg></button></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Liga</th><th>Club</th><th>Moto</th><th>I</th><th>Bono final</th><th>Total</th></tr></thead><tbody><tr class="pos-1" data-numero="141" data-nombre="Isabela VILLEGAS BRAND"><td>1</td><td>141</td><td>Isabela VILLEGAS BRAND</td><td></td><td></td><td></td><td>31</td><td>8</td><td class="col-total">39</td></tr><tr class="pos-2" data-numero="555" data-nombre="Luciana MORENO SALCEDO"><td>2</td><td>555</td><td>Luciana MORENO SALCEDO</td><td></td><td></td><td></td><td>29</td><td>8</td><td class="col-total">37</td></tr><tr class="pos-3" data-numero="727" data-nombre="Alexandra NARVAEZ OLAYA"><td>3</td><td>727</td><td>Alexandra NARVAEZ OLAYA</td><td></td><td></td><td></td><td>22</td><td>8</td><td class="col-total">30</td></tr><tr class="" data-numero="828" data-nombre="Karol Melisa VARGAS CARVAJAL"><td>4</td><td>828</td><td>Karol Melisa VARGAS CARVAJAL</td><td></td><td></td><td></td><td>21</td><td>8</td><td class="col-total">29</td></tr><tr class="" data-numero="834" data-nombre="Valery Fernanda ARIAS ARCOS"><td>5</td><td>834</td><td>Valery Fernanda ARIAS ARCOS</td><td></td><td></td><td></td><td>21</td><td>8</td><td class="col-total">29</td></tr></tbody></table></div></div>
+            <div class="categoria-section" id="femeninab" data-categoria-id="femeninab">
+                <div class="categoria-header"><h2>Femenina B</h2><button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg></button></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Liga</th><th>Club</th><th>Moto</th><th>I</th><th>Bono final</th><th>Total</th></tr></thead><tbody><tr class="pos-1" data-numero="98-E" data-nombre="salome henao torres"><td>1</td><td>98-E</td><td>salome henao torres</td><td></td><td></td><td></td><td>33</td><td>8</td><td class="col-total">41</td></tr></tbody></table></div></div>
+            <div class="categoria-section" id="inicio" data-categoria-id="inicio">
+                <div class="categoria-header"><h2>Inicio</h2><button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg></button></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Liga</th><th>Club</th><th>Moto</th><th>I</th><th>Bono final</th><th>Total</th></tr></thead><tbody><tr class="pos-1" data-numero="75" data-nombre="Juan Pablo Cardona Carvajal"><td>1</td><td>75</td><td>Juan Pablo Cardona Carvajal</td><td>Antioquia</td><td>CLUB MOTOCROSS YARUMAL</td><td>Honda</td><td>30</td><td>8</td><td class="col-total">38</td></tr><tr class="pos-2" data-numero="821" data-nombre="John Fredy Hernández Osorio"><td>2</td><td>821</td><td>John Fredy Hernández Osorio</td><td>CALDAS</td><td></td><td>YAMAHA</td><td>27</td><td>8</td><td class="col-total">35</td></tr><tr class="pos-3" data-numero="287" data-nombre="JOSE ANDRES SILVA SIMANCA"><td>3</td><td>287</td><td>JOSE ANDRES SILVA SIMANCA</td><td>Antioquia</td><td>CLUB MOTOCROSS DE YARUMAL</td><td>Yamaha</td><td>22</td><td>8</td><td class="col-total">30</td></tr><tr class="" data-numero="97" data-nombre="Juan Camilo Restrepo Ospina"><td>4</td><td>97</td><td>Juan Camilo Restrepo Ospina</td><td>Antioquia</td><td>CLUB MOTOCROSS DE YARUMAL</td><td>Yamaha</td><td>20</td><td>8</td><td class="col-total">28</td></tr><tr class="" data-numero="61" data-nombre="Luis Fernando LOPEZ"><td>5</td><td>61</td><td>Luis Fernando LOPEZ</td><td>Putumayo</td><td>CLUB EXTREME RACING</td><td>Husqvarna</td><td>20</td><td>8</td><td class="col-total">28</td></tr><tr class="" data-numero="58" data-nombre="Diego Ignacio ROJAS ROSERO"><td>6</td><td>58</td><td>Diego Ignacio ROJAS ROSERO</td><td>Nariño</td><td>CLUB DEPORTIVO BUFALO XTREM</td><td>Yamaha</td><td>17</td><td>8</td><td class="col-total">25</td></tr><tr class="" data-numero="750" data-nombre="FREDDY ANDRES HOLGUIN LOAIZA"><td>7</td><td>750</td><td>FREDDY ANDRES HOLGUIN LOAIZA</td><td>Meta</td><td>CLUB DE MOTOCICLISMO SANTIHC 146</td><td>Yamaha</td><td>16</td><td>8</td><td class="col-total">24</td></tr><tr class="" data-numero="92-E" data-nombre="Jhon wilmar Quirama Arredondo"><td>8</td><td>92-E</td><td>Jhon wilmar Quirama Arredondo</td><td>Antioquia</td><td>CLUB GRILLOS RACING</td><td>Kawasaki</td><td>7</td><td>8</td><td class="col-total">15</td></tr><tr class="" data-numero="89" data-nombre="Luis Felipe PALOMINO MEJIA"><td>9</td><td>89</td><td>Luis Felipe PALOMINO MEJIA</td><td>Tolima - DEPARTAMENTAL</td><td>CLUB PISTON RACING</td><td>Yamaha</td><td>3</td><td>8</td><td class="col-total">11</td></tr></tbody></table></div></div>
+            <div class="categoria-section" id="mxmaster" data-categoria-id="mxmaster">
+                <div class="categoria-header"><h2>MX Master</h2><button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg></button></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Liga</th><th>Club</th><th>Moto</th><th>I</th><th>Bono final</th><th>Total</th></tr></thead><tbody><tr class="pos-1" data-numero="36" data-nombre="Jhon Jairo PINEDA VELASQUEZ"><td>1</td><td>36</td><td>Jhon Jairo PINEDA VELASQUEZ</td><td></td><td></td><td></td><td>33</td><td>8</td><td class="col-total">41</td></tr><tr class="pos-2" data-numero="79" data-nombre="Ricardo RESTREPO URIBE"><td>2</td><td>79</td><td>Ricardo RESTREPO URIBE</td><td></td><td></td><td></td><td>26</td><td>8</td><td class="col-total">34</td></tr><tr class="pos-3" data-numero="214" data-nombre="Damian Monroy Valencia"><td>3</td><td>214</td><td>Damian Monroy Valencia</td><td></td><td></td><td></td><td>24</td><td>8</td><td class="col-total">32</td></tr><tr class="" data-numero="11" data-nombre="German Dario TREJO COLLAZOS"><td>4</td><td>11</td><td>German Dario TREJO COLLAZOS</td><td></td><td></td><td></td><td>21</td><td>8</td><td class="col-total">29</td></tr><tr class="" data-numero="778" data-nombre="Fredy Alberto Holguin Farfan"><td>5</td><td>778</td><td>Fredy Alberto Holguin Farfan</td><td></td><td></td><td></td><td>18</td><td>8</td><td class="col-total">26</td></tr><tr class="" data-numero="311" data-nombre="Henry MORENO BENAVIDES"><td>6</td><td>311</td><td>Henry MORENO BENAVIDES</td><td></td><td></td><td></td><td>15</td><td>8</td><td class="col-total">23</td></tr><tr class="" data-numero="523" data-nombre="Richard Alexander ALARCON ALVAREZ"><td>7</td><td>523</td><td>Richard Alexander ALARCON ALVAREZ</td><td></td><td></td><td></td><td>10</td><td>8</td><td class="col-total">18</td></tr></tbody></table></div></div>
+            <div class="categoria-section" id="mxpreexpertos" data-categoria-id="mxpreexpertos">
+                <div class="categoria-header"><h2>MX Preexpertos</h2><button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg></button></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Liga</th><th>Club</th><th>Moto</th><th>I</th><th>Bono final</th><th>Total</th></tr></thead><tbody><tr class="pos-1" data-numero="53" data-nombre="Simón RESTREPO GUZMAN"><td>1</td><td>53</td><td>Simón RESTREPO GUZMAN</td><td></td><td></td><td></td><td>33</td><td>8</td><td class="col-total">41</td></tr><tr class="pos-2" data-numero="811" data-nombre="SEBASTIAN LOPEZ MONCAYO"><td>2</td><td>811</td><td>SEBASTIAN LOPEZ MONCAYO</td><td></td><td></td><td></td><td>28</td><td>8</td><td class="col-total">36</td></tr><tr class="pos-3" data-numero="821" data-nombre="John Fredy Hernández Osorio"><td>3</td><td>821</td><td>John Fredy Hernández Osorio</td><td></td><td></td><td></td><td>23</td><td>8</td><td class="col-total">31</td></tr><tr class="" data-numero="612" data-nombre="Alejandro DIAZ GARCIA"><td>4</td><td>612</td><td>Alejandro DIAZ GARCIA</td><td></td><td></td><td></td><td>20</td><td>8</td><td class="col-total">28</td></tr><tr class="" data-numero="4" data-nombre="Mauricio Alexander URBANO QUINTAZ"><td>5</td><td>4</td><td>Mauricio Alexander URBANO QUINTAZ</td><td></td><td></td><td></td><td>20</td><td>8</td><td class="col-total">28</td></tr></tbody></table></div></div>
+            <div class="categoria-section" id="mxpro" data-categoria-id="mxpro">
+                <div class="categoria-header"><h2>MX Pro</h2><button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg></button></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Liga</th><th>Club</th><th>Moto</th><th>I</th><th>Bono final</th><th>Total</th></tr></thead><tbody><tr class="pos-1" data-numero="919" data-nombre="David CHACON GUZMAN"><td>1</td><td>919</td><td>David CHACON GUZMAN</td><td></td><td></td><td></td><td>33</td><td>8</td><td class="col-total">41</td></tr><tr class="pos-2" data-numero="170" data-nombre="Juan Jose HOYOS VELEZ"><td>2</td><td>170</td><td>Juan Jose HOYOS VELEZ</td><td></td><td></td><td></td><td>25</td><td>8</td><td class="col-total">33</td></tr><tr class="pos-3" data-numero="38" data-nombre="PABLO MOGOLLON"><td>3</td><td>38</td><td>PABLO MOGOLLON</td><td></td><td></td><td></td><td>15</td><td>8</td><td class="col-total">23</td></tr><tr class="" data-numero="211" data-nombre="Yeison Alexander QUIÑONES RICO"><td>4</td><td>211</td><td>Yeison Alexander QUIÑONES RICO</td><td></td><td></td><td></td><td>1</td><td>8</td><td class="col-total">9</td></tr></tbody></table></div></div>
+            <div class="categoria-section" id="mx2" data-categoria-id="mx2">
+                <div class="categoria-header"><h2>MX2</h2><button type="button" class="btn-top" title="Ir al inicio" aria-label="Ir al inicio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h5v8h6v-8h5L12 4z"/></svg></button></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Pos.</th><th>N°</th><th>Nombre</th><th>Liga</th><th>Club</th><th>Moto</th><th>I</th><th>Bono final</th><th>Total</th></tr></thead><tbody><tr class="pos-1" data-numero="837" data-nombre="JHOAN ANDRES BARRAGAN ALVAREZ"><td>1</td><td>837</td><td>JHOAN ANDRES BARRAGAN ALVAREZ</td><td></td><td></td><td></td><td>30</td><td>8</td><td class="col-total">38</td></tr><tr class="pos-2" data-numero="114" data-nombre="Miguel Angel LOPEZ MARTINEZ"><td>2</td><td>114</td><td>Miguel Angel LOPEZ MARTINEZ</td><td></td><td></td><td></td><td>27</td><td>8</td><td class="col-total">35</td></tr><tr class="pos-3" data-numero="71" data-nombre="JERONIMO ROMAN VELASQUEZ"><td>3</td><td>71</td><td>JERONIMO ROMAN VELASQUEZ</td><td></td><td></td><td></td><td>25</td><td>8</td><td class="col-total">33</td></tr><tr class="" data-numero="710" data-nombre="Juan David MENDOZA DUARTE"><td>4</td><td>710</td><td>Juan David MENDOZA DUARTE</td><td></td><td></td><td></td><td>22</td><td>8</td><td class="col-total">30</td></tr><tr class="" data-numero="107" data-nombre="Miguel Angel FLOREZ VALENCIA"><td>5</td><td>107</td><td>Miguel Angel FLOREZ VALENCIA</td><td></td><td></td><td></td><td>19</td><td>8</td><td class="col-total">27</td></tr><tr class="" data-numero="211" data-nombre="Yeison Alexander QUIÑONES RICO"><td>6</td><td>211</td><td>Yeison Alexander QUIÑONES RICO</td><td></td><td></td><td></td><td>10</td><td>8</td><td class="col-total">18</td></tr></tbody></table></div></div>
+        </div>
+        <footer>
+            <p><span class="developer">Developed by Mauricio Sánchez Aguilar - Fedemoto</span></p>
+            <p>Este proyecto es de uso interno de FEDEMOTO.</p>
+        </footer>
+    </div>
+    <div id="modalLigaDetalle" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="modalLigaDetalleTitle">Detalle</h3>
+            <div id="modalLigaDetalleBody"></div>
+            <button type="button" id="modalLigaDetalleClose" class="modal-close">Cerrar</button>
+        </div>
+    </div>
+    <script src="../../../load-menu.js"></script>
+    <script>
+        function escapeHtml(t) {
+            return (t + '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+        function renderLigaDetails(raw) {
+            var list = [];
+            try { list = JSON.parse(raw); } catch (e) { list = []; }
+            if (!Array.isArray(list) || list.length === 0) return '<p>Sin detalles disponibles.</p>';
+            var html = '<ul>';
+            list.forEach(function(item) {
+                var cat = (item.categoria || '');
+                var pil = (item.piloto || '');
+                var pts = (item.puntos || 0);
+                html += '<li><strong>' + escapeHtml(cat) + '</strong> — ' + escapeHtml(pil) + ' (' + pts + ' pts)</li>';
+            });
+            html += '</ul>';
+            return html;
+        }
+        var modal = document.getElementById('modalLigaDetalle');
+        var modalTitle = document.getElementById('modalLigaDetalleTitle');
+        var modalBody = document.getElementById('modalLigaDetalleBody');
+        document.querySelectorAll('.info-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                modalTitle.textContent = this.getAttribute('data-title') || 'Detalle';
+                modalBody.innerHTML = renderLigaDetails(this.getAttribute('data-details') || '[]');
+                modal.classList.add('open');
+            });
+        });
+        document.getElementById('modalLigaDetalleClose').addEventListener('click', function() {
+            modal.classList.remove('open');
+        });
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) this.classList.remove('open');
+        });
+        document.querySelectorAll('.btn-top').forEach(function(btn) {
+            btn.addEventListener('click', function() { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+        });
+        var buscador = document.getElementById('buscador');
+        buscador.addEventListener('input', function() {
+            var q = this.value.trim().toLowerCase();
+            var sections = document.querySelectorAll('.categoria-section');
+            var cards = document.querySelectorAll('.index-card');
+            cards.forEach(function(c){ c.classList.remove('search-match', 'search-no-results'); });
+            sections.forEach(function(s){ s.classList.remove('search-match', 'search-no-results'); });
+            if (!q) {
+                document.querySelectorAll('.search-hidden').forEach(function(tr){ tr.classList.remove('search-hidden'); });
+                return;
+            }
+            sections.forEach(function(section) {
+                var rows = section.querySelectorAll('tbody tr[data-numero], tbody tr[data-nombre]');
+                var visible = 0;
+                rows.forEach(function(tr) {
+                    var num = (tr.getAttribute('data-numero') || '').toLowerCase();
+                    var nom = (tr.getAttribute('data-nombre') || '').toLowerCase();
+                    var match = num.indexOf(q) >= 0 || nom.indexOf(q) >= 0;
+                    tr.classList.toggle('search-hidden', !match);
+                    if (match) visible++;
+                });
+                var id = section.getAttribute('data-categoria-id');
+                var card = document.querySelector('.index-card[href="#' + id + '"]');
+                if (visible > 0) {
+                    section.classList.add('search-match');
+                    if (card) card.classList.add('search-match');
+                } else {
+                    section.classList.add('search-no-results');
+                    if (card) card.classList.add('search-no-results');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

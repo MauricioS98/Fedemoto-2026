@@ -106,7 +106,7 @@ def build_laptimes_pdf_map(pdf_dir, format_categoria_name, tipo_from_last_part_f
         if not fn.lower().endswith(".pdf"):
             continue
         stem = fn[:-4]
-        stem = re.sub(r"\s*-\s*Laptimes\s*$", "", stem, flags=re.I).strip()
+        stem = re.sub(r"\s*-\s*Laptimes(?:Reduced)?\s*$", "", stem, flags=re.I).strip()
         parts = [p.strip() for p in re.split(r"\s+-\s+", stem, flags=re.I) if p.strip()]
         if len(parts) < 2:
             continue
