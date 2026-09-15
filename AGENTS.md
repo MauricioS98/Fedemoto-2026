@@ -40,3 +40,13 @@ Siempre que el usuario añada o mencione carpetas `FILES EXPORTED_*` y `VUELTA A
 4. **Menú de navegación (`menu.html`)**:
    - Agregar el enlace del informe en `Informes > [Modalidad] > [Semestre]`.
    - Agregar el enlace de la válida en `Resultados de válidas > [Modalidad] > [Semestre]`.
+
+---
+
+## 3. Comando Rápido: `/nuevo RP` (Reglamentos Particulares)
+
+Cuando el usuario use el comando `/nuevo RP` o pida incorporar reglamentos particulares:
+- Activar el skill `nuevo-rp`.
+- Ejecutar el script automatizado `.agents/skills/nuevo-rp/scripts/sincronizar_rp_menu.py`.
+- Escaneará automáticamente los PDFs en `Reglamentos particulares/` y agregará cualquier archivo faltante al submenú correspondiente en `menu.html` con `target="_blank"`.
+
