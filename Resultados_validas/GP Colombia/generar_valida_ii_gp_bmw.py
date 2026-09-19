@@ -50,6 +50,7 @@ ESCUELA_FEDEMOTO = "Escuela Fedemoto"
 SUPERMOTO_EXP_METZELER = "Supermoto Expertos Metzeler"
 SUPERMOTO_NOV_METZELER = "Supermoto Novatos Metzeler"
 SUZUKI_GSX = "Suzuki GSX R/S 150"
+CUATRIMOTARD = "Cuatrimotard (II + III GP)"
 
 COMBINED_SUPER_STOCK = "super stock 600 y 1000"
 COMBINED_X_BIKES = "x-bikes a y b"
@@ -62,9 +63,13 @@ SS_1000_NUMEROS = {"131", "244", "46", "293", "698", "360", "930", "79", "558", 
 SESSION_SORT_KEY = {
     "Final": 0,
     "Clasificación final": 1,
+    "I Válida": 1.5,
+    "II Válida": 1.6,
     "Clasificatoria": 2,
     "Práctica clasificatoria 1": 2,
     "Práctica clasificatoria 2": 2.5,
+    "I Práctica Clasificatoria": 2.8,
+    "II Práctica Clasificatoria": 2.9,
     "Carrera 1": 3,
     "Carrera 2": 4,
     "Carrera": 5,
@@ -81,13 +86,17 @@ def canonical_session_tipo(tipo):
         return "Clasificación final"
     if folded == "final" or (folded.endswith("final") and "clasific" not in folded):
         return "Final"
-    if "ii practica" in folded or "practica 2" in folded:
-        return "Práctica clasificatoria 2"
+    if "ii practica" in folded or "practica 2" in folded or "ii practica clasificatoria" in folded:
+        return "II Práctica Clasificatoria"
     if "practica" in folded or "primera practica" in folded:
-        return "Clasificatoria"
-    if re.search(r"carrera\s*1", folded) or re.search(r"^1\s*carrera", folded) or folded in ("i val", "carrera 1"):
+        return "I Práctica Clasificatoria" if "i practica" in folded else "Clasificatoria"
+    if folded in ("i val", "i valida"):
+        return "I Válida"
+    if folded in ("ii val", "ii valida"):
+        return "II Válida"
+    if re.search(r"carrera\s*1", folded) or re.search(r"^1\s*carrera", folded) or folded in ("carrera 1",):
         return "Carrera 1"
-    if re.search(r"carrera\s*2", folded) or re.search(r"^2\s*carrera", folded) or folded in ("ii val", "carrera 2"):
+    if re.search(r"carrera\s*2", folded) or re.search(r"^2\s*carrera", folded) or folded in ("carrera 2",):
         return "Carrera 2"
     if "carrera" in folded:
         return "Carrera"
@@ -103,6 +112,8 @@ def format_categoria_name(name):
     if not name:
         return name
     folded = _fold_accents(name).lower().strip()
+    if "cuatrimotard" in folded:
+        return CUATRIMOTARD
     if "supermoto expertos" in folded:
         return SUPERMOTO_EXP_METZELER
     if "supermoto novatos" in folded:
@@ -141,7 +152,21 @@ def parse_filename(filename):
     if len(parts) < 2:
         return (format_categoria_name(parts[0] if parts else name), "Final", 0)
     rest = _fold_accents(" - ".join(parts[1:])).lower()
+    rest_cat = _fold_accents(" - ".join(parts[:-1])).lower()
     tipo_str = _fold_accents(parts[-1]).lower()
+
+    if "minibike fedemoto" in rest_cat or "escuela fedemoto" in rest_cat:
+        if "ii val" in tipo_str:
+            tipo = "II Válida"
+        elif "i val" in tipo_str:
+            tipo = "I Válida"
+        elif "ii practica" in tipo_str:
+            tipo = "II Práctica Clasificatoria"
+        elif "practica" in tipo_str:
+            tipo = "I Práctica Clasificatoria"
+        else:
+            tipo = format_categoria_name(parts[-1])
+        return (ESCUELA_FEDEMOTO, tipo, SESSION_SORT_KEY.get(tipo, 99))
     
     if "clasificacion final" in rest or "clasificatoria final" in rest:
         tipo = "Clasificación final"
@@ -188,6 +213,7 @@ def get_category_sort_key(categoria):
         "femenina": 59,
         "femenina expertas": 60,
         "femenina novatas": 61,
+        "cuatrimotard (ii + iii gp)": 70,
         "cuatrimotard": 70,
         "super bike": 80,
         "super sport": 81,
@@ -381,12 +407,9 @@ def load_categorias_data():
             rows = [r for r in rows if len(r) > 1 and r[1].strip() and r[1].strip() != "518"]
             comentarios = comentarios[:len(rows)]
             h_clean = [format_header(h) for h in headers]
-            if tipo == "Carrera 1":
-                escuela_c1 = (h_clean, rows, comentarios)
-            elif tipo == "Carrera 2":
-                escuela_c2 = (h_clean, rows, comentarios)
-            else:
-                escuela_practicas.append((tipo, sort_key, h_clean, rows, comentarios))
+            categorias_data.setdefault(ESCUELA_FEDEMOTO, []).append(
+                (tipo, sort_key, h_clean, rows, comentarios)
+            )
             continue
         
         headers, rows, comentarios = remove_comentario_column_and_collect(headers_raw, rows_raw)
@@ -445,53 +468,6 @@ def load_categorias_data():
         ("Carrera", SESSION_SORT_KEY["Carrera"], xb_a_h, xb_a_r, [""] * len(xb_a_r))
     )
 
-    # 5. Integrar Escuela Fedemoto (Carrera 1, Carrera 2, Final sumada)
-    if escuela_c1 and escuela_c2:
-        # Calcular final sumando Carrera 1 y 2
-        pts_map = defaultdict(float)
-        meta_map = {}
-        for c_data in (escuela_c1, escuela_c2):
-            h, rows, _ = c_data
-            idx_num = gmx.find_col_index(h, ("n°", "nº", "numero", "n"))
-            idx_pts = gmx.find_col_index(h, ("puntos", "total puntos"))
-            idx_nom = gmx.find_col_index(h, ("nombre",))
-            idx_liga = gmx.find_col_index(h, ("liga",))
-            idx_club = gmx.find_col_index(h, ("club",))
-            idx_moto = gmx.find_col_index(h, ("moto",))
-            for r in rows:
-                num = normalize_numero(r[idx_num])
-                try:
-                    p = float(r[idx_pts])
-                except Exception:
-                    p = 0.0
-                pts_map[num] += p
-                if num not in meta_map:
-                    meta_map[num] = {
-                        "nombre": r[idx_nom] if idx_nom >= 0 and idx_nom < len(r) else "",
-                        "liga": r[idx_liga] if idx_liga >= 0 and idx_liga < len(r) else "",
-                        "club": r[idx_club] if idx_club >= 0 and idx_club < len(r) else "",
-                        "moto": r[idx_moto] if idx_moto >= 0 and idx_moto < len(r) else "",
-                    }
-        # Ordenar por puntos desc
-        sorted_pilots = sorted(pts_map.items(), key=lambda x: -x[1])
-        final_rows = []
-        for pos_idx, (num, pts) in enumerate(sorted_pilots, 1):
-            m = meta_map[num]
-            final_rows.append([str(pos_idx), num, m["nombre"], str(int(pts)), m["moto"], m["liga"], m["club"]])
-        final_headers = ["Pos.", "N°", "Nombre", "Puntos", "Moto", "Liga", "Club"]
-        
-        categorias_data.setdefault(ESCUELA_FEDEMOTO, []).append(
-            ("Final", SESSION_SORT_KEY["Final"], final_headers, final_rows, [""] * len(final_rows))
-        )
-        categorias_data.setdefault(ESCUELA_FEDEMOTO, []).append(
-            ("Carrera 1", SESSION_SORT_KEY["Carrera 1"], escuela_c1[0], escuela_c1[1], escuela_c1[2])
-        )
-        categorias_data.setdefault(ESCUELA_FEDEMOTO, []).append(
-            ("Carrera 2", SESSION_SORT_KEY["Carrera 2"], escuela_c2[0], escuela_c2[1], escuela_c2[2])
-        )
-        for ep in escuela_practicas:
-            categorias_data.setdefault(ESCUELA_FEDEMOTO, []).append(ep)
-
     # Ordenar sesiones dentro de cada categoría
     for cat in categorias_data:
         categorias_data[cat].sort(key=lambda x: (SESSION_SORT_KEY.get(x[0], 99), x[0]))
@@ -506,6 +482,9 @@ def pick_main_session(tablas, final_data, clasif_final_data, clasif_data, carrer
         return "Final", final_data
     if clasif_final_data:
         return "Clasificación final", clasif_final_data
+    for t in tablas:
+        if t[0] == "I Válida":
+            return "I Válida", (t[1], t[2], t[3])
     if c1_data and c2_data:
         return "Carrera 1", c1_data
     if carrera_data:
@@ -609,14 +588,25 @@ def build_vuelta_a_vuelta_map(pdf_dir):
         m[(X_BIKES_B.lower(), "Carrera")] = fn_xb
 
     # Escuela Fedemoto
-    fn_c1 = m.get(("escuela fedemoto", "Carrera 1"))
-    if not fn_c1:
-        # buscar MINIBIKE FEDEMOTO - I VAL
-        for f in os.listdir(pdf_dir):
-            if "minibike fedemoto" in f.lower() and "i val" in f.lower():
-                m[(ESCUELA_FEDEMOTO.lower(), "Carrera 1")] = f
-            elif "minibike fedemoto" in f.lower() and "ii val" in f.lower():
-                m[(ESCUELA_FEDEMOTO.lower(), "Carrera 2")] = f
+    for f in os.listdir(pdf_dir):
+        fl = f.lower()
+        if "minibike fedemoto" in fl or "escuela fedemoto" in fl:
+            if "ii val" in fl:
+                m[(ESCUELA_FEDEMOTO.lower(), "II Válida")] = f
+                m[(ESCUELA_FEDEMOTO.lower(), "II Valida")] = f
+                m[(ESCUELA_FEDEMOTO.lower(), "ii válida")] = f
+                m[(ESCUELA_FEDEMOTO.lower(), "ii valida")] = f
+            elif "i val" in fl:
+                m[(ESCUELA_FEDEMOTO.lower(), "I Válida")] = f
+                m[(ESCUELA_FEDEMOTO.lower(), "I Valida")] = f
+                m[(ESCUELA_FEDEMOTO.lower(), "i válida")] = f
+                m[(ESCUELA_FEDEMOTO.lower(), "i valida")] = f
+
+    # Cuatrimotard (II + III GP)
+    for ses in ("Carrera 1", "Carrera 2", "Final", "Clasificatoria"):
+        fn = m.get(("cuatrimotard", ses))
+        if fn:
+            m[(CUATRIMOTARD.lower(), ses)] = fn
 
     # Supermoto Metzeler
     for sub, raw_name in (
@@ -1068,7 +1058,7 @@ def _find_stats_indexes(headers):
 def _pick_main_session_items(items):
     tipos = {canonical_session_tipo(x[0]) for x in items}
     has_two_races = "Carrera 1" in tipos and "Carrera 2" in tipos
-    priority = ["Final"] if has_two_races else ["Carrera"]
+    priority = ["Final"] if has_two_races else ["Carrera", "I Válida", "II Válida"]
 
     by_tipo = defaultdict(list)
     for item in items:
@@ -1091,7 +1081,7 @@ def _pick_main_session_items_informe(items):
     if has_two_races:
         priority = ["Final", "Clasificación final", "Carrera 1", "Clasificatoria"]
     else:
-        priority = ["Carrera", "Clasificación final", "Clasificatoria", "Final"]
+        priority = ["Carrera", "I Válida", "II Válida", "Clasificación final", "Clasificatoria", "Final"]
 
     by_tipo = defaultdict(list)
     for item in items:
@@ -1119,7 +1109,7 @@ def _export_valida_rows(files_dir, pick_session_fn):
             if len(row) <= idx["numero"]:
                 continue
             numero = str(row[idx["numero"]]).strip()
-            if not numero:
+            if not numero or numero == "518":
                 continue
             pts = 0.0
             if mode == "puntos" and idx["puntos"] is not None and idx["puntos"] < len(row):
@@ -1139,6 +1129,59 @@ def _export_valida_rows(files_dir, pick_session_fn):
         if cat_rows:
             out[categoria] = cat_rows
     return out
+
+def _load_escuela_val_rows(filename):
+    path = os.path.join(FILES_DIR, filename)
+    if not os.path.exists(path):
+        return []
+    headers, rows = parse_csv(path)
+    idx_num = gmx.find_col_index(headers, ("n°", "nº", "numero", "n"))
+    idx_nom = gmx.find_col_index(headers, ("nombre",))
+    idx_pts = gmx.find_col_index(headers, ("puntos", "total puntos"))
+    idx_liga = gmx.find_col_index(headers, ("liga",))
+    idx_club = gmx.find_col_index(headers, ("club",))
+    idx_moto = gmx.find_col_index(headers, ("moto",))
+    out = []
+    for r in rows:
+        if len(r) <= max(idx_num, idx_nom):
+            continue
+        num = str(r[idx_num]).strip()
+        if not num or num == "518":
+            continue
+        try:
+            pts = float(re.search(r"-?\d+(\.\d+)?", str(r[idx_pts]).replace(",", ".")).group(0)) if idx_pts >= 0 else 0.0
+        except Exception:
+            pts = 0.0
+        out.append({
+            "numero": num,
+            "nombre": str(r[idx_nom]).strip() if idx_nom >= 0 else "",
+            "liga": str(r[idx_liga]).strip() if idx_liga >= 0 and idx_liga < len(r) else "",
+            "club": str(r[idx_club]).strip() if idx_club >= 0 and idx_club < len(r) else "",
+            "moto": str(r[idx_moto]).strip() if idx_moto >= 0 and idx_moto < len(r) else "",
+            "clase": "",
+            "puntos": pts,
+        })
+    return out
+
+def export_escuela_fedemoto_valida_i_rows(files_dir=None):
+    global FILES_DIR
+    prev = FILES_DIR
+    if files_dir:
+        FILES_DIR = files_dir
+    try:
+        return _load_escuela_val_rows("MINIBIKE FEDEMOTO - I VAL - Resultados.csv")
+    finally:
+        FILES_DIR = prev
+
+def export_escuela_fedemoto_valida_ii_rows(files_dir=None):
+    global FILES_DIR
+    prev = FILES_DIR
+    if files_dir:
+        FILES_DIR = files_dir
+    try:
+        return _load_escuela_val_rows("MINIBIKE FEDEMOTO - II VAL - Resultados.csv")
+    finally:
+        FILES_DIR = prev
 
 def export_valida_general_rows(files_dir=None):
     return _export_valida_rows(files_dir, _pick_main_session_items)

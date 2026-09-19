@@ -315,6 +315,7 @@ def normalize_chart_label(raw):
     out = " ".join(words)
     out = re.sub(r"(?i)\bGsc\s+R\s+S\b", "GSX R/S", out)
     out = re.sub(r"(?i)\bGsx\s+R/s\b", "GSX R/S", out)
+    out = re.sub(r"(?i)\(ii\s*\+\s*iii\s*gp\)", "(II + III GP)", out)
     return out
 
 

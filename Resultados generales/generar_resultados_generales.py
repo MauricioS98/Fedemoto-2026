@@ -296,6 +296,7 @@ def categoria_sort_key(modalidad, categoria):
             "femenina expertas": 61,
             "super stock 600": 70,
             "super stock 1000": 71,
+            "cuatrimotard (ii + iii gp)": 80,
             "cuatrimotard": 80,
             "super sport": 81,
             "super bike": 82,
@@ -329,6 +330,8 @@ def load_gp_valida_category_rows(files_dir):
             k = "Supermoto Novatos Metzeler"
         elif k.lower() in ("minibike fedemoto", "escuela fedemoto"):
             k = "Escuela Fedemoto"
+        elif k.lower() in ("cuatrimotard", "cuatrimotard (ii + iii gp)"):
+            k = "Cuatrimotard (II + III GP)"
         canonical[k] = rows
     return canonical
 
@@ -815,6 +818,17 @@ def build_general_table(champ):
             data_by_valida.append(load_gp_valida_category_rows(v["files_dir"]))
         else:
             data_by_valida.append(load_valida_category_rows(v["files_dir"], modalidad=modalidad))
+
+    if champ.get("gp_colombia") and len(data_by_valida) >= 2:
+        # Caso excepcional Escuela Fedemoto:
+        # En el GP BMW se corrieron dos válidas de Escuela Fedemoto (I VAL y II VAL),
+        # que corresponden a la primera y segunda válida del campeonato general.
+        gp_dir = os.path.join(ROOT_DIR, "Resultados_validas", "GP Colombia")
+        if gp_dir not in sys.path:
+            sys.path.insert(0, gp_dir)
+        import generar_valida_ii_gp_bmw as gp_bmw
+        data_by_valida[0]["Escuela Fedemoto"] = gp_bmw.export_escuela_fedemoto_valida_i_rows()
+        data_by_valida[1]["Escuela Fedemoto"] = gp_bmw.export_escuela_fedemoto_valida_ii_rows()
 
     categorias = set()
     for d in data_by_valida:
