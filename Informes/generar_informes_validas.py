@@ -270,6 +270,23 @@ REPORT_CONFIGS = [
             "de la I Válida GP Colombia 2026, Gran Premio Vitrix."
         ),
     },
+    {
+        "output_html": os.path.join(SCRIPT_DIR, "GP Colombia", "informe_valida_ii_gp_colombia_bmw.html"),
+        "files_dir": os.path.join(
+            ROOT_DIR,
+            "Resultados_validas",
+            "GP Colombia",
+            "FILES EXPORTED_Gran Premio BMW",
+        ),
+        "gp_colombia": True,
+        "title": "Informe II Válida GP Colombia - Gran Premio BMW | FEDEMOTO",
+        "heading": "Informe II Válida GP Colombia",
+        "subtitle": "Gran Premio BMW — Estadísticas de la válida",
+        "intro": (
+            "A continuación se presentan las estadísticas generadas a partir de los resultados "
+            "de la II Válida GP Colombia 2026, Gran Premio BMW, realizada en el Autódromo de Tocancipá."
+        ),
+    },
 ]
 
 
@@ -431,7 +448,10 @@ def analyze_gp_colombia(files_dir):
     gp_dir = os.path.join(ROOT_DIR, "Resultados_validas", "GP Colombia")
     if gp_dir not in sys.path:
         sys.path.insert(0, gp_dir)
-    import generar_valida_i_gp_vitrix as gp
+    if files_dir and "bmw" in files_dir.lower():
+        import generar_valida_ii_gp_bmw as gp
+    else:
+        import generar_valida_i_gp_vitrix as gp
 
     by_categoria = defaultdict(list)
     rows_by_cat = gp.export_valida_informe_rows(files_dir)

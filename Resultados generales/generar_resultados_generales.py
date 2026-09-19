@@ -199,6 +199,15 @@ CHAMPIONSHIPS = [
                     "FILES EXPORTED_Gran Premio Vitrix",
                 ),
             },
+            {
+                "label": "II Válida GP Colombia - Gran Premio BMW",
+                "files_dir": os.path.join(
+                    ROOT_DIR,
+                    "Resultados_validas",
+                    "GP Colombia",
+                    "FILES EXPORTED_Gran Premio BMW",
+                ),
+            },
         ],
         "output_html": os.path.join(SCRIPT_DIR, "GP Colombia", "resultado_general_gp_colombia_2026.html"),
     },
@@ -264,34 +273,38 @@ def categoria_sort_key(modalidad, categoria):
         return (order.get(c, 99), categoria)
     if modalidad == "GP Colombia":
         order = {
-            "115cc elite": 0,
-            "115cc infantil": 1,
+            "115cc infantil": 0,
+            "115cc elite": 1,
             "115cc inicio": 2,
             "115cc master": 3,
             "150cc": 10,
-            "150cc inicio": 11,
-            "150cc master": 12,
-            "200cc 2t": 20,
-            "220cc 4t": 21,
+            "150cc master": 11,
+            "150cc inicio": 12,
+            "escuela fedemoto": 20,
+            "minibike fedemoto": 20,
             "minibike 190": 30,
             "minimotard": 31,
-            "x-bikes a": 32,
-            "x-bikes b": 33,
-            "yamaha r15": 34,
-            "suzuki gsx r/s 150": 35,
+            "yamaha r15": 32,
+            "suzuki gsx r/s 150": 33,
+            "200cc 2t": 34,
+            "220cc 4t": 35,
             "street race 250": 40,
-            "crs expertos": 50,
-            "crs novatos": 51,
+            "crs novatos": 50,
+            "crs expertos": 51,
             "femenina": 59,
-            "femenina expertas": 60,
-            "femenina novatas": 61,
-            "cuatrimotard": 70,
-            "super bike": 80,
+            "femenina novatas": 60,
+            "femenina expertas": 61,
+            "super stock 600": 70,
+            "super stock 1000": 71,
+            "cuatrimotard": 80,
             "super sport": 81,
-            "super stock 600": 82,
-            "super stock 1000": 83,
-            "supermoto expertos - metzeler": 90,
-            "supermoto novatos - metzeler": 91,
+            "super bike": 82,
+            "x-bikes b": 85,
+            "x-bikes a": 86,
+            "supermoto novatos metzeler": 90,
+            "supermoto novatos - metzeler": 90,
+            "supermoto expertos metzeler": 91,
+            "supermoto expertos - metzeler": 91,
         }
         return (order.get(c, 99), categoria)
     return (99, categoria)
@@ -301,9 +314,23 @@ def load_gp_valida_category_rows(files_dir):
     gp_dir = os.path.join(ROOT_DIR, "Resultados_validas", "GP Colombia")
     if gp_dir not in sys.path:
         sys.path.insert(0, gp_dir)
-    import generar_valida_i_gp_vitrix as gp
+    if files_dir and "bmw" in files_dir.lower():
+        import generar_valida_ii_gp_bmw as gp
+    else:
+        import generar_valida_i_gp_vitrix as gp
 
-    return gp.export_valida_general_rows(files_dir)
+    rows_by_cat = gp.export_valida_general_rows(files_dir)
+    canonical = {}
+    for cat, rows in rows_by_cat.items():
+        k = cat.strip()
+        if k.lower() in ("supermoto expertos - metzeler", "supermoto expertos metzeler"):
+            k = "Supermoto Expertos Metzeler"
+        elif k.lower() in ("supermoto novatos - metzeler", "supermoto novatos metzeler"):
+            k = "Supermoto Novatos Metzeler"
+        elif k.lower() in ("minibike fedemoto", "escuela fedemoto"):
+            k = "Escuela Fedemoto"
+        canonical[k] = rows
+    return canonical
 
 
 def choose_main_file(files):
