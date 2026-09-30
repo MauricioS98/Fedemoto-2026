@@ -77,7 +77,6 @@ CHAMPIONSHIPS = [
                 ),
             },
         ],
-        "final_valida_bonus": 8,
         "output_html": os.path.join(
             SCRIPT_DIR, "Motocross", "Segundo semestre", "resultado_general_mx_segundo_semestre.html"
         ),
