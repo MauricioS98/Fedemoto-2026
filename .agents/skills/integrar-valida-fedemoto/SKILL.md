@@ -54,8 +54,20 @@ Verificar los nombres de archivo CSV en `FILES EXPORTED`:
    - `VUELTA_DIR`: Carpeta `VUELTA A VUELTA_*`.
    - `OUTPUT_FILE`: `valida_<num_romano>_<prefijo>_<ciudad_slug>.html`.
    - Mapear el `VUELTA_A_VUELTA_MAP` con `build_vuelta_a_vuelta_map`.
-4. Inyectar el tema institucional `fedemoto-theme.css` y reemplazar títulos (`<h1>`, `<title>`, `<p>`).
-5. Ejecutar el script con Python para generar el HTML de resultados.
+4. **Cruce de Metadatos de Pilotos (MOTO, LIGA, CLUB):**
+   - En `build_data()`, cruzar siempre los datos de `MOTO`, `LIGA` y `CLUB` entre todas las sesiones de cada categoría (ej. entre Clasificatoria y Carrera) para que ninguna fila quede con celdas vacías si la información existe en algún archivo de la válida.
+5. **Estructura Semántica de Bloques de Sesión:**
+   - Asignar `class="final-block"` **únicamente** a la sesión principal puntuable (ej. sesión "Final" o "Carrera").
+   - Las sesiones complementarias (como "Clasificatoria" o "Entrenamientos") deben llevar `class="session-block"`. Esto permite al motor de exportación a PDF identificar con precisión la tabla oficial de la válida.
+6. **Botón y Modal de Exportación a PDF:**
+   - El HTML debe incluir el botón `#descargarPDF` ("📄 Descargar resultados en PDF") y el modal `#modalExportar` con selector de categorías.
+   - El motor global `exportar-resultados-pdf.js` se inyecta automáticamente mediante `load-menu.js` (o enlazado directo con `<script src="../../exportar-resultados-pdf.js"></script>`).
+   - El motor genera un PDF vectorial estilo Excel con:
+     - Logo oficial de FEDEMOTO y barra bicromática institucional (#123E92 y #F7C31D).
+     - Columnas obligatorias: **Pos.**, **N°**, **Nombre**, **Moto**, **Liga**, **Club**, más métricas de carrera.
+     - Resaltado suave de podios (oro, plata y bronce).
+7. Inyectar el tema institucional `fedemoto-theme.css` y reemplazar títulos (`<h1>`, `<title>`, `<p>`).
+8. Ejecutar el script con Python para generar el HTML de resultados.
 
 ### Paso 4: Generar el Informe Estadístico (`Informes/`)
 1. Abrir `Informes/generar_informes_validas.py`.
@@ -87,6 +99,8 @@ Verificar los nombres de archivo CSV en `FILES EXPORTED`:
    - Si el usuario **DECLARÓ EXPLÍCITAMENTE** que es la válida final: incluir `"final_valida_bonus": 8`.
    - Si el usuario **NO** dijo textualmente que es la final: **NO** incluir `final_valida_bonus`.
 5. Ejecutar `python "Resultados generales/generar_resultados_generales.py"`.
+   - El script cruza automáticamente `Moto`, `Liga` y `Club` de todos los CSVs de la válida para que no queden datos vacíos.
+   - La página generada cuenta automáticamente con el botón `📄 Exportar a PDF` para descargar las tablas acumuladas y el resumen de ligas.
 6. Si el generador toca las fechas de otros campeonatos que no cambiaron, descartar esos cambios con `git checkout` para mantener limpios solo los archivos pertinentes.
 
 ### Paso 6: Actualizar el Menú de Navegación (`menu.html`)
@@ -104,4 +118,7 @@ Verificar los nombres de archivo CSV en `FILES EXPORTED`:
 1. Comprobar que los scripts de Python terminen con código 0.
 2. Revisar `git status` para confirmar que se generaron los archivos correctos.
 3. Verificar que los enlaces "Ver vuelta a vuelta" abran los PDFs correspondientes.
-4. Presentar el resumen detallado al usuario.
+4. **Verificar el botón "Exportar a PDF":**
+   - En la página de la válida: comprobar que el botón `#descargarPDF` abra el modal y descargue el PDF vectorial con tablas estilo Excel, logo de FEDEMOTO y las columnas **Moto**, **Liga** y **Club** completas.
+   - En los resultados generales: comprobar que el botón `#descargarPDFGeneral` exporte las tablas acumuladas con la misma identidad institucional.
+5. Presentar el resumen detallado al usuario.

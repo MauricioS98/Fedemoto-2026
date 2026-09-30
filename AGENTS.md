@@ -24,8 +24,11 @@ Siempre que el usuario añada o mencione carpetas `FILES EXPORTED_*` y `VUELTA A
 1. **Resultados de la válida (`Resultados_validas/`)**:
    - Generar el script `generar_valida_*.py` y el HTML `valida_*.html`.
    - Normalizar nombres de categorías no estándar según la modalidad (ej. en Velotierra `200 EXPERTOS` y `200 NOVATOS` pasan a `Expertos` y `Novatos`).
+   - Cruzar metadatos (`MOTO`, `LIGA`, `CLUB`) entre sesiones en `build_data()` para que no queden celdas vacías.
+   - Asignar `class="final-block"` únicamente a la sesión principal (Final/Carrera) y `class="session-block"` a las complementarias (Clasificatorias).
    - Asociar vuelta a vuelta (`VUELTA A VUELTA_*`) a cada sesión con el botón "Ver vuelta a vuelta".
    - Aplicar el tema institucional `fedemoto-theme.css`.
+   - Asegurar el botón `#descargarPDF` y modal para exportar PDF vectorial estilo Excel con logo FEDEMOTO y datos de Moto, Liga y Club completos (`exportar-resultados-pdf.js`).
 
 2. **Informe estadístico (`Informes/`)**:
    - Registrar la válida en `Informes/generar_informes_validas.py` (`REPORT_CONFIGS`).
@@ -34,7 +37,7 @@ Siempre que el usuario añada o mencione carpetas `FILES EXPORTED_*` y `VUELTA A
 3. **Resultados generales acumulados (`Resultados generales/`)**:
    - Agregar la nueva válida al campeonato en `Resultados generales/generar_resultados_generales.py` (`CHAMPIONSHIPS`).
    - Respetar la **Regla de Oro del Bono Final** descrita arriba.
-   - Regenerar el HTML `resultado_general_*.html`.
+   - Regenerar el HTML `resultado_general_*.html` asegurando que las columnas Moto, Liga y Club queden completas.
    - Mantener limpios los demás campeonatos no modificados descartando fechas tocadas por el script.
 
 4. **Menú de navegación (`menu.html`)**:
