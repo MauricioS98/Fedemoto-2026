@@ -278,6 +278,14 @@
                 document.head.appendChild(themeLink);
             }
 
+            // Cargar módulo global de exportación limpia a PDF
+            if (!document.getElementById('exportar-pdf-script') && !document.querySelector('script[src*="exportar-resultados-pdf.js"]')) {
+                const pdfScript = document.createElement('script');
+                pdfScript.id = 'exportar-pdf-script';
+                pdfScript.src = normalizedBasePath + 'exportar-resultados-pdf.js';
+                document.head.appendChild(pdfScript);
+            }
+
             // Verificar si los estilos ya están cargados
             if (document.getElementById('menu-styles')) {
                 return;

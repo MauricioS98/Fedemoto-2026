@@ -1027,6 +1027,13 @@ def render_html(champ, table_by_categoria):
         .modal-box ul {{ margin-left: 18px; }}
         .modal-box li {{ margin-bottom: 6px; }}
         .modal-close {{ margin-top: 14px; padding: 10px 16px; border: 0; border-radius: 8px; background: #123E92; color: #fff; font-family: 'Roboto Condensed', sans-serif; cursor: pointer; }}
+        .btn-pdf {{ display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 22px; background: #123E92; color: white; border: none; border-radius: 8px; font-family: 'Roboto Condensed', sans-serif; font-size: 1.05em; font-weight: 700; cursor: pointer; transition: all 0.2s ease; white-space: nowrap; }}
+        .btn-pdf:hover {{ background: #0f3377; transform: translateY(-1px); }}
+        .modal-btn {{ padding: 10px 20px; border-radius: 8px; font-family: 'Roboto Condensed', sans-serif; font-weight: 700; cursor: pointer; border: none; }}
+        .modal-btn-primary {{ background: #123E92; color: #fff; }}
+        .modal-btn-primary:hover {{ background: #0f3377; }}
+        .modal-btn-secondary {{ background: #fff; color: #374151; border: 1px solid #d1d5db; }}
+        .modal-btn-secondary:hover {{ background: #f3f4f6; }}
         footer {{ background: #f8f9fa; padding: 30px 40px; text-align: center; border-top: 1px solid #c0c0c0; color: #000; font-family: 'Inter', sans-serif; font-size: 0.9em; }}
         footer .developer {{ font-family: 'Roboto Condensed', sans-serif; font-weight: 700; color: #123E92; }}
     </style>
@@ -1041,8 +1048,9 @@ def render_html(champ, table_by_categoria):
         <div class="intro-message">
             <p>Los resultados generales presentados en esta página están actualizados hasta la fecha <strong>{generated_at}</strong>.</p>
         </div>
-        <div class="toolbar">
-            <input type="text" id="buscador" class="search-box" placeholder="Buscar por nombre o N° del piloto..." />
+        <div class="toolbar" style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+            <input type="text" id="buscador" class="search-box" style="flex: 1; min-width: 250px;" placeholder="Buscar por nombre o N° del piloto..." />
+            <button type="button" id="descargarPDFGeneral" class="btn-pdf">Exportar a PDF</button>
         </div>
         <div class="index-cards">
 """]
@@ -1142,6 +1150,7 @@ def render_html(champ, table_by_categoria):
             <button type="button" id="modalLigaDetalleClose" class="modal-close">Cerrar</button>
         </div>
     </div>
+    <script src="{rel_to_root}exportar-resultados-pdf.js"></script>
     <script src="{rel_to_root}load-menu.js"></script>
     <script>
         function escapeHtml(t) {{
