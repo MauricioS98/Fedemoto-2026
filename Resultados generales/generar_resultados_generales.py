@@ -547,6 +547,9 @@ def canonical_velotierra_categoria(cat):
 
 def load_valida_category_rows(files_dir, modalidad=None):
     by_cat_files = defaultdict(list)
+    folder_meta_by_num = {}
+    folder_meta_by_name = {}
+
     for filename in os.listdir(files_dir):
         if not filename.lower().endswith(".csv"):
             continue
@@ -559,6 +562,36 @@ def load_valida_category_rows(files_dir, modalidad=None):
         elif modalidad == "Velotierra":
             categoria = canonical_velotierra_categoria(categoria)
         by_cat_files[categoria].append((tipo, path))
+
+        # Scan for rider metadata across all CSVs in the folder
+        with open(path, "r", encoding="utf-8-sig", newline="") as fp:
+            c_raw = fp.read()
+        c_lines = c_raw.splitlines()
+        if not c_lines:
+            continue
+        c_delim = csv_delimiter_from_first_line(c_lines[0])
+        c_rows = list(csv.reader(c_lines, delimiter=c_delim))
+        if not c_rows:
+            continue
+        c_idx = find_indexes(c_rows[0])
+        for cr in c_rows[1:]:
+            c_num = str(cr[c_idx["numero"]]).strip() if c_idx["numero"] is not None and c_idx["numero"] < len(cr) else ""
+            c_nom = str(cr[c_idx["nombre"]]).strip() if c_idx["nombre"] is not None and c_idx["nombre"] < len(cr) else ""
+            c_moto = str(cr[c_idx["moto"]]).strip() if c_idx["moto"] is not None and c_idx["moto"] < len(cr) else ""
+            c_liga = str(cr[c_idx["liga"]]).strip() if c_idx["liga"] is not None and c_idx["liga"] < len(cr) else ""
+            c_club = str(cr[c_idx["club"]]).strip() if c_idx["club"] is not None and c_idx["club"] < len(cr) else ""
+
+            for k, target in ((c_num, folder_meta_by_num), (normalize_rider_name(c_nom), folder_meta_by_name)):
+                if not k:
+                    continue
+                if k not in target:
+                    target[k] = {}
+                if c_moto and c_moto not in ("-", "--", "N/A") and not target[k].get("moto"):
+                    target[k]["moto"] = c_moto
+                if c_liga and c_liga not in ("-", "--", "N/A", "SIN LIGA") and not target[k].get("liga"):
+                    target[k]["liga"] = c_liga
+                if c_club and c_club not in ("-", "--", "N/A", "SIN CLUB") and not target[k].get("club"):
+                    target[k]["club"] = c_club
 
     out = {}
     for categoria, files in by_cat_files.items():
@@ -619,12 +652,25 @@ def load_valida_category_rows(files_dir, modalidad=None):
                 if pts is None:
                     continue
                 clase_v = ""
+
+            nombre_str = str(r[idx["nombre"]]).strip()
+            norm_name = normalize_rider_name(nombre_str)
+            meta = folder_meta_by_num.get(numero) or folder_meta_by_name.get(norm_name) or {}
+
+            raw_liga = str(r[idx["liga"]]).strip() if idx["liga"] is not None and idx["liga"] < len(r) else ""
+            raw_club = str(r[idx["club"]]).strip() if idx["club"] is not None and idx["club"] < len(r) else ""
+            raw_moto = str(r[idx["moto"]]).strip() if idx["moto"] is not None and idx["moto"] < len(r) else ""
+
+            liga_val = raw_liga if raw_liga and raw_liga not in ("-", "--", "N/A", "SIN LIGA") else meta.get("liga", "")
+            club_val = raw_club if raw_club and raw_club not in ("-", "--", "N/A", "SIN CLUB") else meta.get("club", "")
+            moto_val = raw_moto if raw_moto and raw_moto not in ("-", "--", "N/A") else meta.get("moto", "")
+
             cat_rows.append({
                 "numero": numero,
-                "nombre": str(r[idx["nombre"]]).strip(),
-                "liga": str(r[idx["liga"]]).strip() if idx["liga"] is not None and idx["liga"] < len(r) else "",
-                "club": str(r[idx["club"]]).strip() if idx["club"] is not None and idx["club"] < len(r) else "",
-                "moto": str(r[idx["moto"]]).strip() if idx["moto"] is not None and idx["moto"] < len(r) else "",
+                "nombre": nombre_str,
+                "liga": liga_val,
+                "club": club_val,
+                "moto": moto_val,
                 "clase": clase_v,
                 "puntos": pts,
             })
@@ -789,12 +835,16 @@ def merge_riders_by_name(rows):
                 break
 
         total = sum_valida_points(merged_pv) + (bonif if bonif is not None else 0.0)
+        merged_liga = next((r["liga"] for r in group if r.get("liga") and r["liga"] not in ("-", "--", "N/A", "SIN LIGA")), latest.get("liga", ""))
+        merged_club = next((r["club"] for r in group if r.get("club") and r["club"] not in ("-", "--", "N/A", "SIN CLUB")), latest.get("club", ""))
+        merged_moto = next((r["moto"] for r in group if r.get("moto") and r["moto"] not in ("-", "--", "N/A")), latest.get("moto", ""))
+
         merged_rows.append({
             "numero": latest["numero"],
             "nombre": latest["nombre"],
-            "liga": latest["liga"],
-            "club": latest["club"],
-            "moto": latest["moto"],
+            "liga": merged_liga,
+            "club": merged_club,
+            "moto": merged_moto,
             "clase": latest.get("clase", ""),
             "por_valida": merged_pv,
             "bonificacion_asistencia": bonif,

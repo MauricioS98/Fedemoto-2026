@@ -172,6 +172,41 @@ def build_data():
             data[categoria] = {}
         data[categoria][tipo] = read_csv(path)
         source_files[(categoria, tipo)] = path.name
+
+    # Cross-fill rider metadata (MOTO, LIGA, CLUB) across sessions
+    for categoria, sessions in data.items():
+        rider_meta_by_num = {}
+        rider_meta_by_name = {}
+        for tipo, rows in sessions.items():
+            for r in rows:
+                num = value_by_aliases(r, ["N°", "Nº", "N"])
+                nom = value_by_aliases(r, ["NOMBRE"])
+                moto = value_by_aliases(r, ["MOTO"])
+                liga = value_by_aliases(r, ["LIGA"])
+                club = value_by_aliases(r, ["CLUB"])
+                for k, target in ((num, rider_meta_by_num), (normalize_text(nom), rider_meta_by_name)):
+                    if not k:
+                        continue
+                    if k not in target:
+                        target[k] = {}
+                    if moto and moto not in ("-", "--", "N/A") and not target[k].get("MOTO"):
+                        target[k]["MOTO"] = moto
+                    if liga and liga not in ("-", "--", "N/A", "SIN LIGA") and not target[k].get("LIGA"):
+                        target[k]["LIGA"] = liga
+                    if club and club not in ("-", "--", "N/A", "SIN CLUB") and not target[k].get("CLUB"):
+                        target[k]["CLUB"] = club
+
+        # Populate missing values in all sessions
+        for tipo, rows in sessions.items():
+            for r in rows:
+                num = value_by_aliases(r, ["N°", "Nº", "N"])
+                nom = value_by_aliases(r, ["NOMBRE"])
+                meta = rider_meta_by_num.get(num) or rider_meta_by_name.get(normalize_text(nom)) or {}
+                for field in ("MOTO", "LIGA", "CLUB"):
+                    cur = value_by_aliases(r, [field])
+                    if (not cur or cur in ("-", "--", "N/A", "SIN LIGA", "SIN CLUB")) and meta.get(field):
+                        r[field] = meta[field]
+
     return data, source_files
 
 
@@ -394,7 +429,9 @@ def section_html(section_id, title, cat_key, all_data, vuelta_map, vuelta_folder
         rows = sessions.get(label, [])
         if not rows:
             return
-        content.append('<div class="final-block">')
+        is_main = label in ("Carrera", "Final")
+        block_cls = "final-block" if is_main else "session-block"
+        content.append(f'<div class="{block_cls}">')
         content.append(session_title_block(cat_key, label, vuelta_map, vuelta_folder, source_files, allow_link))
         content.append('<div class="table-wrapper">')
         content.append(builder(rows))

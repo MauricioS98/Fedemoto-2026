@@ -159,39 +159,53 @@
         }
     }
 
+    // Normalizar cadenas para búsqueda flexible de pilotos
+    function normalizeRiderKey(str) {
+        return (str || '')
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9]+/g, '')
+            .trim();
+    }
+
     // Configurar estilos de columnas automáticos tipo Excel
     function getExcelColumnStyles(headers) {
         const styles = {};
         headers.forEach((h, idx) => {
             const hLow = (h || '').toLowerCase().trim();
-            if (hLow === 'pos.' || hLow === 'pos') {
+            if (['pos.', 'pos', 'p.'].includes(hLow)) {
+                styles[idx] = { halign: 'center', fontStyle: 'bold', cellWidth: 11 };
+            } else if (['n°', 'nº', 'n', 'num', 'no.', 'numero'].includes(hLow)) {
                 styles[idx] = { halign: 'center', fontStyle: 'bold', cellWidth: 12 };
-            } else if (hLow === 'n°' || hLow === 'n' || hLow === 'num' || hLow === 'no.') {
-                styles[idx] = { halign: 'center', fontStyle: 'bold', cellWidth: 14 };
             } else if (hLow.includes('nombre') || hLow.includes('piloto')) {
-                styles[idx] = { halign: 'left', fontStyle: 'bold' };
-            } else if (hLow === 'liga') {
-                styles[idx] = { halign: 'left', cellWidth: 26 };
-            } else if (hLow === 'club') {
-                styles[idx] = { halign: 'left', cellWidth: 38 };
-            } else if (hLow === 'moto') {
-                styles[idx] = { halign: 'left', cellWidth: 22 };
-            } else if (hLow.startsWith('r') && hLow.endsWith('.')) {
-                styles[idx] = { halign: 'center', cellWidth: 13 };
-            } else if (['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x'].includes(hLow)) {
-                styles[idx] = { halign: 'center', cellWidth: 13 };
-            } else if (hLow.includes('total')) {
-                styles[idx] = { halign: 'center', fontStyle: 'bold', textColor: [18, 62, 146], cellWidth: 18 };
-            } else if (hLow.includes('bono')) {
-                styles[idx] = { halign: 'center', fontStyle: 'bold', cellWidth: 18 };
+                styles[idx] = { halign: 'left', fontStyle: 'bold', cellWidth: 38 };
+            } else if (hLow.includes('moto') || hLow.includes('marca')) {
+                styles[idx] = { halign: 'left', cellWidth: 20 };
+            } else if (hLow.includes('liga')) {
+                styles[idx] = { halign: 'left', cellWidth: 24 };
+            } else if (hLow.includes('club')) {
+                styles[idx] = { halign: 'left', cellWidth: 34 };
+            } else if (hLow.includes('clase') || hLow.includes('categoria')) {
+                styles[idx] = { halign: 'center', cellWidth: 18 };
+            } else if (hLow.includes('puntos') || hLow.includes('pts')) {
+                styles[idx] = { halign: 'center', fontStyle: 'bold', cellWidth: 16 };
             } else if (hLow.includes('dif')) {
                 styles[idx] = { halign: 'center', cellWidth: 18 };
-            } else if (hLow.includes('tiempo') || hLow.includes('tm')) {
+            } else if (hLow.includes('tiempo') || hLow.includes('tm') || hLow.includes('t°')) {
                 styles[idx] = { halign: 'center', cellWidth: 20 };
+            } else if (hLow.includes('en vuelta')) {
+                styles[idx] = { halign: 'center', cellWidth: 14 };
             } else if (hLow.includes('vuelta')) {
-                styles[idx] = { halign: 'center', cellWidth: 15 };
-            } else if (hLow.includes('puntos')) {
-                styles[idx] = { halign: 'center', cellWidth: 15 };
+                styles[idx] = { halign: 'center', cellWidth: 13 };
+            } else if (['q', 'c1', 'c2', 'c3', 'r1', 'r2', 'r3', 'r1.', 'r2.'].includes(hLow)) {
+                styles[idx] = { halign: 'center', cellWidth: 12 };
+            } else if (['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x'].includes(hLow)) {
+                styles[idx] = { halign: 'center', cellWidth: 12 };
+            } else if (hLow.includes('bono')) {
+                styles[idx] = { halign: 'center', fontStyle: 'bold', cellWidth: 16 };
+            } else if (hLow.includes('total')) {
+                styles[idx] = { halign: 'center', fontStyle: 'bold', textColor: [18, 62, 146], cellWidth: 16 };
             } else {
                 styles[idx] = { halign: 'center' };
             }
@@ -199,8 +213,8 @@
         return styles;
     }
 
-    // Configuración base de AutoTable estilo Excel
-    function getExcelTableConfig(head, body, startY, extraOptions) {
+    // Configuración base de AutoTable estilo Excel con soporte de encabezado multi-página
+    function getExcelTableConfig(docCtx, head, body, startY, extraOptions) {
         const colStyles = getExcelColumnStyles(head[0] || []);
         return Object.assign({
             startY: startY,
@@ -230,12 +244,23 @@
                 fillColor: [248, 249, 250] // Cebra suave
             },
             columnStyles: colStyles,
+            didDrawPage: function () {
+                if (docCtx && docCtx.doc) {
+                    drawPageHeader(docCtx.doc, docCtx.headerH1, docCtx.headerP, docCtx.todayStr);
+                }
+            },
             didParseCell: function (data) {
                 if (data.section === 'body') {
-                    // Resaltado elegante de los 3 primeros lugares
-                    const isPos1 = data.row.raw._isPos1;
-                    const isPos2 = data.row.raw._isPos2;
-                    const isPos3 = data.row.raw._isPos3;
+                    const rowRaw = data.row.raw;
+                    let isPos1 = rowRaw._isPos1;
+                    let isPos2 = rowRaw._isPos2;
+                    let isPos3 = rowRaw._isPos3;
+                    if (!isPos1 && !isPos2 && !isPos3 && rowRaw.length > 0) {
+                        const p = (rowRaw[0] || '').toString().trim();
+                        if (p === '1') isPos1 = true;
+                        else if (p === '2') isPos2 = true;
+                        else if (p === '3') isPos3 = true;
+                    }
                     if (isPos1) {
                         data.cell.styles.fillColor = [254, 243, 199]; // Oro suave #FEF3C7
                     } else if (isPos2) {
@@ -273,6 +298,173 @@
         return { head: [headRow], body: bodyRows };
     }
 
+    // Escanear todas las tablas para construir mapa de metadatos de pilotos (Moto, Liga, Club)
+    function buildRiderMetadataMap(rootEl) {
+        rootEl = rootEl || document;
+        const byNum = {};
+        const byName = {};
+
+        const allTables = rootEl.querySelectorAll('table');
+        allTables.forEach(table => {
+            const ths = Array.from(table.querySelectorAll('thead th')).map(th => getCleanCellText(th).toLowerCase().trim());
+            if (ths.length === 0) return;
+
+            const colIdx = {
+                num: ths.findIndex(h => ['n°', 'nº', 'n', 'num', 'no.', 'numero'].includes(h)),
+                nom: ths.findIndex(h => h.includes('nombre') || h.includes('piloto')),
+                moto: ths.findIndex(h => h.includes('moto') || h.includes('marca')),
+                liga: ths.findIndex(h => h.includes('liga')),
+                club: ths.findIndex(h => h.includes('club'))
+            };
+
+            if (colIdx.num === -1 && colIdx.nom === -1) return;
+
+            const trs = table.querySelectorAll('tbody tr');
+            trs.forEach(tr => {
+                const tds = tr.querySelectorAll('td');
+                if (tds.length === 0) return;
+
+                const num = colIdx.num !== -1 && colIdx.num < tds.length ? getCleanCellText(tds[colIdx.num]) : '';
+                const nom = colIdx.nom !== -1 && colIdx.nom < tds.length ? getCleanCellText(tds[colIdx.nom]) : '';
+                const moto = colIdx.moto !== -1 && colIdx.moto < tds.length ? getCleanCellText(tds[colIdx.moto]) : '';
+                const liga = colIdx.liga !== -1 && colIdx.liga < tds.length ? getCleanCellText(tds[colIdx.liga]) : '';
+                const club = colIdx.club !== -1 && colIdx.club < tds.length ? getCleanCellText(tds[colIdx.club]) : '';
+
+                const cleanNum = num.trim();
+                const cleanName = normalizeRiderKey(nom);
+
+                const isValidVal = (v) => v && !['-', '--', 'n/a', 'sin liga', 'sin club'].includes(v.toLowerCase().trim());
+
+                [cleanNum, cleanName].forEach(k => {
+                    if (!k) return;
+                    const target = k === cleanNum ? byNum : byName;
+                    if (!target[k]) target[k] = {};
+                    if (isValidVal(moto) && !target[k].moto) target[k].moto = moto;
+                    if (isValidVal(liga) && !target[k].liga) target[k].liga = liga;
+                    if (isValidVal(club) && !target[k].club) target[k].club = club;
+                });
+            });
+        });
+
+        return { byNum, byName };
+    }
+
+    // Consultar metadatos de un piloto
+    function lookupRider(riderMap, num, nom) {
+        if (!riderMap) return {};
+        const cleanNum = (num || '').toString().trim();
+        const cleanName = normalizeRiderKey(nom);
+
+        const mNum = riderMap.byNum ? riderMap.byNum[cleanNum] : null;
+        const mNom = riderMap.byName ? riderMap.byName[cleanName] : null;
+
+        return {
+            moto: (mNum && mNum.moto) || (mNom && mNom.moto) || '',
+            liga: (mNum && mNum.liga) || (mNom && mNom.liga) || '',
+            club: (mNum && mNum.club) || (mNom && mNom.club) || ''
+        };
+    }
+
+    // Garantizar que la tabla contenga y muestre Moto, Liga y Club para todos los pilotos
+    function ensureMotoLigaClub(tableData, riderMap) {
+        if (!tableData || !tableData.head || !tableData.head[0] || !tableData.body) return tableData;
+
+        const headRow = tableData.head[0];
+        const lowHeaders = headRow.map(h => (h || '').toLowerCase().trim());
+
+        const numIdx = lowHeaders.findIndex(h => ['n°', 'nº', 'n', 'num', 'no.', 'numero'].includes(h));
+        const nomIdx = lowHeaders.findIndex(h => h.includes('nombre') || h.includes('piloto'));
+        let motoIdx = lowHeaders.findIndex(h => h.includes('moto') || h.includes('marca'));
+        let ligaIdx = lowHeaders.findIndex(h => h.includes('liga'));
+        let clubIdx = lowHeaders.findIndex(h => h.includes('club'));
+
+        const isValidVal = (v) => v && !['-', '--', 'n/a', 'sin liga', 'sin club'].includes(v.toString().toLowerCase().trim());
+
+        // A. Rellenar celdas vacías en columnas existentes
+        tableData.body.forEach(row => {
+            const num = numIdx !== -1 && numIdx < row.length ? row[numIdx] : '';
+            const nom = nomIdx !== -1 && nomIdx < row.length ? row[nomIdx] : '';
+            const meta = lookupRider(riderMap, num, nom);
+
+            if (motoIdx !== -1 && motoIdx < row.length && !isValidVal(row[motoIdx]) && meta.moto) {
+                row[motoIdx] = meta.moto;
+            }
+            if (ligaIdx !== -1 && ligaIdx < row.length && !isValidVal(row[ligaIdx]) && meta.liga) {
+                row[ligaIdx] = meta.liga;
+            }
+            if (clubIdx !== -1 && clubIdx < row.length && !isValidVal(row[clubIdx]) && meta.club) {
+                row[clubIdx] = meta.club;
+            }
+        });
+
+        // B. Si falta alguna de Moto, Liga o Club en los encabezados, insertarla automáticamente
+        const missingCols = [];
+        if (motoIdx === -1) missingCols.push({ name: 'Moto', key: 'moto' });
+        if (ligaIdx === -1) missingCols.push({ name: 'Liga', key: 'liga' });
+        if (clubIdx === -1) missingCols.push({ name: 'Club', key: 'club' });
+
+        if (missingCols.length > 0) {
+            let insertPos = nomIdx !== -1 ? nomIdx + 1 : (numIdx !== -1 ? numIdx + 1 : 2);
+            if (insertPos > headRow.length) insertPos = headRow.length;
+
+            const colNames = missingCols.map(c => c.name);
+            headRow.splice(insertPos, 0, ...colNames);
+
+            tableData.body.forEach(row => {
+                const num = numIdx !== -1 && numIdx < row.length ? row[numIdx] : '';
+                const nom = nomIdx !== -1 && nomIdx < row.length ? row[nomIdx] : '';
+                const meta = lookupRider(riderMap, num, nom);
+
+                const newVals = missingCols.map(c => meta[c.key] || '');
+                row.splice(insertPos, 0, ...newVals);
+            });
+        }
+
+        return tableData;
+    }
+
+    // Extraer y clasificar todas las tablas de sesiones dentro de una sección de categoría
+    function getSectionTables(section) {
+        const tables = [];
+        const tableEls = section.querySelectorAll('table');
+
+        tableEls.forEach(tableEl => {
+            let sessionName = '';
+            const titleRow = tableEl.closest('.table-wrapper')?.previousElementSibling;
+            if (titleRow && titleRow.classList.contains('session-title-row')) {
+                sessionName = titleRow.querySelector('h3')?.textContent.trim() || '';
+            }
+            if (!sessionName) {
+                const parentBlock = tableEl.closest('.final-block, .session-block, .desglose-block');
+                if (parentBlock) {
+                    sessionName = parentBlock.querySelector('h3')?.textContent.trim() || '';
+                }
+            }
+            if (!sessionName) {
+                const prevH3 = tableEl.parentElement?.querySelector('h3') || tableEl.closest('div')?.querySelector('h3');
+                if (prevH3) sessionName = prevH3.textContent.trim();
+            }
+
+            const ths = Array.from(tableEl.querySelectorAll('thead th')).map(th => getCleanCellText(th).toLowerCase().trim());
+            const sNameLow = sessionName.toLowerCase();
+
+            const isFinal = sNameLow.includes('final') || sNameLow.includes('resultado') ||
+                ths.some(h => h.includes('total puntos') || h.includes('mejor t° total'));
+            const isCarrera = sNameLow.includes('carrera') || (!isFinal && ths.some(h => h.includes('puntos') && h.includes('vuelta')));
+            const isClasificatoria = sNameLow.includes('clasific') || (!isFinal && !isCarrera && ths.some(h => h.includes('en vuelta')));
+
+            tables.push({
+                tableEl: tableEl,
+                sessionName: sessionName || (isFinal ? 'Clasificación Final' : (isCarrera ? 'Carrera' : (isClasificatoria ? 'Clasificatoria' : 'Resultados'))),
+                isFinal: isFinal,
+                isCarrera: isCarrera,
+                isClasificatoria: isClasificatoria
+            });
+        });
+
+        return tables;
+    }
+
     // ─────────────────────────────────────────────────────────────
     // 1. EXPORTADOR PARA VÁLIDAS INDIVIDUALES
     // ─────────────────────────────────────────────────────────────
@@ -287,6 +479,9 @@
         const headerH1 = document.querySelector('.container > header h1')?.textContent.trim() || 'Resultados de Válida';
         const headerP = document.querySelector('.container > header p')?.textContent.trim() || '';
         const todayStr = new Date().toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+        const docCtx = { doc, headerH1, headerP, todayStr };
+        const riderMap = buildRiderMetadataMap(document);
 
         let allSections = Array.from(document.querySelectorAll('.categoria-section'));
         if (selectedIds.length > 0) {
@@ -338,54 +533,45 @@
                 }
             }
 
-            // 1. Tabla Final
-            const finalBlock = section.querySelector('.final-block') || section;
-            const finalTable = finalBlock.querySelector('table');
-            if (finalTable) {
-                const tableData = extractTableData(finalTable);
-                if (tableData && tableData.body.length > 0) {
-                    doc.setFont('helvetica', 'bold');
-                    doc.setFontSize(9);
-                    doc.setTextColor(18, 62, 146);
-                    doc.text('Clasificación Final de la Válida', 12, currentY + 3.5);
-                    currentY += 5;
+            const allCatTables = getSectionTables(section);
+            let tablesToExport = [];
 
-                    doc.autoTable(getExcelTableConfig(tableData.head, tableData.body, currentY));
-                    currentY = doc.lastAutoTable.finalY + 7;
+            if (scope === 'final') {
+                const finalTables = allCatTables.filter(t => t.isFinal);
+                if (finalTables.length > 0) {
+                    tablesToExport = finalTables;
+                } else {
+                    const carreraTables = allCatTables.filter(t => t.isCarrera);
+                    if (carreraTables.length > 0) {
+                        tablesToExport = carreraTables;
+                    } else if (allCatTables.length > 0) {
+                        tablesToExport = [allCatTables[0]];
+                    }
                 }
+            } else {
+                tablesToExport = allCatTables;
             }
 
-            // 2. Desglose completo de sesiones (si fue solicitado)
-            if (scope === 'all') {
-                const desgloseBlock = section.querySelector('.desglose-block');
-                if (desgloseBlock) {
-                    const sessionRows = desgloseBlock.querySelectorAll('.session-title-row');
-                    sessionRows.forEach(rowEl => {
-                        const sessName = rowEl.querySelector('h3')?.textContent.trim() || 'Sesión';
-                        const tableWrapper = rowEl.nextElementSibling;
-                        const sessTable = tableWrapper ? tableWrapper.querySelector('table') : null;
-                        if (sessTable) {
-                            const sessData = extractTableData(sessTable);
-                            if (sessData && sessData.body.length > 0) {
-                                if (currentY > 165) {
-                                    doc.addPage();
-                                    drawPageHeader(doc, headerH1, headerP, todayStr);
-                                    currentY = 28;
-                                }
+            tablesToExport.forEach(item => {
+                const rawData = extractTableData(item.tableEl);
+                if (!rawData || rawData.body.length === 0) return;
 
-                                doc.setFont('helvetica', 'bold');
-                                doc.setFontSize(8.5);
-                                doc.setTextColor(31, 41, 55);
-                                doc.text('Desglose: ' + sessName, 12, currentY + 3);
-                                currentY += 4.5;
+                const tableData = ensureMotoLigaClub(rawData, riderMap);
 
-                                doc.autoTable(getExcelTableConfig(sessData.head, sessData.body, currentY));
-                                currentY = doc.lastAutoTable.finalY + 6;
-                            }
-                        }
-                    });
+                if (currentY > 165) {
+                    doc.addPage();
+                    currentY = 28;
                 }
-            }
+
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(9);
+                doc.setTextColor(18, 62, 146);
+                doc.text(item.sessionName, 12, currentY + 3.5);
+                currentY += 5;
+
+                doc.autoTable(getExcelTableConfig(docCtx, tableData.head, tableData.body, currentY));
+                currentY = doc.lastAutoTable.finalY + 7;
+            });
         });
 
         drawPageFooters(doc);
@@ -413,6 +599,9 @@
         const headerP = document.querySelector('.container > header p')?.textContent.trim() || '';
         const introMsg = document.querySelector('.intro-message p')?.textContent.trim() || '';
         const todayStr = new Date().toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+        const docCtx = { doc, headerH1, headerP, todayStr };
+        const riderMap = buildRiderMetadataMap(document);
 
         let isFirstPage = true;
         let currentY = 28;
@@ -442,7 +631,7 @@
 
                 const ligaData = extractTableData(ligaSummaryTable);
                 if (ligaData) {
-                    doc.autoTable(getExcelTableConfig(ligaData.head, ligaData.body, currentY, {
+                    doc.autoTable(getExcelTableConfig(docCtx, ligaData.head, ligaData.body, currentY, {
                         columnStyles: {
                             0: { halign: 'left', fontStyle: 'bold' },
                             1: { halign: 'center', fontStyle: 'bold' },
@@ -485,9 +674,10 @@
 
             const catTable = section.querySelector('table');
             if (catTable) {
-                const tableData = extractTableData(catTable);
-                if (tableData && tableData.body.length > 0) {
-                    doc.autoTable(getExcelTableConfig(tableData.head, tableData.body, currentY));
+                const rawData = extractTableData(catTable);
+                if (rawData && rawData.body.length > 0) {
+                    const tableData = ensureMotoLigaClub(rawData, riderMap);
+                    doc.autoTable(getExcelTableConfig(docCtx, tableData.head, tableData.body, currentY));
                     currentY = doc.lastAutoTable.finalY + 8;
                 }
             }
