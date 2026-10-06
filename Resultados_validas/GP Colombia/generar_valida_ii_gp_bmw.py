@@ -1104,12 +1104,13 @@ def _export_valida_rows(files_dir, pick_session_fn):
         idx = _find_stats_indexes(headers)
         if idx["numero"] is None:
             continue
-        cat_rows = []
+        by_num = {}
         for row in rows:
             if len(row) <= idx["numero"]:
                 continue
             numero = str(row[idx["numero"]]).strip()
-            if not numero or numero == "518":
+            nombre = str(row[idx["nombre"]]).strip() if idx["nombre"] is not None and idx["nombre"] < len(row) else ""
+            if not numero or (numero == "518" and not nombre):
                 continue
             pts = 0.0
             if mode == "puntos" and idx["puntos"] is not None and idx["puntos"] < len(row):
@@ -1117,17 +1118,37 @@ def _export_valida_rows(files_dir, pick_session_fn):
                     pts = float(re.search(r"-?\d+(\.\d+)?", str(row[idx["puntos"]]).replace(",", ".")).group(0))
                 except Exception:
                     pts = 0.0
-            cat_rows.append({
-                "numero": numero,
-                "nombre": str(row[idx["nombre"]]).strip() if idx["nombre"] is not None and idx["nombre"] < len(row) else "",
-                "liga": str(row[idx["liga"]]).strip() if idx["liga"] is not None and idx["liga"] < len(row) else "",
-                "club": str(row[idx["club"]]).strip() if idx["club"] is not None and idx["club"] < len(row) else "",
-                "moto": str(row[idx["moto"]]).strip() if idx["moto"] is not None and idx["moto"] < len(row) else "",
-                "clase": "",
-                "puntos": pts,
-            })
-        if cat_rows:
-            out[categoria] = cat_rows
+            liga = str(row[idx["liga"]]).strip() if idx["liga"] is not None and idx["liga"] < len(row) else ""
+            club = str(row[idx["club"]]).strip() if idx["club"] is not None and idx["club"] < len(row) else ""
+            moto = str(row[idx["moto"]]).strip() if idx["moto"] is not None and idx["moto"] < len(row) else ""
+
+            if numero not in by_num:
+                by_num[numero] = {
+                    "numero": numero,
+                    "nombre": nombre,
+                    "liga": liga,
+                    "club": club,
+                    "moto": moto,
+                    "clase": "",
+                    "puntos": pts,
+                }
+            else:
+                cur = by_num[numero]
+                if pts > cur["puntos"]:
+                    cur["puntos"] = pts
+                elif pts > 0 and cur["puntos"] > 0 and pts != cur["puntos"]:
+                    cur["puntos"] += pts
+                if nombre and not cur["nombre"]:
+                    cur["nombre"] = nombre
+                if liga and not cur["liga"]:
+                    cur["liga"] = liga
+                if club and not cur["club"]:
+                    cur["club"] = club
+                if moto and not cur["moto"]:
+                    cur["moto"] = moto
+
+        if by_num:
+            out[categoria] = list(by_num.values())
     return out
 
 def _load_escuela_val_rows(filename):
@@ -1146,7 +1167,8 @@ def _load_escuela_val_rows(filename):
         if len(r) <= max(idx_num, idx_nom):
             continue
         num = str(r[idx_num]).strip()
-        if not num or num == "518":
+        nom = str(r[idx_nom]).strip() if idx_nom >= 0 else ""
+        if not num or (num == "518" and not nom):
             continue
         try:
             pts = float(re.search(r"-?\d+(\.\d+)?", str(r[idx_pts]).replace(",", ".")).group(0)) if idx_pts >= 0 else 0.0
@@ -1154,7 +1176,7 @@ def _load_escuela_val_rows(filename):
             pts = 0.0
         out.append({
             "numero": num,
-            "nombre": str(r[idx_nom]).strip() if idx_nom >= 0 else "",
+            "nombre": nom,
             "liga": str(r[idx_liga]).strip() if idx_liga >= 0 and idx_liga < len(r) else "",
             "club": str(r[idx_club]).strip() if idx_club >= 0 and idx_club < len(r) else "",
             "moto": str(r[idx_moto]).strip() if idx_moto >= 0 and idx_moto < len(r) else "",

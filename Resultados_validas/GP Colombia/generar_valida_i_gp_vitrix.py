@@ -1169,7 +1169,7 @@ def _export_valida_rows(files_dir, pick_session_fn):
         idx = _find_stats_indexes(headers)
         if idx["numero"] is None:
             continue
-        cat_rows = []
+        by_num = {}
         for row in rows:
             if len(row) <= idx["numero"]:
                 continue
@@ -1183,33 +1183,55 @@ def _export_valida_rows(files_dir, pick_session_fn):
             else:
                 pos_val = row[idx["pos"]] if idx["pos"] is not None and idx["pos"] < len(row) else ""
                 pts = _puntos_fedemoto_pos(_parse_pos_int(pos_val))
-            cat_rows.append({
-                "numero": numero,
-                "nombre": (
-                    str(row[idx["nombre"]]).strip()
-                    if idx["nombre"] is not None and idx["nombre"] < len(row)
-                    else ""
-                ),
-                "liga": (
-                    str(row[idx["liga"]]).strip()
-                    if idx["liga"] is not None and idx["liga"] < len(row)
-                    else ""
-                ),
-                "club": (
-                    str(row[idx["club"]]).strip()
-                    if idx["club"] is not None and idx["club"] < len(row)
-                    else ""
-                ),
-                "moto": (
-                    str(row[idx["moto"]]).strip()
-                    if idx["moto"] is not None and idx["moto"] < len(row)
-                    else ""
-                ),
-                "clase": "",
-                "puntos": pts,
-            })
-        if cat_rows:
-            out[categoria] = cat_rows
+
+            nombre = (
+                str(row[idx["nombre"]]).strip()
+                if idx["nombre"] is not None and idx["nombre"] < len(row)
+                else ""
+            )
+            liga = (
+                str(row[idx["liga"]]).strip()
+                if idx["liga"] is not None and idx["liga"] < len(row)
+                else ""
+            )
+            club = (
+                str(row[idx["club"]]).strip()
+                if idx["club"] is not None and idx["club"] < len(row)
+                else ""
+            )
+            moto = (
+                str(row[idx["moto"]]).strip()
+                if idx["moto"] is not None and idx["moto"] < len(row)
+                else ""
+            )
+
+            if numero not in by_num:
+                by_num[numero] = {
+                    "numero": numero,
+                    "nombre": nombre,
+                    "liga": liga,
+                    "club": club,
+                    "moto": moto,
+                    "clase": "",
+                    "puntos": pts,
+                }
+            else:
+                cur = by_num[numero]
+                if pts > 0 and cur["puntos"] > 0:
+                    cur["puntos"] += pts
+                elif pts > cur["puntos"]:
+                    cur["puntos"] = pts
+                if nombre and not cur["nombre"]:
+                    cur["nombre"] = nombre
+                if liga and not cur["liga"]:
+                    cur["liga"] = liga
+                if club and not cur["club"]:
+                    cur["club"] = club
+                if moto and not cur["moto"]:
+                    cur["moto"] = moto
+
+        if by_num:
+            out[categoria] = list(by_num.values())
     return out
 
 

@@ -631,7 +631,7 @@ def load_valida_category_rows(files_dir, modalidad=None):
                 if idx[k] is not None:
                     needed.append(idx[k])
             max_ix = max(needed)
-        cat_rows = []
+        by_num = {}
         for r in body:
             if len(r) <= max_ix:
                 continue
@@ -664,16 +664,32 @@ def load_valida_category_rows(files_dir, modalidad=None):
             club_val = raw_club if raw_club and raw_club not in ("-", "--", "N/A", "SIN CLUB") else meta.get("club", "")
             moto_val = raw_moto if raw_moto and raw_moto not in ("-", "--", "N/A") else meta.get("moto", "")
 
-            cat_rows.append({
-                "numero": numero,
-                "nombre": nombre_str,
-                "liga": liga_val,
-                "club": club_val,
-                "moto": moto_val,
-                "clase": clase_v,
-                "puntos": pts,
-            })
-        out[categoria] = cat_rows
+            if numero not in by_num:
+                by_num[numero] = {
+                    "numero": numero,
+                    "nombre": nombre_str,
+                    "liga": liga_val,
+                    "club": club_val,
+                    "moto": moto_val,
+                    "clase": clase_v,
+                    "puntos": pts,
+                }
+            else:
+                cur = by_num[numero]
+                if pts > 0 and cur["puntos"] > 0:
+                    cur["puntos"] += pts
+                elif pts > cur["puntos"]:
+                    cur["puntos"] = pts
+                if nombre_str and not cur["nombre"]:
+                    cur["nombre"] = nombre_str
+                if liga_val and not cur["liga"]:
+                    cur["liga"] = liga_val
+                if club_val and not cur["club"]:
+                    cur["club"] = club_val
+                if moto_val and not cur["moto"]:
+                    cur["moto"] = moto_val
+
+        out[categoria] = list(by_num.values())
     return out
 
 
@@ -899,11 +915,28 @@ def build_general_table(champ):
                         "clase": row.get("clase", ""),
                         "por_valida": [None] * len(validas),
                     }
-                riders[key]["por_valida"][i] = row["puntos"]
+                current_p = riders[key]["por_valida"][i]
+                if current_p is None:
+                    riders[key]["por_valida"][i] = row["puntos"]
+                else:
+                    if row["puntos"] == 0:
+                        pass
+                    elif current_p == 0:
+                        riders[key]["por_valida"][i] = row["puntos"]
+                    else:
+                        riders[key]["por_valida"][i] = current_p + row["puntos"]
                 # Prefer latest valida values for profile fields when present
                 for f in ("nombre", "liga", "club", "moto", "clase"):
-                    if row.get(f):
+                    if row.get(f) and (not riders[key].get(f) or len(str(row[f])) > len(str(riders[key].get(f)))):
                         riders[key][f] = row[f]
+
+        c_low = categoria.lower()
+        for rider in riders.values():
+            if not rider.get("moto"):
+                if "suzuki" in c_low:
+                    rider["moto"] = "Suzuki"
+                elif "yamaha r15" in c_low:
+                    rider["moto"] = "Yamaha"
 
         rows = []
         for rider in riders.values():
@@ -915,7 +948,16 @@ def build_general_table(champ):
         rows.sort(key=standings_sort_key)
         result[categoria] = rows
     result = apply_final_valida_bonus(champ, result, data_by_valida)
-    return merge_result_by_rider_name(result)
+    merged_res = merge_result_by_rider_name(result)
+    for cat, rows in merged_res.items():
+        c_low = cat.lower()
+        for r in rows:
+            if not r.get("moto"):
+                if "suzuki" in c_low:
+                    r["moto"] = "Suzuki"
+                elif "yamaha r15" in c_low:
+                    r["moto"] = "Yamaha"
+    return merged_res
 
 
 def esc(t):
