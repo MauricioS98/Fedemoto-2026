@@ -53,6 +53,22 @@ REPORT_CONFIGS = [
         ),
     },
     {
+        "output_html": os.path.join(
+            SCRIPT_DIR, "Enduro", "Cuarta valida", "informe_valida_iv_enduro_salento.html"
+        ),
+        "files_dir": os.path.join(
+            ROOT_DIR, "Resultados_validas", "Enduro", "Cuarta valida", "FILES EXPORTED_SALENTO"
+        ),
+        "session_priority": ["carrera", "final", "clasificatoria", "otros"],
+        "title": "Informe IV Válida Enduro - Salento, Quindío | FEDEMOTO",
+        "heading": "Informe IV Válida Nacional de Enduro",
+        "subtitle": "Salento, Quindío — Estadísticas de la válida",
+        "intro": (
+            "A continuación se presentan las estadísticas generadas a partir de los resultados "
+            "de la IV Válida Nacional de Enduro, realizada en Salento, Quindío."
+        ),
+    },
+    {
         "output_html": os.path.join(SCRIPT_DIR, "Motocross", "Primer semestre", "informe_valida_ii_mx_barranquilla.html"),
         "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Motocross", "Primer semestre", "FILES EXPORTED-barranquilla"),
         "title": "Informe II Válida MX - Barranquilla, Atlántico | FEDEMOTO",
@@ -362,7 +378,7 @@ def normalize_marca(raw):
 def parse_filename(filename):
     name = filename.replace(".csv", "").strip()
     name = re.sub(r"\s*-\s*resultados\s*$", "", name, flags=re.I).strip()
-    parts = [p.strip() for p in re.split(r"\s+-\s+", name, flags=re.I) if p.strip()]
+    parts = [p.strip() for p in re.split(r"(?:\s+-\s*|\s*-\s+)", name, flags=re.I) if p.strip()]
     if len(parts) < 2:
         return (parts[0] if parts else name, "Final")
     return (" - ".join(parts[:-1]), parts[-1].strip())

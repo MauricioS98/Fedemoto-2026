@@ -37,6 +37,10 @@ CHAMPIONSHIPS = [
                 "label": "III Válida Enduro - San Jerónimo",
                 "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Enduro", "Tercera valida", "FILES EXPORTED"),
             },
+            {
+                "label": "IV Válida Enduro - Salento",
+                "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Enduro", "Cuarta valida", "FILES EXPORTED_SALENTO"),
+            },
         ],
         "output_html": os.path.join(SCRIPT_DIR, "Enduro", "resultado_general_enduro_2026.html"),
     },
@@ -246,7 +250,7 @@ def pretty_categoria(name):
 def parse_filename(filename):
     base = filename.replace(".csv", "").strip()
     base = re.sub(r"\s*-\s*resultados\s*$", "", base, flags=re.I).strip()
-    parts = [p.strip() for p in re.split(r"\s+-\s+", base, flags=re.I) if p.strip()]
+    parts = [p.strip() for p in re.split(r"(?:\s+-\s*|\s*-\s+)", base, flags=re.I) if p.strip()]
     if len(parts) < 2:
         return pretty_categoria(parts[0] if parts else base), "final"
     categoria = pretty_categoria(" - ".join(parts[:-1]))
