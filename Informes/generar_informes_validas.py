@@ -104,6 +104,22 @@ REPORT_CONFIGS = [
     },
     {
         "output_html": os.path.join(
+            SCRIPT_DIR, "Motocross", "Segundo semestre", "informe_valida_ii_mx_yopal.html"
+        ),
+        "files_dir": os.path.join(
+            ROOT_DIR, "Resultados_validas", "Motocross", "Segundo semestre", "FILES EXPORTED_YOPAL"
+        ),
+        "session_priority": ["final", "carrera", "clasificatoria", "otros"],
+        "title": "Informe II Válida MX - Yopal, Casanare | FEDEMOTO",
+        "heading": "Informe II Válida Nacional de Motocross — Segundo semestre",
+        "subtitle": "Yopal, Casanare — Estadísticas de la válida",
+        "intro": (
+            "A continuación se presentan las estadísticas generadas a partir de los resultados "
+            "de la II Válida Nacional de Motocross del segundo semestre, realizada en Yopal, Casanare."
+        ),
+    },
+    {
+        "output_html": os.path.join(
             SCRIPT_DIR, "Velocidad", "Primer semestre", "informe_valida_i_velocidad_zarzal.html"
         ),
         "files_dir": os.path.join(
@@ -409,6 +425,7 @@ def canonical_velotierra_categoria(cat):
 def collect_rows_by_category(files_dir, session_priority=None):
     by_categoria = defaultdict(list)
     files_per_cat = defaultdict(list)
+    folder_meta_by_num = {}
 
     for filename in os.listdir(files_dir):
         if not filename.lower().endswith(".csv"):
@@ -420,6 +437,30 @@ def collect_rows_by_category(files_dir, session_priority=None):
         categoria = canonical_enduro_categoria(categoria)
         categoria = canonical_velotierra_categoria(categoria)
         files_per_cat[categoria].append((tipo, filepath))
+
+        with open(filepath, "r", encoding="utf-8-sig") as f:
+            reader = csv.reader(f)
+            headers = next(reader, [])
+            idx_num, idx_nombre, idx_liga, idx_club, idx_moto = find_header_indexes(headers)
+            for row in reader:
+                if idx_num is not None and idx_num < len(row):
+                    num = normalize_text(row[idx_num])
+                    if not num:
+                        continue
+                    if num not in folder_meta_by_num:
+                        folder_meta_by_num[num] = {}
+                    if idx_liga is not None and idx_liga < len(row):
+                        l = normalize_liga(row[idx_liga])
+                        if l and l not in ("-", "--", "N/A", "Sin Liga") and not folder_meta_by_num[num].get("liga"):
+                            folder_meta_by_num[num]["liga"] = l
+                    if idx_club is not None and idx_club < len(row):
+                        c = normalize_club(row[idx_club])
+                        if c and c not in ("-", "--", "N/A", "Sin Club") and not folder_meta_by_num[num].get("club"):
+                            folder_meta_by_num[num]["club"] = c
+                    if idx_moto is not None and idx_moto < len(row):
+                        m = normalize_marca(row[idx_moto])
+                        if m and m not in ("-", "--", "N/A") and not folder_meta_by_num[num].get("moto"):
+                            folder_meta_by_num[num]["moto"] = m
 
     for categoria, files in files_per_cat.items():
         filepath = choose_main_file(files, session_priority=session_priority)
@@ -440,6 +481,14 @@ def collect_rows_by_category(files_dir, session_priority=None):
                 liga = normalize_liga(row[idx_liga]) if idx_liga is not None and idx_liga < len(row) else ""
                 club = normalize_club(row[idx_club]) if idx_club is not None and idx_club < len(row) else ""
                 moto = normalize_marca(row[idx_moto]) if idx_moto is not None and idx_moto < len(row) else ""
+
+                if not liga and folder_meta_by_num.get(numero, {}).get("liga"):
+                    liga = folder_meta_by_num[numero]["liga"]
+                if not club and folder_meta_by_num.get(numero, {}).get("club"):
+                    club = folder_meta_by_num[numero]["club"]
+                if not moto and folder_meta_by_num.get(numero, {}).get("moto"):
+                    moto = folder_meta_by_num[numero]["moto"]
+
                 by_categoria[categoria].append((numero, nombre, liga, club, moto))
 
     return by_categoria

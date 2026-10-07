@@ -76,6 +76,12 @@ CHAMPIONSHIPS = [
                     ROOT_DIR, "Resultados_validas", "Motocross", "Segundo semestre", "FILES EXPORTED_GIRARDOTA"
                 ),
             },
+            {
+                "label": "II Válida MX - Yopal",
+                "files_dir": os.path.join(
+                    ROOT_DIR, "Resultados_validas", "Motocross", "Segundo semestre", "FILES EXPORTED_YOPAL"
+                ),
+            },
         ],
         "output_html": os.path.join(
             SCRIPT_DIR, "Motocross", "Segundo semestre", "resultado_general_mx_segundo_semestre.html"
