@@ -115,6 +115,14 @@ def parse_filename(filename):
 def format_categoria_name(name):
     if not name:
         return name
+    folded = _fold_accents(name).lower().strip()
+    if "supermoto expertos" in folded:
+        return "Supermoto Expertos Metzeler"
+    if "supermoto novatos" in folded:
+        return "Supermoto Novatos Metzeler"
+    if folded == "suzuki" or "suzuki gsx" in folded:
+        return "Suzuki GSX R/S 150"
+
     parts = re.split(r'[\s\-]+', name)
     result = []
     for p in parts:
