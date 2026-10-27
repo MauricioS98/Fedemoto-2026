@@ -86,6 +86,12 @@ CHAMPIONSHIPS = [
                     ROOT_DIR, "Resultados_validas", "Motocross", "Segundo semestre", "FILES EXPORTED_YOPAL"
                 ),
             },
+            {
+                "label": "III Válida MX - Villagarzón",
+                "files_dir": os.path.join(
+                    ROOT_DIR, "Resultados_validas", "Motocross", "Segundo semestre", "FILES EXPORTED_PUTUMAYO"
+                ),
+            },
         ],
         "output_html": os.path.join(
             SCRIPT_DIR, "Motocross", "Segundo semestre", "resultado_general_mx_segundo_semestre.html"
