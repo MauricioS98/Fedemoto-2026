@@ -195,7 +195,18 @@ CHAMPIONSHIPS = [
                     "FILES EXPORTED_Popayan",
                 ),
             },
+            {
+                "label": "III Válida VT - Cartago",
+                "files_dir": os.path.join(
+                    ROOT_DIR,
+                    "Resultados_validas",
+                    "Velotierra",
+                    "Segundo semestre",
+                    "FILES EXPORTED_Cartago",
+                ),
+            },
         ],
+        "final_valida_bonus": 8,
         "output_html": os.path.join(
             SCRIPT_DIR, "Velotierra", "Segundo semestre", "resultado_general_vt_segundo_semestre.html"
         ),
@@ -677,9 +688,22 @@ def load_valida_category_rows(files_dir, modalidad=None):
             raw_club = str(r[idx["club"]]).strip() if idx["club"] is not None and idx["club"] < len(r) else ""
             raw_moto = str(r[idx["moto"]]).strip() if idx["moto"] is not None and idx["moto"] < len(r) else ""
 
-            liga_val = raw_liga if raw_liga and raw_liga not in ("-", "--", "N/A", "SIN LIGA") else meta.get("liga", "")
-            club_val = raw_club if raw_club and raw_club not in ("-", "--", "N/A", "SIN CLUB") else meta.get("club", "")
-            moto_val = raw_moto if raw_moto and raw_moto not in ("-", "--", "N/A") else meta.get("moto", "")
+            if raw_liga.upper() == "VALLE" or (not raw_liga and meta.get("liga", "").upper() == "VALLE"):
+                liga_val = "Valle del Cauca"
+            else:
+                liga_val = raw_liga if raw_liga and raw_liga not in ("-", "--", "N/A", "SIN LIGA") else meta.get("liga", "")
+
+            if numero == "209" and (not raw_club or raw_club in ("-", "--", "N/A", "SIN CLUB")):
+                club_val = "Club VALLE"
+            elif "oscar" in nombre_str.lower():
+                club_val = "Sin Club"
+            else:
+                club_val = raw_club if raw_club and raw_club not in ("-", "--", "N/A", "SIN CLUB") else meta.get("club", "")
+
+            if raw_moto.upper() in ("HUSQ", "HUSQVARNA") or (not raw_moto and meta.get("moto", "").upper() in ("HUSQ", "HUSQVARNA")):
+                moto_val = "Husqvarna"
+            else:
+                moto_val = raw_moto if raw_moto and raw_moto not in ("-", "--", "N/A") else meta.get("moto", "")
 
             if numero not in by_num:
                 by_num[numero] = {

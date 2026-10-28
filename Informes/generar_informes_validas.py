@@ -302,6 +302,25 @@ REPORT_CONFIGS = [
         ),
     },
     {
+        "output_html": os.path.join(
+            SCRIPT_DIR, "Velotierra", "Segundo semestre", "informe_valida_iii_vt_cartago.html"
+        ),
+        "files_dir": os.path.join(
+            ROOT_DIR,
+            "Resultados_validas",
+            "Velotierra",
+            "Segundo semestre",
+            "FILES EXPORTED_Cartago",
+        ),
+        "title": "Informe III Válida VT - Cartago, Valle del Cauca | FEDEMOTO",
+        "heading": "Informe III Válida Nacional Velotierra — Segundo semestre",
+        "subtitle": "Cartago, Valle del Cauca — Estadísticas de la válida",
+        "intro": (
+            "A continuación se presentan las estadísticas generadas a partir de los resultados "
+            "de la III Válida Nacional Velotierra del segundo semestre, realizada en Cartago, Valle del Cauca."
+        ),
+    },
+    {
         "output_html": os.path.join(SCRIPT_DIR, "GP Colombia", "informe_valida_i_gp_colombia_vitrix.html"),
         "files_dir": os.path.join(
             ROOT_DIR,
@@ -388,6 +407,8 @@ def normalize_marca(raw):
     s = normalize_text(raw)
     if not s:
         return ""
+    if s.upper() in ("HUSQ", "HUSQVARNA"):
+        return "Husqvarna"
     return s.upper().replace("YAMAHA", "Yamaha").title().replace("Yamaha", "Yamaha")
 
 
@@ -518,6 +539,10 @@ def collect_rows_by_category(files_dir, session_priority=None):
                     liga = folder_meta_by_num[numero]["liga"]
                 if not club and folder_meta_by_num.get(numero, {}).get("club"):
                     club = folder_meta_by_num[numero]["club"]
+                if not club and numero == "209":
+                    club = "Club VALLE"
+                if not club and numero == "729" and "oscar" in nombre.lower():
+                    club = "Sin Club"
                 if not moto and folder_meta_by_num.get(numero, {}).get("moto"):
                     moto = folder_meta_by_num[numero]["moto"]
 
