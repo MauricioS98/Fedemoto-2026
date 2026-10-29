@@ -40,6 +40,8 @@ def generate_html():
     prev_files = base.FILES_DIR
     base.OUTPUT_FILE = OUTPUT_FILE
     base.FILES_DIR = FILES_DIR
+    prev_exclude = getattr(base, 'EXCLUDE_PILOTOS', set())
+    base.EXCLUDE_PILOTOS = {'335', '336'}
     base.VUELTA_A_VUELTA_FOLDER = VUELTA_FOLDER_URL
     base.VUELTA_A_VUELTA_MAP = base.build_vuelta_a_vuelta_map(VUELTA_DIR)
     try:
@@ -47,6 +49,7 @@ def generate_html():
     finally:
         base.OUTPUT_FILE = prev_output
         base.FILES_DIR = prev_files
+        base.EXCLUDE_PILOTOS = prev_exclude
         base.VUELTA_A_VUELTA_FOLDER = None
         base.VUELTA_A_VUELTA_MAP = None
 

@@ -192,6 +192,161 @@ def render_row(row, comentario, col_count, search_attrs):
     html_parts.append('</tr>')
     return ''.join(html_parts)
 
+EXCLUDE_PILOTOS = set()
+
+def puntos_fedemoto_carrera_por_posicion(pos):
+    tabla = {1: 15, 2: 13, 3: 11, 4: 10, 5: 9, 6: 8, 7: 7, 8: 6, 9: 5, 10: 4, 11: 3, 12: 2}
+    if pos in tabla: return float(tabla[pos])
+    if 13 <= pos <= 15: return 1.0
+    return 0.0
+
+def puntos_fedemoto_clasificatoria_por_posicion(pos):
+    if pos <= 0: return 0.0
+    tabla = {1: 3, 2: 2, 3: 1}
+    if pos in tabla: return float(tabla[pos])
+    return 1.0
+
+def parse_position_int(value):
+    s = str(value or "").strip()
+    m = re.search(r"^\d+", s)
+    return int(m.group(0)) if m else 0
+
+def adjust_category_tables(items, exclude_pilotos):
+    if not exclude_pilotos:
+        return items
+
+    has_excluded = False
+    for tipo, sort_key, headers, rows, comentarios in items:
+        idx_num = next((i for i, h in enumerate(headers) if any(k in h.lower() for k in ("n°", "nº", "no", "num"))), 1)
+        for r in rows:
+            if len(r) > idx_num and str(r[idx_num]).strip() in exclude_pilotos:
+                has_excluded = True
+                break
+        if has_excluded:
+            break
+
+    if not has_excluded:
+        return items
+
+    rider_sessions_pts = {}
+    new_items = []
+    
+    session_items = [it for it in items if it[0] != "Final"]
+    final_items = [it for it in items if it[0] == "Final"]
+    
+    for tipo, sort_key, headers, rows, comentarios in session_items:
+        idx_num = next((i for i, h in enumerate(headers) if any(k in h.lower() for k in ("n°", "nº", "no", "num"))), 1)
+        idx_pos = next((i for i, h in enumerate(headers) if "pos" in h.lower()), 0)
+        idx_pts = next((i for i, h in enumerate(headers) if "puntos" in h.lower()), None)
+        idx_dif1 = next((i for i, h in enumerate(headers) if "dif" in h.lower() and "1" in h.lower()), None)
+        idx_dif_ant = next((i for i, h in enumerate(headers) if "dif" in h.lower() and "ant" in h.lower()), None)
+
+        filtered_rows = []
+        filtered_comentarios = []
+        for r, com in zip(rows, comentarios):
+            if len(r) > idx_num and str(r[idx_num]).strip() in exclude_pilotos:
+                continue
+            filtered_rows.append(list(r))
+            filtered_comentarios.append(com)
+
+        finishers = []
+        non_finishers = []
+        for r, com in zip(filtered_rows, filtered_comentarios):
+            p_val = parse_position_int(r[idx_pos])
+            if p_val > 0:
+                finishers.append((p_val, r, com))
+            else:
+                non_finishers.append((999, r, com))
+
+        finishers.sort(key=lambda x: x[0])
+        is_clasif = "clasific" in tipo.lower()
+
+        recalced_rows = []
+        recalced_com = []
+        for new_pos, (_, r, com) in enumerate(finishers, 1):
+            num = str(r[idx_num]).strip()
+            pts = puntos_fedemoto_clasificatoria_por_posicion(new_pos) if is_clasif else puntos_fedemoto_carrera_por_posicion(new_pos)
+            r[idx_pos] = str(new_pos)
+            if idx_pts is not None and idx_pts < len(r):
+                r[idx_pts] = str(int(pts))
+            if new_pos == 1:
+                if idx_dif1 is not None and idx_dif1 < len(r):
+                    r[idx_dif1] = ""
+                if idx_dif_ant is not None and idx_dif_ant < len(r):
+                    r[idx_dif_ant] = ""
+            if num not in rider_sessions_pts:
+                rider_sessions_pts[num] = {}
+            rider_sessions_pts[num][tipo] = pts
+            recalced_rows.append(r)
+            recalced_com.append(com)
+
+        for _, r, com in non_finishers:
+            num = str(r[idx_num]).strip()
+            if num not in rider_sessions_pts:
+                rider_sessions_pts[num] = {}
+            rider_sessions_pts[num][tipo] = 0.0
+            recalced_rows.append(r)
+            recalced_com.append(com)
+
+        new_items.append((tipo, sort_key, headers, recalced_rows, recalced_com))
+
+    for tipo, sort_key, headers, rows, comentarios in final_items:
+        idx_num = next((i for i, h in enumerate(headers) if any(k in h.lower() for k in ("n°", "nº", "no", "num"))), 1)
+        idx_pos = next((i for i, h in enumerate(headers) if "pos" in h.lower()), 0)
+        idx_total = next((i for i, h in enumerate(headers) if "total" in h.lower() and "puntos" in h.lower()), None)
+        if idx_total is None:
+            idx_total = next((i for i, h in enumerate(headers) if "puntos" in h.lower()), None)
+        idx_dif1 = next((i for i, h in enumerate(headers) if "dif" in h.lower() and "1" in h.lower()), None)
+
+        session_cols = []
+        for i, h in enumerate(headers):
+            hl = h.lower().replace(" ", "").replace(".", "")
+            if hl in ("r1", "r2", "r3", "c1", "c2", "q"):
+                session_cols.append((i, hl))
+
+        filtered_rows = []
+        filtered_com = []
+        for r, com in zip(rows, comentarios):
+            if len(r) > idx_num and str(r[idx_num]).strip() in exclude_pilotos:
+                continue
+            filtered_rows.append(list(r))
+            filtered_com.append(com)
+
+        sorted_sess = sorted(session_items, key=lambda x: x[1])
+        row_data = []
+        for r, com in zip(filtered_rows, filtered_com):
+            num = str(r[idx_num]).strip()
+            tot = 0.0
+            latest_pts = 0.0
+            for col_idx, (c_i, c_name) in enumerate(session_cols):
+                if col_idx < len(sorted_sess):
+                    sess_name = sorted_sess[col_idx][0]
+                    p = rider_sessions_pts.get(num, {}).get(sess_name, 0.0)
+                    if c_i < len(r):
+                        r[c_i] = str(int(p)) if p > 0 or r[c_i] != "--" else r[c_i]
+                    tot += p
+                    latest_pts = p
+            if idx_total is not None and idx_total < len(r):
+                r[idx_total] = str(int(tot))
+            row_data.append((tot, latest_pts, r, com))
+
+        row_data.sort(key=lambda x: (x[0], x[1]), reverse=True)
+
+        final_rows = []
+        final_com = []
+        max_tot = row_data[0][0] if row_data else 0.0
+        for new_pos, (tot, _, r, com) in enumerate(row_data, 1):
+            r[idx_pos] = str(new_pos)
+            if idx_dif1 is not None and idx_dif1 < len(r):
+                r[idx_dif1] = "0" if new_pos == 1 else str(int(max_tot - tot))
+            final_rows.append(r)
+            final_com.append(com)
+
+        new_items.append((tipo, sort_key, headers, final_rows, final_com))
+
+    new_items.sort(key=lambda x: (x[1], x[0]))
+    return new_items
+
 def generate_html():
     categorias_data = {}
     for filename in os.listdir(FILES_DIR):
@@ -210,6 +365,8 @@ def generate_html():
     
     for cat in categorias_data:
         categorias_data[cat].sort(key=lambda x: (x[1], x[0]))
+        if EXCLUDE_PILOTOS:
+            categorias_data[cat] = adjust_category_tables(categorias_data[cat], EXCLUDE_PILOTOS)
     
     sorted_categorias = sorted(categorias_data.keys(), key=get_category_sort_key)
     

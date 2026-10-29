@@ -207,6 +207,7 @@ CHAMPIONSHIPS = [
             },
         ],
         "final_valida_bonus": 8,
+        "exclude_pilotos_recalcular": ["335", "336"],
         "output_html": os.path.join(
             SCRIPT_DIR, "Velotierra", "Segundo semestre", "resultado_general_vt_segundo_semestre.html"
         ),
@@ -429,7 +430,7 @@ def aggregate_mx_inicio_from_sessions(files):
             if len(r) <= max_ix:
                 continue
             numero = str(r[idx["numero"]]).strip()
-            if not numero:
+            if not numero or (exclude_nums and numero in exclude_nums):
                 continue
             pts = parse_points_int(r[idx["puntos"]])
             if numero not in riders:
@@ -557,6 +558,134 @@ def puntos_fedemoto_carrera_por_posicion(pos):
     return 0.0
 
 
+def puntos_fedemoto_clasificatoria_por_posicion(pos):
+    """Tabla Fedemoto clasificatoria: 1° -> 3 pts, 2° -> 2 pts, 3° -> 1 pt, clasificados -> 1 pt."""
+    if pos <= 0:
+        return 0.0
+    tabla = {1: 3, 2: 2, 3: 1}
+    if pos in tabla:
+        return float(tabla[pos])
+    return 1.0
+
+
+def recalculate_velotierra_category_from_sessions(files, exclude_nums, folder_meta_by_num, folder_meta_by_name):
+    """
+    Recalcula las posiciones y puntos de cada sesión/manga de una categoría de Velotierra
+    omitiendo a los pilotos excluidos y corriendo los podios y posiciones hacia arriba.
+    """
+    session_files = [(tipo, p) for tipo, p in files if "final" not in normalize_key(tipo)]
+    if not session_files:
+        session_files = files
+
+    riders = {}
+    for tipo, path in sorted(session_files, key=lambda x: x[0]):
+        with open(path, "r", encoding="utf-8-sig", newline="") as f:
+            raw = f.read()
+        lines = raw.splitlines()
+        if not lines:
+            continue
+        delim = csv_delimiter_from_first_line(lines[0])
+        rows = list(csv.reader(lines, delimiter=delim))
+        if not rows:
+            continue
+        headers = rows[0]
+        body = rows[1:]
+        idx = find_indexes(headers)
+        if idx["numero"] is None:
+            continue
+
+        finishers = []
+        non_finishers = []
+        for r in body:
+            if len(r) <= idx["numero"]:
+                continue
+            numero = str(r[idx["numero"]]).strip()
+            if not numero or numero in exclude_nums:
+                continue
+
+            pos_val = parse_position_int(r[idx["pos"]]) if idx["pos"] is not None and idx["pos"] < len(r) else 0
+            if pos_val > 0:
+                finishers.append((pos_val, r))
+            else:
+                non_finishers.append(r)
+
+        finishers.sort(key=lambda x: x[0])
+        is_clasif = "clasific" in normalize_key(tipo)
+        for new_pos, (_, r) in enumerate(finishers, start=1):
+            numero = str(r[idx["numero"]]).strip()
+            pts = puntos_fedemoto_clasificatoria_por_posicion(new_pos) if is_clasif else puntos_fedemoto_carrera_por_posicion(new_pos)
+            if numero not in riders:
+                riders[numero] = {
+                    "numero": numero,
+                    "nombre": str(r[idx["nombre"]]).strip() if idx["nombre"] is not None and idx["nombre"] < len(r) else "",
+                    "liga": str(r[idx["liga"]]).strip() if idx["liga"] is not None and idx["liga"] < len(r) else "",
+                    "club": str(r[idx["club"]]).strip() if idx["club"] is not None and idx["club"] < len(r) else "",
+                    "moto": str(r[idx["moto"]]).strip() if idx["moto"] is not None and idx["moto"] < len(r) else "",
+                    "clase": str(r[idx["clase"]]).strip() if idx["clase"] is not None and idx["clase"] < len(r) else "",
+                    "puntos": 0.0,
+                }
+            riders[numero]["puntos"] += pts
+            for f_name in ("nombre", "liga", "club", "moto", "clase"):
+                val = str(r[idx[f_name]]).strip() if idx[f_name] is not None and idx[f_name] < len(r) else ""
+                if val and (not riders[numero][f_name] or len(val) > len(riders[numero][f_name])):
+                    riders[numero][f_name] = val
+
+        for r in non_finishers:
+            numero = str(r[idx["numero"]]).strip()
+            if numero not in riders:
+                riders[numero] = {
+                    "numero": numero,
+                    "nombre": str(r[idx["nombre"]]).strip() if idx["nombre"] is not None and idx["nombre"] < len(r) else "",
+                    "liga": str(r[idx["liga"]]).strip() if idx["liga"] is not None and idx["liga"] < len(r) else "",
+                    "club": str(r[idx["club"]]).strip() if idx["club"] is not None and idx["club"] < len(r) else "",
+                    "moto": str(r[idx["moto"]]).strip() if idx["moto"] is not None and idx["moto"] < len(r) else "",
+                    "clase": str(r[idx["clase"]]).strip() if idx["clase"] is not None and idx["clase"] < len(r) else "",
+                    "puntos": 0.0,
+                }
+            for f_name in ("nombre", "liga", "club", "moto", "clase"):
+                val = str(r[idx[f_name]]).strip() if idx[f_name] is not None and idx[f_name] < len(r) else ""
+                if val and (not riders[numero][f_name] or len(val) > len(riders[numero][f_name])):
+                    riders[numero][f_name] = val
+
+    out = []
+    for numero, r in riders.items():
+        nombre_str = r["nombre"]
+        norm_name = normalize_rider_name(nombre_str)
+        meta = folder_meta_by_num.get(numero) or folder_meta_by_name.get(norm_name) or {}
+
+        raw_liga = r["liga"]
+        raw_club = r["club"]
+        raw_moto = r["moto"]
+
+        if raw_liga.upper() == "VALLE" or (not raw_liga and meta.get("liga", "").upper() == "VALLE"):
+            liga_val = "Valle del Cauca"
+        else:
+            liga_val = raw_liga if raw_liga and raw_liga not in ("-", "--", "N/A", "SIN LIGA") else meta.get("liga", "")
+
+        if numero == "209" and (not raw_club or raw_club in ("-", "--", "N/A", "SIN CLUB")):
+            club_val = "Club VALLE"
+        elif "oscar" in nombre_str.lower():
+            club_val = "Sin Club"
+        else:
+            club_val = raw_club if raw_club and raw_club not in ("-", "--", "N/A", "SIN CLUB") else meta.get("club", "")
+
+        if raw_moto.upper() in ("HUSQ", "HUSQVARNA") or (not raw_moto and meta.get("moto", "").upper() in ("HUSQ", "HUSQVARNA")):
+            moto_val = "Husqvarna"
+        else:
+            moto_val = raw_moto if raw_moto and raw_moto not in ("-", "--", "N/A") else meta.get("moto", "")
+
+        out.append({
+            "numero": numero,
+            "nombre": nombre_str,
+            "liga": liga_val,
+            "club": club_val,
+            "moto": moto_val,
+            "clase": r["clase"],
+            "puntos": r["puntos"],
+        })
+    return out
+
+
 def csv_delimiter_from_first_line(first_line):
     if not first_line:
         return ","
@@ -572,7 +701,7 @@ def canonical_velotierra_categoria(cat):
     return cat
 
 
-def load_valida_category_rows(files_dir, modalidad=None):
+def load_valida_category_rows(files_dir, modalidad=None, exclude_nums=None):
     by_cat_files = defaultdict(list)
     folder_meta_by_num = {}
     folder_meta_by_name = {}
@@ -626,6 +755,20 @@ def load_valida_category_rows(files_dir, modalidad=None):
             inicio_rows = aggregate_mx_inicio_from_sessions(files)
             out[categoria] = inicio_rows
             continue
+
+        if exclude_nums and modalidad == "Velotierra":
+            has_excluded = False
+            for _t, p in files:
+                f_nums = read_numeros_from_csv(p)
+                if any(ex in f_nums for ex in exclude_nums):
+                    has_excluded = True
+                    break
+            if has_excluded:
+                out[categoria] = recalculate_velotierra_category_from_sessions(
+                    files, exclude_nums, folder_meta_by_num, folder_meta_by_name
+                )
+                continue
+
         _tipo, main_path = choose_main_file(files)
         with open(main_path, "r", encoding="utf-8-sig", newline="") as f:
             raw = f.read()
@@ -792,6 +935,7 @@ def apply_final_valida_bonus(champ, result, data_by_valida):
     if not bonus:
         return result
 
+    exclude_nums = set(str(n).strip() for n in champ.get("exclude_pilotos_recalcular", []))
     validas = champ["validas"]
     last_idx = len(validas) - 1
     modalidad = champ.get("modalidad")
@@ -805,10 +949,12 @@ def apply_final_valida_bonus(champ, result, data_by_valida):
     updated = {}
     for categoria in categorias:
         att = attendees.get(categoria, set())
-        by_num = {r["numero"]: dict(r) for r in result.get(categoria, [])}
+        by_num = {r["numero"]: dict(r) for r in result.get(categoria, []) if r["numero"] not in exclude_nums}
 
         for row in last_data.get(categoria, []):
             key = row["numero"]
+            if key in exclude_nums:
+                continue
             if key not in by_num:
                 by_num[key] = {
                     "numero": key,
@@ -822,7 +968,7 @@ def apply_final_valida_bonus(champ, result, data_by_valida):
                 by_num[key]["por_valida"][last_idx] = row["puntos"]
 
         for numero in att:
-            if numero not in by_num:
+            if numero in exclude_nums or numero not in by_num:
                 continue
             by_num[numero]["bonificacion_asistencia"] = float(bonus)
 
@@ -918,12 +1064,13 @@ def merge_result_by_rider_name(result):
 def build_general_table(champ):
     validas = champ["validas"]
     modalidad = champ.get("modalidad")
+    exclude_recalcular = set(str(n).strip() for n in champ.get("exclude_pilotos_recalcular", []))
     data_by_valida = []
     for v in validas:
         if champ.get("gp_colombia"):
             data_by_valida.append(load_gp_valida_category_rows(v["files_dir"]))
         else:
-            data_by_valida.append(load_valida_category_rows(v["files_dir"], modalidad=modalidad))
+            data_by_valida.append(load_valida_category_rows(v["files_dir"], modalidad=modalidad, exclude_nums=exclude_recalcular))
 
     if champ.get("gp_colombia") and len(data_by_valida) >= 2:
         # Caso excepcional Escuela Fedemoto:
@@ -946,6 +1093,8 @@ def build_general_table(champ):
         for i, d in enumerate(data_by_valida):
             for row in d.get(categoria, []):
                 key = row["numero"]
+                if exclude_recalcular and key in exclude_recalcular:
+                    continue
                 if key not in riders:
                     riders[key] = {
                         "numero": key,
@@ -989,7 +1138,13 @@ def build_general_table(champ):
         rows.sort(key=standings_sort_key)
         result[categoria] = rows
     result = apply_final_valida_bonus(champ, result, data_by_valida)
+    if exclude_recalcular:
+        for cat in result:
+            result[cat] = [r for r in result[cat] if r["numero"] not in exclude_recalcular]
     merged_res = merge_result_by_rider_name(result)
+    if exclude_recalcular:
+        for cat in merged_res:
+            merged_res[cat] = [r for r in merged_res[cat] if r["numero"] not in exclude_recalcular]
     for cat, rows in merged_res.items():
         c_low = cat.lower()
         for r in rows:
@@ -1359,8 +1514,10 @@ def render_html(champ, table_by_categoria):
     return "".join(html_parts)
 
 
-def generate():
+def generate(target_id=None):
     for champ in CHAMPIONSHIPS:
+        if target_id and champ["id"] != target_id:
+            continue
         table = build_general_table(champ)
         out = champ["output_html"]
         os.makedirs(os.path.dirname(out), exist_ok=True)
@@ -1370,4 +1527,5 @@ def generate():
 
 
 if __name__ == "__main__":
-    generate()
+    target = sys.argv[1] if len(sys.argv) > 1 else None
+    generate(target)
