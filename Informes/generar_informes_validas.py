@@ -231,6 +231,22 @@ REPORT_CONFIGS = [
         ),
     },
     {
+        "output_html": os.path.join(
+            SCRIPT_DIR, "Velocidad", "Segundo semestre", "informe_valida_iii_velocidad_rivera.html"
+        ),
+        "files_dir": os.path.join(
+            ROOT_DIR, "Resultados_validas", "Velocidad", "Segundo semestre", "FILES EXPORTED_RIVERA"
+        ),
+        "session_priority": ["final", "carrera", "clasificatoria", "otros"],
+        "title": "Informe III Válida Velocidad - Rivera, Huila | FEDEMOTO",
+        "heading": "Informe III Válida Nacional de Velocidad — Segundo semestre",
+        "subtitle": "Rivera, Huila — Estadísticas de la válida",
+        "intro": (
+            "A continuación se presentan las estadísticas generadas a partir de los resultados "
+            "de la III Válida Nacional de Velocidad del segundo semestre, realizada en Rivera, Huila."
+        ),
+    },
+    {
         "output_html": os.path.join(SCRIPT_DIR, "Velotierra", "Primer semestre", "informe_valida_i_vt_tulua.html"),
         "files_dir": os.path.join(ROOT_DIR, "Resultados_validas", "Velotierra", "Primer semestre", "FILES EXPORTED_tulua"),
         "title": "Informe I Válida VT - Tuluá, Valle del Cauca | FEDEMOTO",

@@ -144,7 +144,14 @@ CHAMPIONSHIPS = [
                     ROOT_DIR, "Resultados_validas", "Velocidad", "Segundo semestre", "FILES EXPORTED GIRARDOT"
                 ),
             },
+            {
+                "label": "III Válida Velocidad - Rivera",
+                "files_dir": os.path.join(
+                    ROOT_DIR, "Resultados_validas", "Velocidad", "Segundo semestre", "FILES EXPORTED_RIVERA"
+                ),
+            },
         ],
+        "final_valida_bonus": 8,
         "output_html": os.path.join(
             SCRIPT_DIR, "Velocidad", "Segundo semestre", "resultado_general_velocidad_segundo_semestre.html"
         ),
@@ -748,6 +755,13 @@ def load_valida_category_rows(files_dir, modalidad=None, exclude_nums=None):
                     target[k]["liga"] = c_liga
                 if c_club and c_club not in ("-", "--", "N/A", "SIN CLUB") and not target[k].get("club"):
                     target[k]["club"] = c_club
+
+    if "samuelvargasome" in folder_meta_by_name:
+        sv = folder_meta_by_name.setdefault("samuelvargas", {})
+        for mk, mv in folder_meta_by_name["samuelvargasome"].items():
+            if mv and not sv.get(mk):
+                sv[mk] = mv
+        sv["moto"] = "YCF"
 
     out = {}
     for categoria, files in by_cat_files.items():
