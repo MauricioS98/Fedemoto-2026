@@ -1091,11 +1091,12 @@ def render_html(data):
         }}
         .kpi-grid {{
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 185px), 1fr));
             gap: 16px;
             margin-bottom: 28px;
         }}
         .kpi-card {{
+            min-width: 0;
             background: #ffffff;
             border: 1px solid var(--fdm-border);
             border-top: 3px solid var(--fdm-primary);
@@ -1129,6 +1130,7 @@ def render_html(data):
         }}
         .sub-section {{
             margin-top: 32px;
+            min-width: 0;
         }}
         .section-title-bar {{
             display: flex;
@@ -1144,16 +1146,22 @@ def render_html(data):
             font-size: 1.3rem;
             color: var(--fdm-primary);
             margin: 0;
+            min-width: 0;
         }}
         .section-title-actions {{
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
             gap: 10px;
+            max-width: 100%;
         }}
         .two-col {{
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
             gap: 24px;
+        }}
+        .two-col > * {{
+            min-width: 0;
         }}
         .card-box {{
             background: var(--fdm-surface-alt);
@@ -1161,10 +1169,12 @@ def render_html(data):
             border-radius: var(--fdm-radius-md);
             padding: 20px;
             position: relative;
+            min-width: 0;
+            max-width: 100%;
         }}
         .card-box-header {{
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
             gap: 10px;
             margin-bottom: 14px;
@@ -1173,6 +1183,8 @@ def render_html(data):
             font-size: 1.06rem;
             color: var(--fdm-primary);
             margin: 0;
+            min-width: 0;
+            overflow-wrap: anywhere;
         }}
         .help-btn {{
             display: inline-flex;
@@ -1197,7 +1209,10 @@ def render_html(data):
             border-color: var(--fdm-primary);
         }}
         .data-table-wrap {{
+            width: 100%;
+            max-width: 100%;
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
             border: 1px solid var(--fdm-border);
             border-radius: var(--fdm-radius-sm);
             background: #ffffff;
@@ -1230,13 +1245,15 @@ def render_html(data):
         }}
         .bar-row {{
             display: grid;
-            grid-template-columns: 185px 1fr 78px;
+            grid-template-columns: minmax(110px, 185px) minmax(0, 1fr) 68px;
             align-items: center;
             gap: 12px;
             margin-bottom: 10px;
             font-size: 0.9rem;
         }}
         .bar-label {{
+            min-width: 0;
+            text-align: left;
             font-weight: 600;
             color: var(--fdm-text);
             overflow: hidden;
@@ -1244,6 +1261,7 @@ def render_html(data):
             white-space: nowrap;
         }}
         .bar-track {{
+            min-width: 0;
             height: 22px;
             background: #e2e8f0;
             border-radius: 6px;
@@ -1269,10 +1287,11 @@ def render_html(data):
         .delta-neu {{ color: var(--fdm-text-muted); font-weight: 600; }}
         .champ-status-grid {{
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(265px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
             gap: 14px;
         }}
         .champ-status-card {{
+            min-width: 0;
             background: #ffffff;
             border: 1px solid var(--fdm-border);
             border-radius: var(--fdm-radius-md);
@@ -1284,9 +1303,10 @@ def render_html(data):
         }}
         .champ-status-top {{
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
             justify-content: space-between;
-            gap: 10px;
+            gap: 8px 10px;
         }}
         .champ-status-title {{
             font-family: var(--fdm-font-heading);
@@ -1313,6 +1333,10 @@ def render_html(data):
             gap: 12px;
             align-items: center;
             margin-bottom: 20px;
+        }}
+        .controls-row .filter-select {{
+            max-width: 100%;
+            min-width: 0;
         }}
         .notice-box {{
             padding: 14px 18px;
@@ -1383,11 +1407,67 @@ def render_html(data):
         @media (max-width: 1100px) {{
             .main-tabs {{ grid-template-columns: repeat(3, 1fr); }}
         }}
+        @media (max-width: 900px) {{
+            .two-col {{ grid-template-columns: 1fr; gap: 18px; }}
+        }}
         @media (max-width: 768px) {{
-            .top-actions-bar, .tab-panel {{ padding: 18px 16px; }}
-            .main-tabs {{ grid-template-columns: repeat(2, 1fr); }}
-            .two-col {{ grid-template-columns: 1fr; }}
-            .bar-row {{ grid-template-columns: 120px 1fr 60px; }}
+            .top-actions-bar, .tab-panel {{ padding: 18px 14px; }}
+            .main-tabs {{ grid-template-columns: repeat(2, 1fr); gap: 8px; }}
+            .main-tab-btn {{
+                white-space: normal;
+                line-height: 1.25;
+                padding: 10px 8px;
+                font-size: 0.8rem;
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }}
+            .kpi-grid {{ grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); gap: 12px; }}
+            .kpi-val {{ font-size: 1.85rem; }}
+            .controls-row {{ flex-direction: column; align-items: stretch; gap: 10px; }}
+            .controls-row .filter-select, #champLinkGeneral {{ width: 100%; max-width: 100%; margin-left: 0 !important; }}
+            .section-title-bar h2 {{ font-size: 1.15rem; }}
+            .card-box {{ padding: 16px 14px; }}
+            header h1 img {{ height: 40px !important; margin-right: 8px !important; }}
+        }}
+        @media (max-width: 600px) {{
+            .bar-row {{
+                grid-template-columns: minmax(0, 1fr) auto;
+                gap: 5px 10px;
+                margin-bottom: 12px;
+            }}
+            .bar-label {{
+                grid-column: 1;
+                grid-row: 1;
+                white-space: normal;
+                overflow: visible;
+                text-overflow: clip;
+                line-height: 1.25;
+                text-align: left;
+                min-width: 0;
+            }}
+            .bar-val {{
+                grid-column: 2;
+                grid-row: 1;
+                font-size: 0.98rem;
+            }}
+            .bar-track {{
+                grid-column: 1 / -1;
+                grid-row: 2;
+                height: 18px;
+            }}
+            .data-table {{ font-size: 0.82rem; }}
+            .data-table th, .data-table td {{ padding: 8px 9px; }}
+            .section-title-actions {{ width: 100%; justify-content: space-between; }}
+            .section-title-actions .search-box {{ flex: 1; max-width: none !important; min-width: 0; }}
+            .help-modal-box {{ padding: 20px 18px; }}
+        }}
+        @media (max-width: 420px) {{
+            .main-tab-btn {{ font-size: 0.75rem; padding: 8px 6px; }}
+            .kpi-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }}
+            .kpi-card {{ padding: 14px 12px; }}
+            .kpi-val {{ font-size: 1.6rem; }}
         }}
         @media print {{
             .top-actions-bar, .controls-row, #menu-container, .help-btn {{ display: none !important; }}
@@ -1843,7 +1923,7 @@ def render_html(data):
             el.innerHTML = `
                 <div class="controls-row">
                     <label for="selChamp" style="font-weight:700;">Campeonato:</label>
-                    <select class="filter-select" id="selChamp" style="min-width:280px;">
+                    <select class="filter-select" id="selChamp">
                         ${{DATA.championships.map(c => `<option value="${{esc(c.id)}}">${{esc(c.nombre)}} (${{esc(c.estado)}})</option>`).join("")}}
                     </select>
                     <span id="champEstadoBadge"></span>

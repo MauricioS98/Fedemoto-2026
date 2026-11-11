@@ -80,10 +80,10 @@
             .stat-card { padding: 16px; }
             .stat-card .number { font-size: 2em; }
             .section h2 { font-size: 1.5em; margin-bottom: 14px; }
-            .chart-row { align-items: flex-start; flex-direction: column; gap: 6px; }
-            .chart-row .label { flex: 0 0 auto; width: 100%; white-space: normal; }
-            .chart-row .bar-wrap { width: 100%; }
-            .chart-row .value { flex: 0 0 auto; width: 100%; text-align: left; }
+            .chart-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 6px 10px; }
+            .chart-row .label { grid-column: 1; grid-row: 1; flex: none; width: auto; white-space: normal; }
+            .chart-row .value { grid-column: 2; grid-row: 1; flex: none; width: auto; text-align: right; }
+            .chart-row .bar-wrap { grid-column: 1 / -1; grid-row: 2; flex: none; width: 100%; height: 22px; }
         }
         @media (max-width: 480px) {
             .container > header { padding: 22px 14px; }
@@ -129,7 +129,7 @@
     <script src="../../../load-menu.js"></script>
     <script>
         (function() {
-            var datos = {"participaciones_totales": 101, "pilotos_unicos": 70, "pilotos_por_liga": {}, "pilotos_por_club": {}, "inscripciones_por_marca": {}, "participaciones_por_categoria": {"125cc": 16, "50cc": 6, "65cc": 8, "85cc Junior": 12, "85cc Mini": 11, "Femenina A": 5, "Femenina B": 1, "Inicio": 4, "Mx Master": 8, "Mx Preexpertos": 11, "Mx Pro": 8, "Mx2": 11}};
+            var datos = {"participaciones_totales": 101, "pilotos_unicos": 70, "pilotos_por_liga": {"Antioquia": 24, "Bogotá D.C.": 11, "Caldas": 8, "Cesar": 2, "Meta": 2, "Nariño": 2, "Putumayo": 4, "Quindío": 1, "Risaralda": 6, "Santander": 3, "Tolima": 2, "Valle Del Cauca": 5}, "pilotos_por_club": {"Carasucias": 3, "Club Antioquia 2 Ruedas Racer": 8, "Club De Motociclismo Jp36": 4, "Club De Motociclismo Stunt Five": 1, "Club Deportivo Bufalo Xtrem": 2, "Club Deportivo Santander Max Extremo": 3, "Club Extreme Racing": 3, "Club Grillos Racing": 6, "Club Los Guepardos": 6, "Club Motocross De Yarumal": 2, "Club Motocross Medellín": 1, "Club Motocross Yarumal": 4, "Club Mx Pro": 1, "Club Ruteros Del Quindio": 1, "Club Valle": 1, "Club Villamaria Racing Club": 3, "Gr 522 Racing": 2, "K-lima Racing": 1, "Racing Pilots Academy": 2, "Stunt Five": 2, "Team Potenza": 1, "Team Racing Mocoa": 1, "Todo Terreno Track": 3, "Villavicencio Racing Club": 2, "Virus Racing": 1, "Xspeed Racing": 6}, "inscripciones_por_marca": {"Cobra": 2, "Gasgas": 4, "Honda": 10, "Husqvarna": 6, "Kawasaki": 2, "Ktm": 11, "Lgp Mobility": 2, "Unite Motor": 2, "Yamaha": 31}, "participaciones_por_categoria": {"125cc": 16, "50cc": 6, "65cc": 8, "85cc Junior": 12, "85cc Mini": 11, "Femenina A": 5, "Femenina B": 1, "Inicio": 4, "Mx Master": 8, "Mx Preexpertos": 11, "Mx Pro": 8, "Mx2": 11}};
             var stats = [
                 { num: datos.participaciones_totales, label: 'Participaciones totales' },
                 { num: datos.pilotos_unicos, label: 'Pilotos participantes' },

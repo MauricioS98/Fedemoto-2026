@@ -80,10 +80,10 @@
             .stat-card { padding: 16px; }
             .stat-card .number { font-size: 2em; }
             .section h2 { font-size: 1.5em; margin-bottom: 14px; }
-            .chart-row { align-items: flex-start; flex-direction: column; gap: 6px; }
-            .chart-row .label { flex: 0 0 auto; width: 100%; white-space: normal; }
-            .chart-row .bar-wrap { width: 100%; }
-            .chart-row .value { flex: 0 0 auto; width: 100%; text-align: left; }
+            .chart-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 6px 10px; }
+            .chart-row .label { grid-column: 1; grid-row: 1; flex: none; width: auto; white-space: normal; }
+            .chart-row .value { grid-column: 2; grid-row: 1; flex: none; width: auto; text-align: right; }
+            .chart-row .bar-wrap { grid-column: 1 / -1; grid-row: 2; flex: none; width: 100%; height: 22px; }
         }
         @media (max-width: 480px) {
             .container > header { padding: 22px 14px; }
@@ -129,7 +129,7 @@
     <script src="../../../load-menu.js"></script>
     <script>
         (function() {
-            var datos = {"participaciones_totales": 134, "pilotos_unicos": 54, "pilotos_por_liga": {"Caldas": 1, "Cauca": 1, "Huila": 2, "Nariño": 1, "Quindío": 2, "Santander": 2, "Tolima": 4}, "pilotos_por_club": {"Club Corona Club Xtreme Park": 1, "Club Deportivo Santander Max Extremo": 1, "Club Florida Extremo": 1, "Club Monster Garage": 2, "Club Moto Japonesa": 2, "Club Piston Racing": 2, "Club Racing Performance": 1}, "inscripciones_por_marca": {"Husqvarna": 8, "Ktm": 1, "Tvs": 1, "Yamaha": 45, "Ycf": 14}, "participaciones_por_categoria": {"115 Cc Infantil": 15, "115 Cc Inicio": 11, "115 Cc Master": 7, "115 Elite": 14, "150 Cc": 15, "150 Cc Inicio": 7, "150 Cc Master": 7, "200 Cc 2t": 9, "50 Cc": 4, "Escuela Fedemoto": 9, "Infantil": 8, "Pit Bike": 5, "Pit Bike Infantil": 8, "Supermoto": 15}};
+            var datos = {"participaciones_totales": 134, "pilotos_unicos": 54, "pilotos_por_liga": {"Antioquia": 9, "Caldas": 8, "Cauca": 2, "Cesar": 2, "Cundinamarca": 1, "Huila": 2, "Meta": 2, "Nariño": 1, "Putumayo": 1, "Quindío": 14, "Santander": 3, "Tolima": 6, "Valle Del Cauca": 3}, "pilotos_por_club": {"Club Corona Club Xtreme Park": 1, "Club Deportivo Santander Max Extremo": 1, "Club Deportivo Terras De San Marinno": 1, "Club Discover Quindio": 2, "Club Florida Extremo": 2, "Club Girardot Racing": 1, "Club Grillos Racing": 4, "Club Jhc Racing": 1, "Club Josmarc Motos Racing": 1, "Club Kalima Racing": 1, "Club Llaneros Rancing": 1, "Club Los Paskines": 1, "Club Monster Garage": 10, "Club Moto Japonesa": 2, "Club Mx Pro": 2, "Club Mx Pro Manizales": 1, "Club Piston Racing": 3, "Club Racing Performance": 3, "Club Ruteros Del Quindio": 2, "Dos Ruedas Racing Team": 1, "K-lima Racing": 1, "Motoclub Travesuras": 2, "Stunt Five": 3, "Team Racing Mocoa": 1, "Villavicencio Racing Club": 1}, "inscripciones_por_marca": {"Husqvarna": 8, "Ktm": 1, "Tvs": 1, "Yamaha": 45, "Ycf": 14}, "participaciones_por_categoria": {"115 Cc Infantil": 15, "115 Cc Inicio": 11, "115 Cc Master": 7, "115 Elite": 14, "150 Cc": 15, "150 Cc Inicio": 7, "150 Cc Master": 7, "200 Cc 2t": 9, "50 Cc": 4, "Escuela Fedemoto": 9, "Infantil": 8, "Pit Bike": 5, "Pit Bike Infantil": 8, "Supermoto": 15}};
             var stats = [
                 { num: datos.participaciones_totales, label: 'Participaciones totales' },
                 { num: datos.pilotos_unicos, label: 'Pilotos participantes' },

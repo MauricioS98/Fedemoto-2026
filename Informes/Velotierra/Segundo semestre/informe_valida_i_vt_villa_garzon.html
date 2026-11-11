@@ -80,10 +80,10 @@
             .stat-card { padding: 16px; }
             .stat-card .number { font-size: 2em; }
             .section h2 { font-size: 1.5em; margin-bottom: 14px; }
-            .chart-row { align-items: flex-start; flex-direction: column; gap: 6px; }
-            .chart-row .label { flex: 0 0 auto; width: 100%; white-space: normal; }
-            .chart-row .bar-wrap { width: 100%; }
-            .chart-row .value { flex: 0 0 auto; width: 100%; text-align: left; }
+            .chart-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 6px 10px; }
+            .chart-row .label { grid-column: 1; grid-row: 1; flex: none; width: auto; white-space: normal; }
+            .chart-row .value { grid-column: 2; grid-row: 1; flex: none; width: auto; text-align: right; }
+            .chart-row .bar-wrap { grid-column: 1 / -1; grid-row: 2; flex: none; width: 100%; height: 22px; }
         }
         @media (max-width: 480px) {
             .container > header { padding: 22px 14px; }
@@ -129,7 +129,7 @@
     <script src="../../../load-menu.js"></script>
     <script>
         (function() {
-            var datos = {"participaciones_totales": 75, "pilotos_unicos": 49, "pilotos_por_liga": {"Cauca": 6, "Meta": 2, "Nariño": 11, "Putumayo": 22, "Quindío": 1, "Risaralda": 3, "Tolima": 1, "Valle Del Cauca": 2}, "pilotos_por_club": {"Carasucias": 1, "Club Corona": 1, "Club Corona Club Xtreme Park": 4, "Club Deportivo Bufalo Xtrem": 3, "Club Extreme Racing": 16, "Club Los Guepardos": 3, "Club Moteros Riders La Union": 2, "Club Ruteros Del Quindio": 1, "Dos Ruedas Racing Team": 1, "Gr 522 Racing": 1, "Motoclub Ipiales": 5, "Team Racing Mocoa": 4, "Villavicencio Racing Club": 2}, "inscripciones_por_marca": {"Cobra": 1, "Gasgas": 5, "Honda": 6, "Husqvarna": 7, "Ktm": 11, "Kymco": 2, "Suzuki": 1, "Yamaha": 19}, "participaciones_por_categoria": {"125cc": 5, "Expertos": 6, "Femenino": 3, "Infantil": 8, "Infantil Mini": 4, "Juvenil": 10, "Libre Novatos": 13, "Libre Pro": 11, "Master": 8, "Novatos": 7}};
+            var datos = {"participaciones_totales": 75, "pilotos_unicos": 49, "pilotos_por_liga": {"Cauca": 6, "Meta": 2, "Nariño": 11, "Putumayo": 23, "Quindío": 1, "Risaralda": 3, "Tolima": 1, "Valle Del Cauca": 2}, "pilotos_por_club": {"Carasucias": 2, "Club Corona": 1, "Club Corona Club Xtreme Park": 4, "Club Deportivo Bufalo Xtrem": 4, "Club Extreme Racing": 17, "Club Los Guepardos": 3, "Club Moteros Riders La Union": 2, "Club Ruteros Del Quindio": 1, "Dos Ruedas Racing Team": 1, "Gr 522 Racing": 1, "Motoclub Ipiales": 5, "Team Racing Mocoa": 4, "Villavicencio Racing Club": 2}, "inscripciones_por_marca": {"Cobra": 1, "Gasgas": 5, "Honda": 7, "Husqvarna": 7, "Ktm": 13, "Kymco": 2, "Suzuki": 1, "Yamaha": 19}, "participaciones_por_categoria": {"125cc": 5, "Expertos": 6, "Femenino": 3, "Infantil": 8, "Infantil Mini": 4, "Juvenil": 10, "Libre Novatos": 13, "Libre Pro": 11, "Master": 8, "Novatos": 7}};
             var stats = [
                 { num: datos.participaciones_totales, label: 'Participaciones totales' },
                 { num: datos.pilotos_unicos, label: 'Pilotos participantes' },

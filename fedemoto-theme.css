@@ -1361,4 +1361,98 @@ footer .developer {
     .search-box {
         width: 100%;
     }
+
+    .chart-container {
+        padding: 16px 14px;
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    .bar-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+    }
+
+    .bar-item .bar-label {
+        min-width: 0;
+        width: 100%;
+        text-align: left;
+    }
+
+    .bar-item .bar-wrapper {
+        width: 100%;
+        flex: none;
+    }
+
+    .chart-row {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 6px 10px;
+    }
+
+    .chart-row .label {
+        grid-column: 1;
+        grid-row: 1;
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+    }
+
+    .chart-row .value {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    .chart-row .bar-wrap {
+        grid-column: 1 / -1;
+        grid-row: 2;
+    }
+
+    .grouped-chart {
+        gap: 12px 10px;
+        justify-content: flex-start;
+    }
+
+    .grouped-chart-item {
+        min-width: 72px;
+        max-width: none;
+        flex: 1 1 calc(33.333% - 10px);
+    }
+
+    .grouped-bars-container {
+        height: 150px;
+    }
+
+    .grouped-bar-wrapper {
+        height: 130px;
+        width: 22px;
+    }
+
+    .grouped-legend {
+        flex-wrap: wrap;
+        gap: 10px 16px;
+    }
+
+    .comparison-container {
+        padding: 16px 14px;
+    }
+
+    .comparison-stats {
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr));
+        gap: 10px;
+    }
+
+    .comparison-stat-card {
+        padding: 14px 10px;
+    }
+
+    .comparison-number {
+        font-size: 1.65rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .grouped-chart-item {
+        flex: 1 1 calc(50% - 10px);
+    }
 }

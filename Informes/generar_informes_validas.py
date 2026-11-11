@@ -731,10 +731,10 @@ def build_html(datos, title, heading, subtitle, intro, root_rel_prefix):
             .stat-card {{ padding: 16px; }}
             .stat-card .number {{ font-size: 2em; }}
             .section h2 {{ font-size: 1.5em; margin-bottom: 14px; }}
-            .chart-row {{ align-items: flex-start; flex-direction: column; gap: 6px; }}
-            .chart-row .label {{ flex: 0 0 auto; width: 100%; white-space: normal; }}
-            .chart-row .bar-wrap {{ width: 100%; }}
-            .chart-row .value {{ flex: 0 0 auto; width: 100%; text-align: left; }}
+            .chart-row {{ display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 6px 10px; }}
+            .chart-row .label {{ grid-column: 1; grid-row: 1; flex: none; width: auto; white-space: normal; }}
+            .chart-row .value {{ grid-column: 2; grid-row: 1; flex: none; width: auto; text-align: right; }}
+            .chart-row .bar-wrap {{ grid-column: 1 / -1; grid-row: 2; flex: none; width: 100%; height: 22px; }}
         }}
         @media (max-width: 480px) {{
             .container > header {{ padding: 22px 14px; }}
