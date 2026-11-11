@@ -117,15 +117,10 @@
                 
                 if (linkFileName && currentFileName && linkFileName === currentFileName) {
                     link.classList.add('active');
-                    const dropdown = link.closest('.dropdown');
-                    if (dropdown) {
-                        dropdown.classList.add('active');
-                    }
-                } else if (href.includes(currentFileName) || currentPath.includes(linkFileName)) {
-                    link.classList.add('active');
-                    const dropdown = link.closest('.dropdown');
-                    if (dropdown) {
-                        dropdown.classList.add('active');
+                    let parentDropdown = link.closest('.dropdown');
+                    while (parentDropdown) {
+                        parentDropdown.classList.add('current-parent');
+                        parentDropdown = parentDropdown.parentElement ? parentDropdown.parentElement.closest('.dropdown') : null;
                     }
                 }
             }

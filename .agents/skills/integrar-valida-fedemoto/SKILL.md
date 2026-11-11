@@ -103,7 +103,14 @@ Verificar los nombres de archivo CSV en `FILES EXPORTED`:
    - La página generada cuenta automáticamente con el botón `📄 Exportar a PDF` para descargar las tablas acumuladas y el resumen de ligas.
 6. Si el generador toca las fechas de otros campeonatos que no cambiaron, descartar esos cambios con `git checkout` para mantener limpios solo los archivos pertinentes.
 
-### Paso 6: Actualizar el Menú de Navegación (`menu.html`)
+### Paso 6: Actualizar el Informe Anual del Año Correspondiente (`Informes/informe_<año>_fedemoto.html`)
+1. Ejecutar el script generador del informe anual correspondiente al año de la válida (ej. `python "Informes/generar_informe_anual_2026.py"`).
+2. El informe anual debe reflejar los datos actualizados (general, por modalidad, por campeonato, por modalidad por semestre y por semestre en general) e indicar el estado de cada campeonato:
+   - **"Finalizado"**: Únicamente cuando ya se haya agregado la válida final del campeonato y aplicado la bonificación de asistencia final (`final_valida_bonus: 8` en `Resultados generales/generar_resultados_generales.py`).
+   - **"En curso"**: Cuando el campeonato aún no tenga aplicada la bonificación final de 8 puntos.
+3. Si el enlace del informe anual aún no existe en `menu.html` bajo `Informes`, agregarlo (`<li><a href="Informes/informe_<año>_fedemoto.html">Informe Anual <año></a></li>`).
+
+### Paso 7: Actualizar el Menú de Navegación (`menu.html`)
 1. Abrir `menu.html`.
 2. En la sección `Informes > <Modalidad> > <Semestre>`, añadir:
    ```html
@@ -114,7 +121,7 @@ Verificar los nombres de archivo CSV en `FILES EXPORTED`:
    <li><a href="Resultados_validas/<Modalidad>/<Semestre>/valida_<num>_<slug>.html"><Num> Válida <Mod> - <Ciudad>, <Depto></a></li>
    ```
 
-### Paso 7: Verificación Final
+### Paso 8: Verificación Final
 1. Comprobar que los scripts de Python terminen con código 0.
 2. Revisar `git status` para confirmar que se generaron los archivos correctos.
 3. Verificar que los enlaces "Ver vuelta a vuelta" abran los PDFs correspondientes.

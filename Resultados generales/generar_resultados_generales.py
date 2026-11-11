@@ -437,7 +437,7 @@ def aggregate_mx_inicio_from_sessions(files):
             if len(r) <= max_ix:
                 continue
             numero = str(r[idx["numero"]]).strip()
-            if not numero or (exclude_nums and numero in exclude_nums):
+            if not numero:
                 continue
             pts = parse_points_int(r[idx["puntos"]])
             if numero not in riders:

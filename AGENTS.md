@@ -40,7 +40,11 @@ Siempre que el usuario añada o mencione carpetas `FILES EXPORTED_*` y `VUELTA A
    - Regenerar el HTML `resultado_general_*.html` asegurando que las columnas Moto, Liga y Club queden completas.
    - Mantener limpios los demás campeonatos no modificados descartando fechas tocadas por el script.
 
-4. **Menú de navegación (`menu.html`)**:
+4. **Informe Anual Consolidado (`Informes/informe_<año>_fedemoto.html`)**:
+   - Re-ejecutar `Informes/generar_informe_anual_<año>.py` para actualizar todas las métricas del año al que pertenece la válida.
+   - Mostrar el estado de cada campeonato como **"Finalizado"** únicamente si tiene aplicada la bonificación de 8 puntos (`final_valida_bonus: 8`); de lo contrario mostrar **"En curso"**.
+
+5. **Menú de navegación (`menu.html`)**:
    - Agregar el enlace del informe en `Informes > [Modalidad] > [Semestre]`.
    - Agregar el enlace de la válida en `Resultados de válidas > [Modalidad] > [Semestre]`.
 

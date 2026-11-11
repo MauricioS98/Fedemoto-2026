@@ -213,10 +213,15 @@
     display: block !important;
 }
 
-#menu-container .nav-menu > .dropdown:hover > .dropdown-menu,
-#menu-container .nav-menu > .dropdown.active > .dropdown-menu {
+#menu-container .nav-menu > .dropdown:hover > .dropdown-menu {
     display: block;
     animation: navFadeIn 0.2s ease;
+}
+
+#menu-container .nav-menu > .dropdown.current-parent > a {
+    background: rgba(0, 56, 147, 0.45);
+    color: var(--fdm-white);
+    box-shadow: inset 0 -2px 0 var(--fdm-secondary);
 }
 
 @keyframes navFadeIn {
