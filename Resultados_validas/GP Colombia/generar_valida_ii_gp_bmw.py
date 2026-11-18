@@ -5,7 +5,6 @@ Femenina: clasificatoria conjunta; carrera dividida en Expertas y Novatas (desde
 Super Stock: dividida en 600 y 1000 (clasificatoria y carrera).
 X-Bikes: dividida en A y B.
 Escuela Fedemoto: procesa 'MINIBIKE FEDEMOTO' con Carrera 1, Carrera 2 y Final sumada.
-115cc Inicio: excluida a petición explícita del usuario.
 Normalizaciones:
   - Supermoto Expertos -> Supermoto Expertos Metzeler
   - Supermoto Novatos -> Supermoto Novatos Metzeler
@@ -194,6 +193,7 @@ def get_category_sort_key(categoria):
     order = {
         "115cc elite": 0,
         "115cc infantil": 1,
+        "115cc inicio": 2,
         "115cc master": 3,
         "150cc": 10,
         "150cc inicio": 11,
@@ -358,10 +358,6 @@ def load_categorias_data():
             continue
         filepath = os.path.join(FILES_DIR, filename)
         if not os.path.isfile(filepath):
-            continue
-        
-        # Omitir 115cc Inicio a petición del usuario
-        if "115cc inicio" in filename.lower():
             continue
         
         headers_raw, rows_raw = parse_csv(filepath)
