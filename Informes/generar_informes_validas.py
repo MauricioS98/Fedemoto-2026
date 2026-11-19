@@ -152,6 +152,22 @@ REPORT_CONFIGS = [
     },
     {
         "output_html": os.path.join(
+            SCRIPT_DIR, "Motocross", "Segundo semestre", "informe_valida_iv_mx_san_jeronimo.html"
+        ),
+        "files_dir": os.path.join(
+            ROOT_DIR, "Resultados_validas", "Motocross", "Segundo semestre", "FILES EXPORTED_SAN JERONIMO"
+        ),
+        "session_priority": ["final", "carrera", "clasificatoria", "otros"],
+        "title": "Informe IV Válida MX - San Jerónimo, Meta | FEDEMOTO",
+        "heading": "Informe IV Válida Nacional de Motocross — Segundo semestre",
+        "subtitle": "San Jerónimo, Meta — Estadísticas de la válida",
+        "intro": (
+            "A continuación se presentan las estadísticas generadas a partir de los resultados "
+            "de la IV Válida Nacional de Motocross del segundo semestre, realizada en San Jerónimo, Meta."
+        ),
+    },
+    {
+        "output_html": os.path.join(
             SCRIPT_DIR, "Velocidad", "Primer semestre", "informe_valida_i_velocidad_zarzal.html"
         ),
         "files_dir": os.path.join(

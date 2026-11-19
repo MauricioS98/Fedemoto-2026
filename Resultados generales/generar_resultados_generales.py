@@ -92,7 +92,14 @@ CHAMPIONSHIPS = [
                     ROOT_DIR, "Resultados_validas", "Motocross", "Segundo semestre", "FILES EXPORTED_PUTUMAYO"
                 ),
             },
+            {
+                "label": "IV Válida MX - San Jerónimo",
+                "files_dir": os.path.join(
+                    ROOT_DIR, "Resultados_validas", "Motocross", "Segundo semestre", "FILES EXPORTED_SAN JERONIMO"
+                ),
+            },
         ],
+        "final_valida_bonus": 8,
         "output_html": os.path.join(
             SCRIPT_DIR, "Motocross", "Segundo semestre", "resultado_general_mx_segundo_semestre.html"
         ),

@@ -45,6 +45,7 @@ VENUE_META = {
     "IV Válida MX - Manizales": ("Manizales", "Caldas"),
     "II Válida MX - Yopal": ("Yopal", "Casanare"),
     "III Válida MX - Villagarzón": ("Villagarzón", "Putumayo"),
+    "IV Válida MX - San Jerónimo": ("San Jerónimo", "Meta"),
     "I Válida Velocidad - Zarzal": ("Zarzal", "Valle del Cauca"),
     "II Válida Velocidad - Chachagüi": ("Chachagüí", "Nariño"),
     "III Válida Velocidad - Popayán": ("Popayán", "Cauca"),
