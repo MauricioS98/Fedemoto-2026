@@ -60,6 +60,7 @@ VENUE_META = {
     "III Válida VT - Cartago": ("Cartago", "Valle del Cauca"),
     "I Válida GP Colombia - Gran Premio Vitrix": ("Tocancipá", "Cundinamarca"),
     "II Válida GP Colombia - Gran Premio BMW": ("Tocancipá", "Cundinamarca"),
+    "III Válida GP Colombia - Gran Premio IRC": ("Tocancipá", "Cundinamarca"),
 }
 
 CANONICAL_LIGAS = {
@@ -210,7 +211,12 @@ def canonical_categoria(modalidad, cat_raw):
 
 def is_excluded_non_category(modalidad, cat_name):
     # En Enduro, Scratch es una tabla general absoluta combinada, no una categoría independiente
-    return modalidad == "Enduro" and strip_accents(cat_name).strip().lower() == "scratch"
+    c_low = strip_accents(cat_name).strip().lower()
+    if modalidad == "Enduro" and c_low == "scratch":
+        return True
+    if modalidad == "Velocidad" and c_low == "escuela fedemoto":
+        return True
+    return False
 
 
 def is_formative_cat(cat_name):
@@ -402,6 +408,8 @@ def parse_valida_raw_stats(champ, valida_cfg, global_meta):
                         moto = "Suzuki"
                     elif "yamaha r15" in cl_low:
                         moto = "Yamaha"
+                    elif "pulsar" in cl_low:
+                        moto = "Bajaj"
 
                 uid = rider_uid(nom, num, liga)
                 if uid not in seen_in_cat:

@@ -386,6 +386,23 @@ REPORT_CONFIGS = [
             "de la II Válida GP Colombia 2026, Gran Premio BMW, realizada en el Autódromo de Tocancipá."
         ),
     },
+    {
+        "output_html": os.path.join(SCRIPT_DIR, "GP Colombia", "informe_valida_iii_gp_colombia_irc.html"),
+        "files_dir": os.path.join(
+            ROOT_DIR,
+            "Resultados_validas",
+            "GP Colombia",
+            "FILES EXPORTED_GRAN PREMIO IRC VALIDA FINAL",
+        ),
+        "gp_colombia": True,
+        "title": "Informe III Válida GP Colombia - Gran Premio IRC | FEDEMOTO",
+        "heading": "Informe III Válida GP Colombia — Válida Final",
+        "subtitle": "Gran Premio IRC — Estadísticas de la válida",
+        "intro": (
+            "A continuación se presentan las estadísticas generadas a partir de los resultados "
+            "de la III Válida (Válida Final) GP Colombia 2026, Gran Premio IRC, realizada en el Autódromo de Tocancipá."
+        ),
+    },
 ]
 
 
@@ -587,7 +604,9 @@ def analyze_gp_colombia(files_dir):
     gp_dir = os.path.join(ROOT_DIR, "Resultados_validas", "GP Colombia")
     if gp_dir not in sys.path:
         sys.path.insert(0, gp_dir)
-    if files_dir and "bmw" in files_dir.lower():
+    if files_dir and "irc" in files_dir.lower():
+        import generar_valida_iii_gp_irc as gp
+    elif files_dir and "bmw" in files_dir.lower():
         import generar_valida_ii_gp_bmw as gp
     else:
         import generar_valida_i_gp_vitrix as gp

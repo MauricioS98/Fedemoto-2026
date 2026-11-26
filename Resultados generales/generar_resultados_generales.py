@@ -249,7 +249,17 @@ CHAMPIONSHIPS = [
                     "FILES EXPORTED_Gran Premio BMW",
                 ),
             },
+            {
+                "label": "III Válida GP Colombia - Gran Premio IRC",
+                "files_dir": os.path.join(
+                    ROOT_DIR,
+                    "Resultados_validas",
+                    "GP Colombia",
+                    "FILES EXPORTED_GRAN PREMIO IRC VALIDA FINAL",
+                ),
+            },
         ],
+        "final_valida_bonus": 8,
         "output_html": os.path.join(SCRIPT_DIR, "GP Colombia", "resultado_general_gp_colombia_2026.html"),
     },
 ]
@@ -327,6 +337,7 @@ def categoria_sort_key(modalidad, categoria):
             "minimotard": 31,
             "yamaha r15": 32,
             "suzuki gsx r/s 150": 33,
+            "pulsar ns 200 fi": 33.5,
             "200cc 2t": 34,
             "220cc 4t": 35,
             "street race 250": 40,
@@ -352,11 +363,49 @@ def categoria_sort_key(modalidad, categoria):
     return (99, categoria)
 
 
+PULSAR_VITRIX_NAME_ALIASES = {
+    "juanhernandez": "Juan Felipe Hernandez",
+    "dburbano": "David Burbano",
+    "cposada": "Cristian Posada",
+    "shernandez": "Santiago Hernandez",
+    "agonzalez": "Andres Gonzalez",
+    "cgiraldo": "Camilo Giraldo",
+}
+
+ESCUELA_GP_NAME_ALIASES = {
+    "samuelvargas": "samuelvargasome",
+    "miguelcastillo": "miguelangelcastillodiago",
+    "miguelangelcastillo": "miguelangelcastillodiago",
+    "iangiovannycandia": "iangiovannycandiajimenez",
+    "iangiovannicandiajimenez": "iangiovannycandiajimenez",
+    "juanjoseamayav": "juanjoseamayavahos",
+}
+
+
+def canonical_gp_cat_name(cat):
+    k = str(cat or "").strip()
+    kl = k.lower()
+    if kl in ("supermoto expertos - metzeler", "supermoto expertos metzeler", "sm expertos - metzeler"):
+        return "Supermoto Expertos Metzeler"
+    if kl in ("supermoto novatos - metzeler", "supermoto novatos metzeler", "sm novatos - metzeler"):
+        return "Supermoto Novatos Metzeler"
+    if kl in ("minibike fedemoto", "escuela fedemoto"):
+        return "Escuela Fedemoto"
+    if kl in ("cuatrimotard", "cuatrimotard (ii + iii gp)"):
+        return "Cuatrimotard (II + III GP)"
+    if "pulsar" in kl:
+        return "Pulsar NS 200 FI"
+    return k
+
+
 def load_gp_valida_category_rows(files_dir):
     gp_dir = os.path.join(ROOT_DIR, "Resultados_validas", "GP Colombia")
     if gp_dir not in sys.path:
         sys.path.insert(0, gp_dir)
-    if files_dir and "bmw" in files_dir.lower():
+    fl = (files_dir or "").lower()
+    if "irc" in fl:
+        import generar_valida_iii_gp_irc as gp
+    elif "bmw" in fl:
         import generar_valida_ii_gp_bmw as gp
     else:
         import generar_valida_i_gp_vitrix as gp
@@ -364,17 +413,152 @@ def load_gp_valida_category_rows(files_dir):
     rows_by_cat = gp.export_valida_general_rows(files_dir)
     canonical = {}
     for cat, rows in rows_by_cat.items():
-        k = cat.strip()
-        if k.lower() in ("supermoto expertos - metzeler", "supermoto expertos metzeler"):
-            k = "Supermoto Expertos Metzeler"
-        elif k.lower() in ("supermoto novatos - metzeler", "supermoto novatos metzeler"):
-            k = "Supermoto Novatos Metzeler"
-        elif k.lower() in ("minibike fedemoto", "escuela fedemoto"):
-            k = "Escuela Fedemoto"
-        elif k.lower() in ("cuatrimotard", "cuatrimotard (ii + iii gp)"):
-            k = "Cuatrimotard (II + III GP)"
-        canonical[k] = rows
+        k = canonical_gp_cat_name(cat)
+        if k == "Pulsar NS 200 FI":
+            norm_rows = []
+            for r in rows:
+                rr = dict(r)
+                nk = normalize_rider_name(rr.get("nombre", ""))
+                if nk in PULSAR_VITRIX_NAME_ALIASES:
+                    rr["nombre"] = PULSAR_VITRIX_NAME_ALIASES[nk]
+                if not rr.get("moto"):
+                    rr["moto"] = "Bajaj"
+                norm_rows.append(rr)
+            canonical[k] = norm_rows
+        else:
+            canonical[k] = rows
     return canonical
+
+
+def load_gp_final_attendees(files_dir):
+    """Retorna asistentes por categoría canónica en la válida final de GP Colombia."""
+    gp_dir = os.path.join(ROOT_DIR, "Resultados_validas", "GP Colombia")
+    if gp_dir not in sys.path:
+        sys.path.insert(0, gp_dir)
+    import generar_valida_iii_gp_irc as gp_irc
+
+    cats_data = gp_irc.load_categorias_data()
+    exp_nums = set()
+    for _t, _, headers, rows, _ in cats_data.get("Femenina Expertas", []):
+        idx = find_indexes(headers)
+        if idx["numero"] is not None:
+            for r in rows:
+                if len(r) > idx["numero"] and str(r[idx["numero"]]).strip():
+                    exp_nums.add(str(r[idx["numero"]]).strip().upper())
+
+    attendees = defaultdict(set)
+    for cat, items in cats_data.items():
+        if cat == "Escuela Fedemoto":
+            continue
+        if cat == "Femenina":
+            for _t, _, headers, rows, _ in items:
+                idx = find_indexes(headers)
+                if idx["numero"] is None:
+                    continue
+                for r in rows:
+                    if len(r) <= idx["numero"]:
+                        continue
+                    num = str(r[idx["numero"]]).strip()
+                    if not num:
+                        continue
+                    target = "Femenina Expertas" if num.upper() in exp_nums else "Femenina Novatas"
+                    attendees[target].add(num)
+            continue
+
+        k = canonical_gp_cat_name(cat)
+        for _t, _, headers, rows, _ in items:
+            idx = find_indexes(headers)
+            if idx["numero"] is None:
+                continue
+            for r in rows:
+                if len(r) <= idx["numero"]:
+                    continue
+                num = str(r[idx["numero"]]).strip()
+                nom = str(r[idx["nombre"]]).strip() if idx["nombre"] is not None and idx["nombre"] < len(r) else ""
+                if not num or "SECRETARIA" in nom.upper():
+                    continue
+                if k == "Pulsar NS 200 FI":
+                    nk = normalize_rider_name(nom)
+                    if nk:
+                        attendees[k].add(nk)
+                else:
+                    attendees[k].add(num)
+    return attendees
+
+
+def _build_gp_escuela_fedemoto_standings(bonus):
+    """Construye la tabla general de 4 válidas (I, II, III, IV) + Bono final para Escuela Fedemoto."""
+    gp_dir = os.path.join(ROOT_DIR, "Resultados_validas", "GP Colombia")
+    if gp_dir not in sys.path:
+        sys.path.insert(0, gp_dir)
+    import generar_valida_ii_gp_bmw as gp_bmw
+    import generar_valida_iii_gp_irc as gp_irc
+
+    rounds = [
+        gp_bmw.export_escuela_fedemoto_valida_i_rows(),
+        gp_bmw.export_escuela_fedemoto_valida_ii_rows(),
+        gp_irc.export_escuela_fedemoto_valida_iii_rows(),
+        gp_irc.export_escuela_fedemoto_valida_iv_rows(),
+    ]
+
+    # Asistentes a la IV Válida (final en IRC: carrera o clasificatoria)
+    irc_cats = gp_irc.load_categorias_data()
+    final_att_keys = set()
+    for tipo, _, headers, rows, _ in irc_cats.get("Escuela Fedemoto", []):
+        if "IV Válida" not in tipo:
+            continue
+        idx = find_indexes(headers)
+        if idx["nombre"] is None:
+            continue
+        for r in rows:
+            if len(r) <= idx["nombre"]:
+                continue
+            nk_raw = normalize_rider_name(r[idx["nombre"]])
+            nk = ESCUELA_GP_NAME_ALIASES.get(nk_raw, nk_raw)
+            if nk:
+                final_att_keys.add(nk)
+
+    riders = {}
+    for r_idx, r_rows in enumerate(rounds):
+        for row in r_rows:
+            nk_raw = normalize_rider_name(row.get("nombre", ""))
+            nk = ESCUELA_GP_NAME_ALIASES.get(nk_raw, nk_raw)
+            if not nk:
+                continue
+            if nk not in riders:
+                riders[nk] = {
+                    "numero": row["numero"],
+                    "nombre": row["nombre"],
+                    "liga": row.get("liga", ""),
+                    "club": row.get("club", ""),
+                    "moto": row.get("moto", ""),
+                    "clase": "",
+                    "por_valida": [None, None, None, None],
+                }
+            rec = riders[nk]
+            rec["por_valida"][r_idx] = row["puntos"]
+            # Usar el dorsal de la válida más reciente disputada y el nombre/metadatos más completos
+            rec["numero"] = row["numero"]
+            if len(row.get("nombre", "")) >= len(rec["nombre"]):
+                rec["nombre"] = row["nombre"]
+            for f in ("liga", "club", "moto"):
+                val = str(row.get(f) or "").strip()
+                if val and val not in ("-", "--", "N/A", "SIN LIGA", "SIN CLUB"):
+                    rec[f] = val
+
+    out = []
+    for nk, rec in riders.items():
+        if not rec["moto"]:
+            rec["moto"] = "YCF"
+        bonif = float(bonus) if (bonus and nk in final_att_keys) else None
+        total = sum_valida_points(rec["por_valida"]) + (bonif if bonif is not None else 0.0)
+        out.append({
+            **rec,
+            "bonificacion_asistencia": bonif,
+            "total": total,
+        })
+    out.sort(key=standings_sort_key)
+    return out
 
 
 def choose_main_file(files):
@@ -771,6 +955,8 @@ def load_valida_category_rows(files_dir, modalidad=None, exclude_nums=None):
 
     out = {}
     for categoria, files in by_cat_files.items():
+        if modalidad == "Velocidad" and normalize_key(categoria) == "escuelafedemoto":
+            continue
         if is_mx_inicio(categoria, modalidad):
             inicio_rows = aggregate_mx_inicio_from_sessions(files)
             out[categoria] = inicio_rows
@@ -937,6 +1123,8 @@ def load_valida_attendees(files_dir, modalidad=None):
 
     attendees = {}
     for categoria, files in by_cat_files.items():
+        if modalidad == "Velocidad" and normalize_key(categoria) == "escuelafedemoto":
+            continue
         nums = set()
         if is_mx_inicio(categoria, modalidad):
             for tipo, path in files:
@@ -959,7 +1147,10 @@ def apply_final_valida_bonus(champ, result, data_by_valida):
     validas = champ["validas"]
     last_idx = len(validas) - 1
     modalidad = champ.get("modalidad")
-    attendees = load_valida_attendees(validas[last_idx]["files_dir"], modalidad=modalidad)
+    if champ.get("gp_colombia"):
+        attendees = load_gp_final_attendees(validas[last_idx]["files_dir"])
+    else:
+        attendees = load_valida_attendees(validas[last_idx]["files_dir"], modalidad=modalidad)
     last_data = data_by_valida[last_idx] if data_by_valida else {}
 
     categorias = set(result.keys())
@@ -968,16 +1159,21 @@ def apply_final_valida_bonus(champ, result, data_by_valida):
 
     updated = {}
     for categoria in categorias:
+        is_pulsar = champ.get("gp_colombia") and categoria == "Pulsar NS 200 FI"
         att = attendees.get(categoria, set())
-        by_num = {r["numero"]: dict(r) for r in result.get(categoria, []) if r["numero"] not in exclude_nums}
+        by_num = {
+            (normalize_rider_name(r["nombre"]) if is_pulsar else r["numero"]): dict(r)
+            for r in result.get(categoria, [])
+            if r["numero"] not in exclude_nums
+        }
 
         for row in last_data.get(categoria, []):
-            key = row["numero"]
-            if key in exclude_nums:
+            key = normalize_rider_name(row["nombre"]) if is_pulsar else row["numero"]
+            if row["numero"] in exclude_nums or not key:
                 continue
             if key not in by_num:
                 by_num[key] = {
-                    "numero": key,
+                    "numero": row["numero"],
                     "nombre": row["nombre"],
                     "liga": row["liga"],
                     "club": row["club"],
@@ -987,10 +1183,10 @@ def apply_final_valida_bonus(champ, result, data_by_valida):
                 }
                 by_num[key]["por_valida"][last_idx] = row["puntos"]
 
-        for numero in att:
-            if numero in exclude_nums or numero not in by_num:
+        for att_key in att:
+            if att_key in exclude_nums or att_key not in by_num:
                 continue
-            by_num[numero]["bonificacion_asistencia"] = float(bonus)
+            by_num[att_key]["bonificacion_asistencia"] = float(bonus)
 
         rows = []
         for rider in by_num.values():
@@ -1092,32 +1288,38 @@ def build_general_table(champ):
         else:
             data_by_valida.append(load_valida_category_rows(v["files_dir"], modalidad=modalidad, exclude_nums=exclude_recalcular))
 
-    if champ.get("gp_colombia") and len(data_by_valida) >= 2:
-        # Caso excepcional Escuela Fedemoto:
-        # En el GP BMW se corrieron dos válidas de Escuela Fedemoto (I VAL y II VAL),
-        # que corresponden a la primera y segunda válida del campeonato general.
-        gp_dir = os.path.join(ROOT_DIR, "Resultados_validas", "GP Colombia")
-        if gp_dir not in sys.path:
-            sys.path.insert(0, gp_dir)
-        import generar_valida_ii_gp_bmw as gp_bmw
-        data_by_valida[0]["Escuela Fedemoto"] = gp_bmw.export_escuela_fedemoto_valida_i_rows()
-        data_by_valida[1]["Escuela Fedemoto"] = gp_bmw.export_escuela_fedemoto_valida_ii_rows()
+    gp_profile_by_name = {}
+    if champ.get("gp_colombia"):
+        for d in data_by_valida:
+            for _cat_n, rlist in d.items():
+                for rr in rlist:
+                    nk = normalize_rider_name(rr.get("nombre", ""))
+                    if not nk:
+                        continue
+                    prof = gp_profile_by_name.setdefault(nk, {})
+                    for fld in ("liga", "club", "moto"):
+                        v_str = str(rr.get(fld) or "").strip()
+                        if v_str and v_str not in ("-", "--", "N/A", "SIN LIGA", "SIN CLUB") and not prof.get(fld):
+                            prof[fld] = v_str
 
     categorias = set()
     for d in data_by_valida:
         categorias.update(d.keys())
+    if champ.get("gp_colombia"):
+        categorias.discard("Escuela Fedemoto")
 
     result = {}
     for categoria in categorias:
+        is_pulsar = champ.get("gp_colombia") and categoria == "Pulsar NS 200 FI"
         riders = {}
         for i, d in enumerate(data_by_valida):
             for row in d.get(categoria, []):
-                key = row["numero"]
-                if exclude_recalcular and key in exclude_recalcular:
+                key = normalize_rider_name(row["nombre"]) if is_pulsar else row["numero"]
+                if not key or (exclude_recalcular and row["numero"] in exclude_recalcular):
                     continue
                 if key not in riders:
                     riders[key] = {
-                        "numero": key,
+                        "numero": row["numero"],
                         "nombre": row["nombre"],
                         "liga": row["liga"],
                         "club": row["club"],
@@ -1125,6 +1327,7 @@ def build_general_table(champ):
                         "clase": row.get("clase", ""),
                         "por_valida": [None] * len(validas),
                     }
+                riders[key]["numero"] = row["numero"]
                 current_p = riders[key]["por_valida"][i]
                 if current_p is None:
                     riders[key]["por_valida"][i] = row["puntos"]
@@ -1147,6 +1350,8 @@ def build_general_table(champ):
                     rider["moto"] = "Suzuki"
                 elif "yamaha r15" in c_low:
                     rider["moto"] = "Yamaha"
+                elif "pulsar" in c_low:
+                    rider["moto"] = "Bajaj"
 
         rows = []
         for rider in riders.values():
@@ -1165,14 +1370,26 @@ def build_general_table(champ):
     if exclude_recalcular:
         for cat in merged_res:
             merged_res[cat] = [r for r in merged_res[cat] if r["numero"] not in exclude_recalcular]
+    if champ.get("gp_colombia"):
+        merged_res["Escuela Fedemoto"] = _build_gp_escuela_fedemoto_standings(champ.get("final_valida_bonus", 0))
     for cat, rows in merged_res.items():
         c_low = cat.lower()
         for r in rows:
+            nk = normalize_rider_name(r.get("nombre", ""))
+            prof = gp_profile_by_name.get(nk, {})
+            if not r.get("liga") and prof.get("liga"):
+                r["liga"] = prof["liga"]
+            if not r.get("club") and prof.get("club"):
+                r["club"] = prof["club"]
             if not r.get("moto"):
                 if "suzuki" in c_low:
                     r["moto"] = "Suzuki"
                 elif "yamaha r15" in c_low:
                     r["moto"] = "Yamaha"
+                elif "pulsar" in c_low:
+                    r["moto"] = "Bajaj"
+                elif prof.get("moto"):
+                    r["moto"] = prof["moto"]
     return merged_res
 
 
@@ -1417,7 +1634,8 @@ def render_html(champ, table_by_categoria):
         if not is_scratch:
             html_parts.append("<th>Club</th>")
         html_parts.append("<th>Moto</th>")
-        for i, _v in enumerate(validas):
+        n_val_cols = max((len(r["por_valida"]) for r in rows), default=len(validas))
+        for i in range(n_val_cols):
             html_parts.append(f"<th>{esc(valida_col_label(i))}</th>")
         if champ.get("final_valida_bonus"):
             html_parts.append("<th>Bono final</th>")
@@ -1437,7 +1655,8 @@ def render_html(champ, table_by_categoria):
             if not is_scratch:
                 html_parts.append(f"<td>{esc(r['club'])}</td>")
             html_parts.append(f"<td>{esc(r['moto'])}</td>")
-            for p in r["por_valida"]:
+            pv_padded = list(r["por_valida"]) + [None] * max(0, n_val_cols - len(r["por_valida"]))
+            for p in pv_padded[:n_val_cols]:
                 html_parts.append(f"<td>{fmt_valida_cell(p)}</td>")
             if champ.get("final_valida_bonus"):
                 html_parts.append(f"<td>{fmt_valida_cell(r.get('bonificacion_asistencia'))}</td>")

@@ -122,6 +122,8 @@ def format_categoria_name(name):
         return "Supermoto Novatos Metzeler"
     if folded == "suzuki" or "suzuki gsx" in folded:
         return "Suzuki GSX R/S 150"
+    if "pulsar" in folded:
+        return "Pulsar NS 200 FI"
 
     parts = re.split(r'[\s\-]+', name)
     result = []
@@ -160,6 +162,7 @@ def get_category_sort_key(categoria):
         "x-bikes b": 33,
         "yamaha r15": 34,
         "suzuki gsx r/s 150": 35,
+        "pulsar ns 200 fi": 36,
         "street race 250": 40,
         "crs expertos": 50,
         "crs novatos": 51,

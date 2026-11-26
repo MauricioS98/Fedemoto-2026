@@ -119,6 +119,8 @@ def format_categoria_name(name):
         return SUPERMOTO_NOV_METZELER
     if folded == "suzuki" or "suzuki gsx" in folded:
         return SUZUKI_GSX
+    if "pulsar" in folded:
+        return "Pulsar NS 200 FI"
     if "minibike fedemoto" in folded or "escuela fedemoto" in folded:
         return ESCUELA_FEDEMOTO
     
@@ -207,6 +209,7 @@ def get_category_sort_key(categoria):
         "x-bikes b": 33,
         "yamaha r15": 34,
         "suzuki gsx r/s 150": 35,
+        "pulsar ns 200 fi": 36,
         "street race 250": 40,
         "crs expertos": 50,
         "crs novatos": 51,
