@@ -432,6 +432,11 @@ def normalize_chart_label(raw):
     out = re.sub(r"(?i)\bGsc\s+R\s+S\b", "GSX R/S", out)
     out = re.sub(r"(?i)\bGsx\s+R/s\b", "GSX R/S", out)
     out = re.sub(r"(?i)\(ii\s*\+\s*iii\s*gp\)", "(II + III GP)", out)
+    out = re.sub(r"(?i)\bPulsar\s+Ns\s*200(?:\s*Fi)?\b", "Pulsar NS 200 FI", out)
+    out = re.sub(r"(?i)\bCrs\b", "CRS", out)
+    out = re.sub(r"(?i)\b(\d+cc)\s+2t\b", r"\1 2T", out)
+    out = re.sub(r"(?i)\b(\d+cc)\s+4t\b", r"\1 4T", out)
+    out = re.sub(r"(?i)\bX-bikes\b", "X-Bikes", out)
     return out
 
 

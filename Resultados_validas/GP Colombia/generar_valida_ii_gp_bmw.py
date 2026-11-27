@@ -1097,6 +1097,8 @@ def _export_valida_rows(files_dir, pick_session_fn):
     categorias = load_categorias_data()
     out = {}
     for categoria, items in categorias.items():
+        if categoria == FEMENINA:
+            continue
         headers, rows, mode = pick_session_fn(items)
         if not headers:
             continue

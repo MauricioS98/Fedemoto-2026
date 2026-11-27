@@ -190,6 +190,51 @@ def clean_club(raw):
     return out
 
 
+GP_CANONICAL_MAP = {
+    "115ccinfantil": "115cc Infantil",
+    "115ccelite": "115cc Elite",
+    "115ccinicio": "115cc Inicio",
+    "115ccmaster": "115cc Master",
+    "150cc": "150cc",
+    "150ccelite": "150cc",
+    "150ccinicio": "150cc Inicio",
+    "150ccmaster": "150cc Master",
+    "200cc2t": "200cc 2T",
+    "200cc2taa": "200cc 2T",
+    "220cc4t": "220cc 4T",
+    "crsexpertos": "CRS Expertos",
+    "crsnovatos": "CRS Novatos",
+    "cuatrimotard": "Cuatrimotard (II + III GP)",
+    "cuatrimotardiiiiigp": "Cuatrimotard (II + III GP)",
+    "escuelafedemoto": "Escuela Fedemoto",
+    "minibikefedemoto": "Escuela Fedemoto",
+    "femeninaexpertas": "Femenina Expertas",
+    "femeninanovatas": "Femenina Novatas",
+    "femenina": "Femenina",
+    "minibike190": "Minibike 190",
+    "minimotard": "Minimotard",
+    "pulsarns200": "Pulsar NS 200 FI",
+    "pulsarns200fi": "Pulsar NS 200 FI",
+    "pulsar200fi": "Pulsar NS 200 FI",
+    "streetrace250": "Street Race 250",
+    "streetrace250cc": "Street Race 250",
+    "superbike": "Super Bike",
+    "supersport": "Super Sport",
+    "superstock600": "Super Stock 600",
+    "superstock1000": "Super Stock 1000",
+    "supermotoexpertosmetzeler": "Supermoto Expertos Metzeler",
+    "smexpertosmetzeler": "Supermoto Expertos Metzeler",
+    "supermotonovatosmetzeler": "Supermoto Novatos Metzeler",
+    "smnovatosmetzeler": "Supermoto Novatos Metzeler",
+    "suzuki": "Suzuki GSX R/S 150",
+    "suzukigscrs150": "Suzuki GSX R/S 150",
+    "suzukigsxrs150": "Suzuki GSX R/S 150",
+    "xbikesa": "X-Bikes A",
+    "xbikesb": "X-Bikes B",
+    "yamahar15": "Yamaha R15",
+}
+
+
 def canonical_categoria(modalidad, cat_raw):
     c = str(cat_raw or "").strip()
     if modalidad == "Enduro":
@@ -197,15 +242,19 @@ def canonical_categoria(modalidad, cat_raw):
     elif modalidad == "Velotierra":
         c = grg.canonical_velotierra_categoria(c)
     elif modalidad == "GP Colombia":
-        k = c.lower()
-        if "supermoto expertos" in k:
-            c = "Supermoto Expertos Metzeler"
-        elif "supermoto novatos" in k:
-            c = "Supermoto Novatos Metzeler"
-        elif k in ("minibike fedemoto", "escuela fedemoto"):
-            c = "Escuela Fedemoto"
-        elif "cuatrimotard" in k:
-            c = "Cuatrimotard (II + III GP)"
+        ka = key_alnum(c).lower()
+        if ka in GP_CANONICAL_MAP:
+            return GP_CANONICAL_MAP[ka]
+        if "pulsar" in ka:
+            return "Pulsar NS 200 FI"
+        if "supermotoexpertos" in ka or "smexpertos" in ka:
+            return "Supermoto Expertos Metzeler"
+        if "supermotonovatos" in ka or "smnovatos" in ka:
+            return "Supermoto Novatos Metzeler"
+        if "cuatrimotard" in ka:
+            return "Cuatrimotard (II + III GP)"
+        if "suzuki" in ka:
+            return "Suzuki GSX R/S 150"
     return grg.pretty_categoria(c)
 
 
@@ -288,7 +337,203 @@ def build_global_rider_metadata():
     return meta_by_name
 
 
+def parse_gp_valida_stats(champ, valida_cfg, global_meta):
+    """Extrae participaciones y estadísticas de llegada usando las 29 categorías oficiales de GP Colombia."""
+    modalidad = champ["modalidad"]
+    files_dir = valida_cfg["files_dir"]
+    gp_dir = os.path.join(ROOT_DIR, "Resultados_validas", "GP Colombia")
+    if gp_dir not in sys.path:
+        sys.path.insert(0, gp_dir)
+
+    fl = (files_dir or "").lower()
+    if "irc" in fl:
+        import generar_valida_iii_gp_irc as gp_mod
+    elif "bmw" in fl:
+        import generar_valida_ii_gp_bmw as gp_mod
+    else:
+        import generar_valida_i_gp_vitrix as gp_mod
+
+    folder_meta_num = {}
+    folder_meta_name = {}
+    if os.path.isdir(files_dir):
+        for fn in os.listdir(files_dir):
+            if not fn.lower().endswith(".csv"):
+                continue
+            path = os.path.join(files_dir, fn)
+            with open(path, "r", encoding="utf-8-sig", errors="ignore", newline="") as fp:
+                lines = fp.read().splitlines()
+            if not lines:
+                continue
+            delim = grg.csv_delimiter_from_first_line(lines[0])
+            rows = list(csv.reader(lines, delimiter=delim))
+            if not rows:
+                continue
+            idx = grg.find_indexes(rows[0])
+            for r in rows[1:]:
+                c_num = str(r[idx["numero"]]).strip() if idx["numero"] is not None and idx["numero"] < len(r) else ""
+                c_nom = str(r[idx["nombre"]]).strip() if idx["nombre"] is not None and idx["nombre"] < len(r) else ""
+                c_liga = clean_liga(r[idx["liga"]]) if idx["liga"] is not None and idx["liga"] < len(r) else ""
+                c_club = clean_club(r[idx["club"]]) if idx["club"] is not None and idx["club"] < len(r) else ""
+                c_moto = clean_marca(r[idx["moto"]]) if idx["moto"] is not None and idx["moto"] < len(r) else ""
+                for k, target in ((c_num, folder_meta_num), (grg.normalize_rider_name(c_nom), folder_meta_name)):
+                    if not k:
+                        continue
+                    d = target.setdefault(k, {})
+                    if c_liga and not d.get("liga"):
+                        d["liga"] = c_liga
+                    if c_club and not d.get("club"):
+                        d["club"] = c_club
+                    if c_moto and not d.get("moto"):
+                        d["moto"] = c_moto
+
+    cats_data = gp_mod.load_categorias_data()
+
+    # Identificar dorsales de Femenina Expertas para asignar clasificatoria conjunta sin duplicar
+    fem_exp_nums = set()
+    for _t, _, headers, rows, _ in cats_data.get("Femenina Expertas", []):
+        idx = grg.find_indexes(headers)
+        if idx["numero"] is not None:
+            for r in rows:
+                if len(r) > idx["numero"] and str(r[idx["numero"]]).strip():
+                    fem_exp_nums.add(str(r[idx["numero"]]).strip().upper())
+
+    by_cat_sessions = defaultdict(list)
+    for raw_cat, items in cats_data.items():
+        if raw_cat == "Femenina":
+            for tipo, _, headers, rows, _ in items:
+                idx = grg.find_indexes(headers)
+                if idx["numero"] is None:
+                    continue
+                exp_rows, nov_rows = [], []
+                for r in rows:
+                    if len(r) <= idx["numero"]:
+                        continue
+                    num = str(r[idx["numero"]]).strip()
+                    if not num:
+                        continue
+                    if num.upper() in fem_exp_nums:
+                        exp_rows.append(r)
+                    else:
+                        nov_rows.append(r)
+                if exp_rows:
+                    by_cat_sessions["Femenina Expertas"].append((tipo, headers, exp_rows))
+                if nov_rows:
+                    by_cat_sessions["Femenina Novatas"].append((tipo, headers, nov_rows))
+            continue
+
+        cat = canonical_categoria(modalidad, raw_cat)
+        if is_excluded_non_category(modalidad, cat):
+            continue
+        for tipo, _, headers, rows, _ in items:
+            # En IRC, Escuela Fedemoto incluye III Válida (Rivera) y IV Válida (IRC);
+            # contabilizamos IV Válida en la curva del evento IRC y III Válida si algún piloto solo corrió esa
+            by_cat_sessions[cat].append((tipo, headers, rows))
+
+    participations = []
+    finish_stats = defaultdict(lambda: {"starts": 0, "finished": 0, "dnf": 0})
+
+    for cat, sessions in by_cat_sessions.items():
+        seen_in_cat = {}
+
+        # Ordenar sesiones priorizando Carrera / Final sobre Clasificatoria para mejores metadatos
+        def _ses_prio(item):
+            tl = strip_accents(item[0]).lower()
+            if "carrera" in tl or "valida" in tl:
+                return 0
+            if "final" in tl and "clasif" not in tl:
+                return 1
+            return 2
+
+        for tipo, headers, rows in sorted(sessions, key=_ses_prio):
+            tl = strip_accents(tipo).lower()
+            is_race_session = (
+                ("carrera" in tl or "i valida" in tl or "ii valida" in tl or "iii valida" in tl or "iv valida" in tl)
+                and "clasif" not in tl
+                and "practica" not in tl
+            )
+            idx = grg.find_indexes(headers)
+            if idx["numero"] is None:
+                continue
+
+            for r in rows:
+                if len(r) <= idx["numero"]:
+                    continue
+                num = str(r[idx["numero"]]).strip()
+                nom = str(r[idx["nombre"]]).strip() if idx["nombre"] is not None and idx["nombre"] < len(r) else ""
+                if not num or "SECRETARIA" in nom.upper() or (num == "518" and not nom):
+                    continue
+
+                if cat == "Pulsar NS 200 FI":
+                    nk_alias = grg.normalize_rider_name(nom)
+                    if nk_alias in grg.PULSAR_VITRIX_NAME_ALIASES:
+                        nom = grg.PULSAR_VITRIX_NAME_ALIASES[nk_alias]
+                elif cat == "Escuela Fedemoto":
+                    nk_alias = grg.normalize_rider_name(nom)
+                    if nk_alias in grg.ESCUELA_GP_NAME_ALIASES:
+                        canon_nk = grg.ESCUELA_GP_NAME_ALIASES[nk_alias]
+                        if canon_nk in global_meta and global_meta[canon_nk].get("nombre"):
+                            nom = global_meta[canon_nk]["nombre"]
+
+                if is_race_session and idx["pos"] is not None and idx["pos"] < len(r):
+                    pos_str = str(r[idx["pos"]]).strip().upper()
+                    finish_stats[cat]["starts"] += 1
+                    if re.match(r"^\d+$", pos_str):
+                        finish_stats[cat]["finished"] += 1
+                    else:
+                        finish_stats[cat]["dnf"] += 1
+
+                raw_l = clean_liga(r[idx["liga"]]) if idx["liga"] is not None and idx["liga"] < len(r) else ""
+                raw_c = clean_club(r[idx["club"]]) if idx["club"] is not None and idx["club"] < len(r) else ""
+                raw_m = clean_marca(r[idx["moto"]]) if idx["moto"] is not None and idx["moto"] < len(r) else ""
+
+                nk = grg.normalize_rider_name(nom)
+                fmeta = folder_meta_num.get(num) or folder_meta_name.get(nk) or {}
+                gmeta = global_meta.get(nk) or {}
+
+                liga = raw_l or fmeta.get("liga") or gmeta.get("liga") or ""
+                club = raw_c or fmeta.get("club") or gmeta.get("club") or ""
+                moto = raw_m or fmeta.get("moto") or gmeta.get("moto") or ""
+
+                if not moto:
+                    cl_low = cat.lower()
+                    if "suzuki" in cl_low:
+                        moto = "Suzuki"
+                    elif "yamaha r15" in cl_low:
+                        moto = "Yamaha"
+                    elif "pulsar" in cl_low:
+                        moto = "Bajaj"
+                    elif "escuela fedemoto" in cl_low:
+                        moto = "YCF"
+
+                uid = rider_uid(nom, num, liga)
+                if uid not in seen_in_cat:
+                    seen_in_cat[uid] = {
+                        "uid": uid,
+                        "numero": num,
+                        "nombre": gmeta.get("nombre") or nom or f"Piloto #{num}",
+                        "liga": liga,
+                        "club": club,
+                        "moto": moto,
+                        "categoria": cat,
+                        "es_evento": num.upper().endswith("-E"),
+                    }
+                else:
+                    cur = seen_in_cat[uid]
+                    if liga and not cur["liga"]:
+                        cur["liga"] = liga
+                    if club and not cur["club"]:
+                        cur["club"] = club
+                    if moto and not cur["moto"]:
+                        cur["moto"] = moto
+
+        participations.extend(seen_in_cat.values())
+
+    return participations, finish_stats
+
+
 def parse_valida_raw_stats(champ, valida_cfg, global_meta):
+    if champ.get("gp_colombia"):
+        return parse_gp_valida_stats(champ, valida_cfg, global_meta)
     modalidad = champ["modalidad"]
     files_dir = valida_cfg["files_dir"]
     exclude_nums = set(str(n).strip() for n in champ.get("exclude_pilotos_recalcular", []))
